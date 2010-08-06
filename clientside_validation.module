@@ -69,17 +69,17 @@ function clientside_validation_form_after_build_recurse(&$form, &$form_state, &$
           
           if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'time' && isset($element['hour']['#name'])) {
             $js_rules[$element['hour']['#name']]['required'] = TRUE;
-            $js_rules[$element['hour']['#name']]['messages']['required'] = $element['#type'] .  t('Hour in !name field is required.', array('!name' => $element['#title']));
+            $js_rules[$element['hour']['#name']]['messages']['required'] = t('Hour in !name field is required.', array('!name' => $element['#title']));
             $js_rules[$element['minute']['#name']]['required'] = TRUE;
-            $js_rules[$element['minute']['#name']]['messages']['required'] = $element['#type'] .  t('Minute in !name field is required.', array('!name' => $element['#title']));
+            $js_rules[$element['minute']['#name']]['messages']['required'] = t('Minute in !name field is required.', array('!name' => $element['#title']));
           }
           else if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'date') {
             $js_rules[$element['#name'] . '[month]']['required'] = TRUE;
-            $js_rules[$element['#name'] . '[month]']['messages']['required'] = $element['#type'] .  t('Month in !name field is required.', array('!name' => $element['#title']));
+            $js_rules[$element['#name'] . '[month]']['messages']['required'] = t('Month in !name field is required.', array('!name' => $element['#title']));
             $js_rules[$element['#name'] . '[day]']['required'] = TRUE;
-            $js_rules[$element['#name'] . '[day]']['messages']['required'] = $element['#type'] .  t('Day in !name field is required.', array('!name' => $element['#title']));
+            $js_rules[$element['#name'] . '[day]']['messages']['required'] = t('Day in !name field is required.', array('!name' => $element['#title']));
             $js_rules[$element['#name'] . '[year]']['required'] = TRUE;
-            $js_rules[$element['#name'] . '[year]']['messages']['required'] = $element['#type'] .  t('Year in !name field is required.', array('!name' => $element['#title']));
+            $js_rules[$element['#name'] . '[year]']['messages']['required'] = t('Year in !name field is required.', array('!name' => $element['#title']));
             if (is_numeric($element['#year_start']) && is_numeric($element['#year_end'])) {
               $js_rules[$element['#name'] . '[year]']['range'] = array($element['#year_start'], $element['#year_end']);
               $js_rules[$element['#name'] . '[year]']['messages']['range'] = t('The entered date needs to be between the years @start and @end.', array('@start' => $element['#year_start'], '@end' => $element['#year_end']));
@@ -90,7 +90,7 @@ function clientside_validation_form_after_build_recurse(&$form, &$form_state, &$
             foreach ($element['#options'] as $key => $value) {
               $js_rules[$element[$key]['#name']]['checkboxgroupminmax'] = array(1, 99, '#webform-component-' . end($element['#parents']));
               if ($count++ == 0) {
-                $js_rules[$element[$key]['#name']]['messages']['checkboxgroupminmax'] = $element['#type'] .  t('!name field is required.', array('!name' => $element['#title']));
+                $js_rules[$element[$key]['#name']]['messages']['checkboxgroupminmax'] = t('!name field is required.', array('!name' => $element['#title']));
               }
               else {
                 $js_rules[$element[$key]['#name']]['messages']['checkboxgroupminmax'] = false;
@@ -99,11 +99,11 @@ function clientside_validation_form_after_build_recurse(&$form, &$form_state, &$
           }
           else if ($element['#type'] == 'select' && $element['#multiple']) {
             $js_rules[$element['#name'] . '[]']['required'] = TRUE;
-            $js_rules[$element['#name'] . '[]']['messages']['required'] = $element['#type'] .  t('!name field is required.', array('!name' => $element['#title']));
+            $js_rules[$element['#name'] . '[]']['messages']['required'] = t('!name field is required.', array('!name' => $element['#title']));
           }
           else {
             $js_rules[$element['#name']]['required'] = TRUE;
-            $js_rules[$element['#name']]['messages']['required'] = $element['#type'] .  t('!name field is required.', array('!name' => $element['#title']));
+            $js_rules[$element['#name']]['messages']['required'] = t('!name field is required.', array('!name' => $element['#title']));
           }
         }
         if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'file' && $element['#webform_component']['mandatory'] == "1") {

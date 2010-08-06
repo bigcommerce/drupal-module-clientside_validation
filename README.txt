@@ -8,4 +8,7 @@ Dependencies
 ============
 - none
 
+Known problems
+==============
 
+CCK Multivalue checkboxes cannot be checked, see code

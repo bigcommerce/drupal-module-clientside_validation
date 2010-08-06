@@ -1,0 +1,147 @@
+<?php
+// $Id: 
+/**
+ * @file
+ * Add client side validation to a webform.
+ */
+
+/**
+ * Implementation of hook_form_alter().
+ */
+
+function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
+  if (strpos($form_id, 'webform_client_form') !== FALSE) {
+    $form['#after_build'][] = 'clientside_validation_form_after_build';
+  } 
+  else {
+    switch ($form['#id']) {
+      case 'node-form':
+      case 'webform-component-edit-form':
+        $form['#after_build'][] = 'clientside_validation_form_after_build';
+        break;
+      default:
+        dpm($form['#id']);
+      
+    }
+  }
+}
+
+function clientside_validation_form_after_build(&$form, &$form_state) {
+  $js_rules = array();
+  clientside_validation_form_after_build_recurse(&$form, &$form_state, &$js_rules);
+  
+  if (!empty($js_rules)) {
+    $inline_js = '';
+    $inline_js .= 'if (!$(\'div.messages.error\').length) {$(\'<div id="formerrors-' . $form['#id'] . '" class="messages error webform-clientside-error"><ul></ul></div>\').insertBefore(\'#' . $form['#id'] . '\').hide();}';
+    $inline_js .= '$("#' . $form['#id'] . '").validate({
+      errorClass: "error",
+      errorContainer: "#formerrors-' . $form['#id'] . '",
+      errorLabelContainer: "#formerrors-' . $form['#id'] . ' ul",
+      wrapper: "li"
+    }); ';
+    foreach($js_rules as $key => $rule) {
+      $inline_js .= '$("#' . $form['#id'] . ' :input[name=\'' . $key . '\']").rules("add", ';
+ 
+      // $rule can contain js functions, but they are converted to a string :/
+      $converted_rules = clientside_validation_drupal_json_encode((object)$rule);
+      $converted_rules = preg_replace ('/:"jQuery.validator.format([^"]*)"/i', ':jQuery.validator.format${1}', $converted_rules);
+      $inline_js .= $converted_rules;
+      $inline_js .= ');';
+    }
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js', 'module');
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', 'module');
+    $inline_js = '$(document).ready(function() {' . $inline_js . '});';
+    drupal_add_js ($inline_js, 'inline', 'footer');
+  }
+  
+  return $form;
+}
+
+function clientside_validation_form_after_build_recurse(&$form, &$form_state, &$js_rules) {
+  if ($children = array_values(element_children($form))) {
+    foreach ($children as $index => $item) {
+      $element = &$form[$item];
+      if (isset($element['#title'])) {
+        // dpm($item . '::' . $element['#id'] . '::' . $element['#title'] . '::' . $element['#type']);
+        if ($element['#required']) {
+          
+          // TODO: grid toevoegen
+          
+          if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'time' && isset($element['hour']['#name'])) {
+            $js_rules[$element['hour']['#name']]['required'] = TRUE;
+            $js_rules[$element['hour']['#name']]['messages']['required'] = $element['#type'] .  t('Hour in !name field is required.', array('!name' => $element['#title']));
+            $js_rules[$element['minute']['#name']]['required'] = TRUE;
+            $js_rules[$element['minute']['#name']]['messages']['required'] = $element['#type'] .  t('Minute in !name field is required.', array('!name' => $element['#title']));
+          }
+          else if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'date') {
+            $js_rules[$element['#name'] . '[month]']['required'] = TRUE;
+            $js_rules[$element['#name'] . '[month]']['messages']['required'] = $element['#type'] .  t('Month in !name field is required.', array('!name' => $element['#title']));
+            $js_rules[$element['#name'] . '[day]']['required'] = TRUE;
+            $js_rules[$element['#name'] . '[day]']['messages']['required'] = $element['#type'] .  t('Day in !name field is required.', array('!name' => $element['#title']));
+            $js_rules[$element['#name'] . '[year]']['required'] = TRUE;
+            $js_rules[$element['#name'] . '[year]']['messages']['required'] = $element['#type'] .  t('Year in !name field is required.', array('!name' => $element['#title']));
+            if (is_numeric($element['#year_start']) && is_numeric($element['#year_end'])) {
+              $js_rules[$element['#name'] . '[year]']['range'] = array($element['#year_start'], $element['#year_end']);
+              $js_rules[$element['#name'] . '[year]']['messages']['range'] = t('The entered date needs to be between the years @start and @end.', array('@start' => $element['#year_start'], '@end' => $element['#year_end']));
+            }            
+          }
+          else if ($element['#type'] == 'checkboxes') {
+            $count = 0;
+            foreach ($element['#options'] as $key => $value) {
+              $js_rules[$element[$key]['#name']]['checkboxgroupminmax'] = array(1, 99, '#webform-component-' . end($element['#parents']));
+              if ($count++ == 0) {
+                $js_rules[$element[$key]['#name']]['messages']['checkboxgroupminmax'] = $element['#type'] .  t('!name field is required.', array('!name' => $element['#title']));
+              }
+              else {
+                $js_rules[$element[$key]['#name']]['messages']['checkboxgroupminmax'] = false;
+              }
+            }
+          }
+          else if ($element['#type'] == 'select' && $element['#multiple']) {
+            $js_rules[$element['#name'] . '[]']['required'] = TRUE;
+            $js_rules[$element['#name'] . '[]']['messages']['required'] = $element['#type'] .  t('!name field is required.', array('!name' => $element['#title']));
+          }
+          else {
+            $js_rules[$element['#name']]['required'] = TRUE;
+            $js_rules[$element['#name']]['messages']['required'] = $element['#type'] .  t('!name field is required.', array('!name' => $element['#title']));
+          }
+        }
+        if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'file' && $element['#webform_component']['mandatory'] == "1") {
+          $js_rules[$element['#name']]['required'] = TRUE;
+          $js_rules[$element['#name']]['messages']['required'] = t('!name field is required.', array('!name' => $element['#title']));
+          if (isset($element['#webform_component']['extra']['filtering']['types'])) {
+            $extensions = $element['#webform_component']['extra']['filtering']['types'];
+            $extension_list = preg_replace('#,(?![^,]+,)#', ' or', implode(', ', $extensions));
+            $js_rules[$element['#name']]['accept'] = implode('|', $extensions);
+            $js_rules[$element['#name']]['messages']['accept'] = t("Only files with a %exts extension are allowed.", array('%exts' => $extension_list));
+          }
+        }
+        if ($element['#maxlength']) {
+          $js_rules[$element['#name']]['maxlength'] = $element['#maxlength'];
+          $js_rules[$element['#name']]['messages']['maxlength'] = t('!name field has a max length of !maxl characters.', array('!name' => $element['#title'], '!maxl' => $element['#maxlength']));
+        }
+        if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'email') {
+          $js_rules[$element['#name']]['email'] = TRUE;
+          $js_rules[$element['#name']]['messages']['email'] = t('The value in !name is not a valid email address.', array('!name' => $element['#title']));
+        }
+
+//          $js_rules[$element['#name']]['messages']['email'] = 'jQuery.validator.format(\'' . t('!value is not a valid email address.', array('!value' => '{0}')) . '\')';
+        
+      }
+      
+      // switch #type
+      // niks doen: value, hidden, fieldset, submit, markup
+      // iets doen (#required): select, textfield, checkbox, textarea, imagefield_widget, text_textarea, nodereference_select, optionwidgets_select, number
+      // iets doen (#maxlength): textfield, textarea?, text_textarea
+      // iets doen (#multiple): select
+      // imagefield_widget: #upload_validators->filefield_validate_extensions
+      
+      clientside_validation_form_after_build_recurse($element, $form_state, $js_rules);
+    }
+  }
+}
+
+function clientside_validation_drupal_json_encode($var) {
+  return str_replace(array('<', '>', '&'), array('\u003c', '\u003e', '\u0026'), json_encode($var));
+}
+

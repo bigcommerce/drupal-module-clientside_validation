@@ -20,8 +20,7 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
         $form['#after_build'][] = 'clientside_validation_form_after_build';
         break;
       default:
-        // dpm($form['#id']);
-      
+        break;
     }
   }
 }
@@ -33,37 +32,25 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
 function clientside_validation_webform_after_build(&$form, &$form_state) {
   $js_rules = array();
   clientside_validation_webform_after_build_recurse($form['#id'], &$form, &$form_state, &$js_rules);
-  
+
   if (!empty($js_rules)) {
-    $inline_js = '';
-    $inline_js .= 'if (!$(\'div.messages.error\').length) {$(\'<div id="formerrors-' . $form['#id'] . '" class="messages error webform-clientside-error"><ul></ul></div>\').insertBefore(\'#' . $form['#id'] . '\').hide();}';
-    $inline_js .= '$("#' . $form['#id'] . '").validate({
-      errorClass: "error",
-      errorContainer: "#formerrors-' . $form['#id'] . '",
-      errorLabelContainer: "#formerrors-' . $form['#id'] . ' ul",
-      wrapper: "li"
-    }); ' . "\n";
+    $settings['clientsideValidation']['general'] = array (
+      "errorClass" => "error",
+      "wrapper" => "li",
+    );
+    $settings['clientsideValidation']['forms'][$form['#id']]['settings'] = array(
+      "errorContainer" => "#formerrors-" . $form['#id'],
+      "errorLabelContainer" => "#formerrors-" . $form['#id'] . " ul",
+    );
+    
     foreach($js_rules as $key => $rule) {
-      $inline_js .= '$("#' . $form['#id'] . ' :input[name=\'' . $key . '\']").rules("add", ';
- 
-      // $rule can contain js functions, but they are converted to a string :/
-      $converted_rules = clientside_validation_drupal_json_encode((object)$rule);
-      $converted_rules = preg_replace ('/:"jQuery.validator.format([^"]*)"/i', ':jQuery.validator.format${1}', $converted_rules);
-      $inline_js .= $converted_rules;
-      $inline_js .= ');' . "\n";
+      $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
     }
     drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js', 'module');
     drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', 'module');
-    $inline_js = '$(document).ready(function() {' . "\n" . $inline_js . "\n" . '});';
-    drupal_add_js ($inline_js, 'inline', 'footer');
-    
-    global $user;
-    if ($user->uid == 1) {
-      // dpm($js_rules);
-    }
-    
+    drupal_add_js($settings, 'setting');
   }
-  
+
   return $form;
 }
 
@@ -73,6 +60,7 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
       $element = &$form[$item];
       if (isset($element['#title'])) {
         if ($element['#required']) {
+          //dpm($element);
           if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'time' && isset($element['hour']['#name'])) {
             $js_rules[$element['hour']['#name']]['required'] = TRUE;
             $js_rules[$element['hour']['#name']]['messages']['required'] = t('Hour in !name field is required.', array('!name' => $element['#title']));
@@ -141,41 +129,29 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
 }
 
 /**
- * Regular form
+ * Regular form + CCK
  */
  
 function clientside_validation_form_after_build(&$form, &$form_state) {
-  $js_rules = array();
-  clientside_validation_form_after_build_recurse($form['#id'], &$form, &$form_state, &$js_rules);
+  static $js_rules = array();
+  clientside_validation_form_after_build_recurse($form['#id'], &$form, &$form_state, $js_rules);
   
   if (!empty($js_rules)) {
-    $inline_js = '';
-    $inline_js .= 'if (!$(\'div.messages.error\').length) {$(\'<div id="formerrors-' . $form['#id'] . '" class="messages error webform-clientside-error"><ul></ul></div>\').insertBefore(\'#' . $form['#id'] . '\').hide();}';
-    $inline_js .= '$("#' . $form['#id'] . '").validate({
-      errorClass: "error",
-      errorContainer: "#formerrors-' . $form['#id'] . '",
-      errorLabelContainer: "#formerrors-' . $form['#id'] . ' ul",
-      wrapper: "li"
-    }); ' . "\n";
+    $settings['clientsideValidation']['general'] = array (
+      "errorClass" => "error",
+      "wrapper" => "li",
+    );
+    $settings['clientsideValidation']['forms'][$form['#id']]['settings'] = array(
+      "errorContainer" => "#formerrors-" . $form['#id'],
+      "errorLabelContainer" => "#formerrors-" . $form['#id'] . " ul",
+    );
+    
     foreach($js_rules as $key => $rule) {
-      $inline_js .= '$("#' . $form['#id'] . ' :input[name=\'' . $key . '\']").rules("add", ';
- 
-      // $rule can contain js functions, but they are converted to a string :/
-      $converted_rules = clientside_validation_drupal_json_encode((object)$rule);
-      $converted_rules = preg_replace ('/:"jQuery.validator.format([^"]*)"/i', ':jQuery.validator.format${1}', $converted_rules);
-      $inline_js .= $converted_rules;
-      $inline_js .= ');' . "\n";
+      $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
     }
     drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js', 'module');
     drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', 'module');
-    $inline_js = '$(document).ready(function() {' . "\n" . $inline_js . "\n" . '});';
-    drupal_add_js ($inline_js, 'inline', 'footer');
-    
-    global $user;
-    if ($user->uid == 1) {
-      //dpm($js_rules);
-    }
-    
+    drupal_add_js($settings, 'setting');
   }
   
   return $form;
@@ -185,15 +161,63 @@ function clientside_validation_form_after_build_recurse($form_id, &$form, &$form
   if ($children = array_values(element_children($form))) {
     foreach ($children as $index => $item) {
       $element = &$form[$item];
-      global $user;
-      if ($user->uid == 1) {
-        //dpm($element);
+      // global $user; if ($user->uid == 1) {dpm($element);}
+      if ((isset($element['#type']) && isset($element['#field_name'])) || (isset($element['#type']) && isset($form_state['#field_info'][$element['#parents'][0]]))) {
+        clientside_validation_cck ($form_id, $element, $js_rules);
       }
-      if ((/* isset($element['#title']) && */ isset($element['#type']) && isset($element['#field_name'])) || (isset($element['#type']) && isset($form_state['#field_info'][$element['#parents'][0]]))) {
-        clientside_validation_cck ($form_id, $element, &$js_rules);
+      else {
+        $types = array(
+          'textfield', 'textarea', 'select', 'radio', 'checkbox',
+        );
+        if (isset($element['#type']) && in_array($element['#type'], $types)) {
+          clientside_validation_regular ($form_id, $element, $js_rules);
+        }
       }
       clientside_validation_form_after_build_recurse($form_id, $element, $form_state, $js_rules);
     }
+  }
+}
+
+function clientside_validation_regular ($form_id, $element, &$js_rules) {
+  static $multiples = array();
+  $el_name = $element['#name'];
+  $is_multiple = $element['#multiple'];
+  switch ($element['#type']) {
+    case 'textfield':
+    case 'textarea':
+      if ($is_multiple) {
+        // Only first field is required
+        if (!isset($multiples[$form_id][$el_name])) {
+          _clientside_validation_set_required ($el_name, $element['#title'], $element['#required'], $js_rules);
+          $multiples[$form_id][el_name] = 1;
+        }
+      }
+      else {
+        _clientside_validation_set_required ($el_name, $element['#title'], $element['#required'], $js_rules);
+      }
+      if (isset($element['max_length']) && $element['max_length'] > 0) {
+        _clientside_validation_set_minmaxlength ($el_name, $element['#title'], '', $element['max_length'], $js_rules);
+      }
+      break;
+    case 'select':
+      if ($is_multiple) {
+        $el_name .= '[]';
+        _clientside_validation_set_minmaxlength ($el_name, $element['#title'], '', $is_multiple, $js_rules);
+      }
+      _clientside_validation_set_required ($el_name, $element['#title'], $element['#required'], $js_rules);
+      break;
+    case 'radio':
+      _clientside_validation_set_required ($el_name, $element['#title'], $element['#required'], $js_rules);
+      break;
+    case 'checkbox':
+      if ($is_multiple) {
+        // We don't have a parent element to connect to, so no go, outer div has only a class
+        // The checkboxes element has the unique name, but this isn't added to the outer div
+      }
+      else {
+        _clientside_validation_set_required ($el_name, $element['#title'], $element['#required'], $js_rules);
+      }
+      break;
   }
 }
 
@@ -314,22 +338,24 @@ function clientside_validation_cck ($form_id, $element, &$js_rules) {
           case 'filefield_widget':
           case 'imagefield_widget':
             $el_name = $element['upload']['#name'];
-            if ($is_multiple) {
-              // Only first field is required
-              if (!isset($multiples[$form_id][$cckfield['field_name']])) {
-                _clientside_validation_set_required ($el_name, $cckfield['widget']['label'], $cckfield['required'], $js_rules);
-                $multiples[$form_id][$cckfield['field_name']] = 1;
+            // if (!isset($element['#value']['fid'])) {
+              if ($is_multiple) {
+                // Only first field is required
+                if (!isset($multiples[$form_id][$cckfield['field_name']])) {
+                  _clientside_validation_set_required ($el_name, $cckfield['widget']['label'], $cckfield['required'], $js_rules);
+                  $multiples[$form_id][$cckfield['field_name']] = 1;
+                }
               }
-            }
-            else {
-              _clientside_validation_set_required ($el_name, $cckfield['widget']['label'], $cckfield['required'], $js_rules);
-            }
-            if (isset($cckfield['widget']['file_extensions'])) {
-              $extensions = explode(' ', $cckfield['widget']['file_extensions']);
-              $extension_list = preg_replace('#,(?![^,]+,)#', ' or', implode(', ', $extensions));
-              $js_rules[$el_name]['accept'] = implode('|', $extensions);
-              $js_rules[$el_name]['messages']['accept'] = t("Only files with a %exts extension are allowed.", array('%exts' => $extension_list));
-            }
+              else {
+                _clientside_validation_set_required ($el_name, $cckfield['widget']['label'], $cckfield['required'], $js_rules);
+              }
+              if (isset($cckfield['widget']['file_extensions'])) {
+                $extensions = explode(' ', $cckfield['widget']['file_extensions']);
+                $extension_list = preg_replace('#,(?![^,]+,)#', ' or', implode(', ', $extensions));
+                $js_rules[$el_name]['accept'] = implode('|', $extensions);
+                $js_rules[$el_name]['messages']['accept'] = t("Only files with a %exts extension are allowed.", array('%exts' => $extension_list));
+              }
+            // }
             break;
           default:
             //dpm($element);

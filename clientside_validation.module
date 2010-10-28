@@ -20,6 +20,7 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
         $form['#after_build'][] = 'clientside_validation_form_after_build';
         break;
       default:
+        $form['#after_build'][] = 'clientside_validation_form_after_build';
         break;
     }
   }
@@ -167,7 +168,7 @@ function clientside_validation_form_after_build_recurse($form_id, &$form, &$form
       }
       else {
         $types = array(
-          'textfield', 'textarea', 'select', 'radio', 'checkbox',
+          'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'file', 'radios', 'checkboxes', 
         );
         if (isset($element['#type']) && in_array($element['#type'], $types)) {
           clientside_validation_regular ($form_id, $element, $js_rules);
@@ -184,7 +185,9 @@ function clientside_validation_regular ($form_id, $element, &$js_rules) {
   $is_multiple = $element['#multiple'];
   switch ($element['#type']) {
     case 'textfield':
+    case 'password':
     case 'textarea':
+    case 'file':
       if ($is_multiple) {
         // Only first field is required
         if (!isset($multiples[$form_id][$el_name])) {
@@ -202,14 +205,16 @@ function clientside_validation_regular ($form_id, $element, &$js_rules) {
     case 'select':
       if ($is_multiple) {
         $el_name .= '[]';
-        _clientside_validation_set_minmaxlength ($el_name, $element['#title'], '', $is_multiple, $js_rules);
+        _clientside_validation_set_minmaxlength ($el_name, $element['#title'], $element['#minlength'], $is_multiple, $js_rules);
       }
       _clientside_validation_set_required ($el_name, $element['#title'], $element['#required'], $js_rules);
       break;
     case 'radio':
+    case 'radios':
       _clientside_validation_set_required ($el_name, $element['#title'], $element['#required'], $js_rules);
       break;
     case 'checkbox':
+    case 'checkboxes':
       if ($is_multiple) {
         // We don't have a parent element to connect to, so no go, outer div has only a class
         // The checkboxes element has the unique name, but this isn't added to the outer div

@@ -1,0 +1,7 @@
+; $Id: 
+name = Clientside validation
+description = Add client side validation to forms and webforms
+core = 7.x
+package = Other
+
+files[] = clientside_validation.module

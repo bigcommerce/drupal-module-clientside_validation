@@ -47,8 +47,8 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
     foreach($js_rules as $key => $rule) {
       $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
     }
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js');
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js');
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js', 'module');
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', 'module');
     drupal_add_js($settings, 'setting');
   }
 
@@ -60,22 +60,21 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
     foreach ($children as $index => $item) {
       $element = &$form[$item];
       if (isset($element['#title'])) {
-        $el_title = $element['#title'];
         if ($element['#required']) {
           //dpm($element);
           if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'time' && isset($element['hour']['#name'])) {
             $js_rules[$element['hour']['#name']]['required'] = TRUE;
-            $js_rules[$element['hour']['#name']]['messages']['required'] = t('Hour in !name field is required.', array('!name' => $el_title));
+            $js_rules[$element['hour']['#name']]['messages']['required'] = t('Hour in !name field is required.', array('!name' => $element['#title']));
             $js_rules[$element['minute']['#name']]['required'] = TRUE;
-            $js_rules[$element['minute']['#name']]['messages']['required'] = t('Minute in !name field is required.', array('!name' => $el_title));
+            $js_rules[$element['minute']['#name']]['messages']['required'] = t('Minute in !name field is required.', array('!name' => $element['#title']));
           }
           else if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'date') {
             $js_rules[$element['#name'] . '[month]']['required'] = TRUE;
-            $js_rules[$element['#name'] . '[month]']['messages']['required'] = t('Month in !name field is required.', array('!name' => $el_title));
+            $js_rules[$element['#name'] . '[month]']['messages']['required'] = t('Month in !name field is required.', array('!name' => $element['#title']));
             $js_rules[$element['#name'] . '[day]']['required'] = TRUE;
-            $js_rules[$element['#name'] . '[day]']['messages']['required'] = t('Day in !name field is required.', array('!name' => $el_title));
+            $js_rules[$element['#name'] . '[day]']['messages']['required'] = t('Day in !name field is required.', array('!name' => $element['#title']));
             $js_rules[$element['#name'] . '[year]']['required'] = TRUE;
-            $js_rules[$element['#name'] . '[year]']['messages']['required'] = t('Year in !name field is required.', array('!name' => $el_title));
+            $js_rules[$element['#name'] . '[year]']['messages']['required'] = t('Year in !name field is required.', array('!name' => $element['#title']));
             if (is_numeric($element['#year_start']) && is_numeric($element['#year_end'])) {
               $js_rules[$element['#name'] . '[year]']['range'] = array($element['#year_start'], $element['#year_end']);
               $js_rules[$element['#name'] . '[year]']['messages']['range'] = t('The entered date needs to be between the years @start and @end.', array('@start' => $element['#year_start'], '@end' => $element['#year_end']));
@@ -86,7 +85,7 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
             foreach ($element['#options'] as $key => $value) {
               $js_rules[$element[$key]['#name']]['checkboxgroupminmax'] = array(1, 99, '#webform-component-' . end($element['#parents']));
               if ($count++ == 0) {
-                $js_rules[$element[$key]['#name']]['messages']['checkboxgroupminmax'] = t('!name field is required.', array('!name' => $el_title));
+                $js_rules[$element[$key]['#name']]['messages']['checkboxgroupminmax'] = t('!name field is required.', array('!name' => $element['#title']));
               }
               else {
                 $js_rules[$element[$key]['#name']]['messages']['checkboxgroupminmax'] = false;
@@ -95,16 +94,16 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
           }
           else if ($element['#type'] == 'select' && $element['#multiple']) {
             $js_rules[$element['#name'] . '[]']['required'] = TRUE;
-            $js_rules[$element['#name'] . '[]']['messages']['required'] = t('!name field is required.', array('!name' => $el_title));
+            $js_rules[$element['#name'] . '[]']['messages']['required'] = t('!name field is required.', array('!name' => $element['#title']));
           }
           else if (isset($element['#type'])) {
             $js_rules[$element['#name']]['required'] = TRUE;
-            $js_rules[$element['#name']]['messages']['required'] = t('!name field is required.', array('!name' => $el_title));
+            $js_rules[$element['#name']]['messages']['required'] = t('!name field is required.', array('!name' => $element['#title']));
           }
         }
         if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'file' && $element['#webform_component']['mandatory'] == "1") {
           $js_rules[$element['#name']]['required'] = TRUE;
-          $js_rules[$element['#name']]['messages']['required'] = t('!name field is required.', array('!name' => $el_title));
+          $js_rules[$element['#name']]['messages']['required'] = t('!name field is required.', array('!name' => $element['#title']));
           if (isset($element['#webform_component']['extra']['filtering']['types'])) {
             $extensions = $element['#webform_component']['extra']['filtering']['types'];
             $extension_list = preg_replace('#,(?![^,]+,)#', ' or', implode(', ', $extensions));
@@ -112,13 +111,13 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
             $js_rules[$element['#name']]['messages']['accept'] = t("Only files with a %exts extension are allowed.", array('%exts' => $extension_list));
           }
         }
-        if (isset($element['#maxlength']) && $element['#maxlength']) {
+        if ($element['#maxlength']) {
           $js_rules[$element['#name']]['maxlength'] = $element['#maxlength'];
-          $js_rules[$element['#name']]['messages']['maxlength'] = t('!name field has a max length of !maxl characters.', array('!name' => $el_title, '!maxl' => $element['#maxlength']));
+          $js_rules[$element['#name']]['messages']['maxlength'] = t('!name field has a max length of !maxl characters.', array('!name' => $element['#title'], '!maxl' => $element['#maxlength']));
         }
         if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'email') {
           $js_rules[$element['#name']]['email'] = TRUE;
-          $js_rules[$element['#name']]['messages']['email'] = t('The value in !name is not a valid email address.', array('!name' => $el_title));
+          $js_rules[$element['#name']]['messages']['email'] = t('The value in !name is not a valid email address.', array('!name' => $element['#title']));
         }
 
 //          $js_rules[$element['#name']]['messages']['email'] = 'jQuery.validator.format(\'' . t('!value is not a valid email address.', array('!value' => '{0}')) . '\')';
@@ -151,8 +150,8 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
     foreach($js_rules as $key => $rule) {
       $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
     }
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js');
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js');
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js', 'module');
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', 'module');
     drupal_add_js($settings, 'setting');
   }
   
@@ -183,14 +182,7 @@ function clientside_validation_form_after_build_recurse($form_id, &$form, &$form
 function clientside_validation_regular ($form_id, $element, &$js_rules) {
   static $multiples = array();
   $el_name = $element['#name'];
-  $el_title = $el_name;
-  if (isset($element['#title'])) {
-    $el_title = $element['#title'];
-  }
-  $is_multiple = FALSE;
-  if (isset($element['#multiple'])) {
-    $is_multiple = $element['#multiple'];
-  }
+  $is_multiple = $element['#multiple'];
   switch ($element['#type']) {
     case 'textfield':
     case 'password':
@@ -199,27 +191,27 @@ function clientside_validation_regular ($form_id, $element, &$js_rules) {
       if ($is_multiple) {
         // Only first field is required
         if (!isset($multiples[$form_id][$el_name])) {
-          _clientside_validation_set_required ($el_name, $el_title, $element['#required'], $js_rules);
+          _clientside_validation_set_required ($el_name, $element['#title'], $element['#required'], $js_rules);
           $multiples[$form_id][el_name] = 1;
         }
       }
       else {
-        _clientside_validation_set_required ($el_name, $el_title, $element['#required'], $js_rules);
+        _clientside_validation_set_required ($el_name, $element['#title'], $element['#required'], $js_rules);
       }
       if (isset($element['max_length']) && $element['max_length'] > 0) {
-        _clientside_validation_set_minmaxlength ($el_name, $el_title, '', $element['max_length'], $js_rules);
+        _clientside_validation_set_minmaxlength ($el_name, $element['#title'], '', $element['max_length'], $js_rules);
       }
       break;
     case 'select':
       if ($is_multiple) {
         $el_name .= '[]';
-        _clientside_validation_set_minmaxlength ($el_name, $el_title, $element['#minlength'], $is_multiple, $js_rules);
+        _clientside_validation_set_minmaxlength ($el_name, $element['#title'], $element['#minlength'], $is_multiple, $js_rules);
       }
-      _clientside_validation_set_required ($el_name, $el_title, $element['#required'], $js_rules);
+      _clientside_validation_set_required ($el_name, $element['#title'], $element['#required'], $js_rules);
       break;
     case 'radio':
     case 'radios':
-      _clientside_validation_set_required ($el_name, $el_title, $element['#required'], $js_rules);
+      _clientside_validation_set_required ($el_name, $element['#title'], $element['#required'], $js_rules);
       break;
     case 'checkbox':
     case 'checkboxes':
@@ -228,7 +220,7 @@ function clientside_validation_regular ($form_id, $element, &$js_rules) {
         // The checkboxes element has the unique name, but this isn't added to the outer div
       }
       else {
-        _clientside_validation_set_required ($el_name, $el_title, $element['#required'], $js_rules);
+        _clientside_validation_set_required ($el_name, $element['#title'], $element['#required'], $js_rules);
       }
       break;
   }
@@ -259,15 +251,15 @@ function clientside_validation_cck ($form_id, $element, &$js_rules) {
               _clientside_validation_set_required ($el_name, $cckfield['widget']['label'], $cckfield['required'], $js_rules);
             }
             if (isset($cckfield['max_length']) && $cckfield['max_length'] > 0) {
-              _clientside_validation_set_minmaxlength ($el_name, $el_title, '', $cckfield['max_length'], $js_rules);
+              _clientside_validation_set_minmaxlength ($el_name, $element['#title'], '', $cckfield['max_length'], $js_rules);
             }
             break;
           case 'select':
             if ($is_multiple) {
               $el_name .= '[]';
-              _clientside_validation_set_minmaxlength ($el_name, $el_title, '', $is_multiple, $js_rules);
+              _clientside_validation_set_minmaxlength ($el_name, $element['#title'], '', $is_multiple, $js_rules);
             }
-            _clientside_validation_set_required ($el_name, $el_title, $cckfield['required'], $js_rules);
+            _clientside_validation_set_required ($el_name, $element['#title'], $cckfield['required'], $js_rules);
             break;
           case 'radio':
             _clientside_validation_set_required ($el_name, $cckfield['widget']['label'], $cckfield['required'], $js_rules);
@@ -313,10 +305,10 @@ function clientside_validation_cck ($form_id, $element, &$js_rules) {
           case 'select':
             if ($is_multiple) {
               $el_name .= '[]';
-              _clientside_validation_set_minmaxlength ($el_name, $el_title, '', $is_multiple, $js_rules);
+              _clientside_validation_set_minmaxlength ($el_name, $element['#title'], '', $is_multiple, $js_rules);
             }
-            _clientside_validation_set_required ($el_name, $el_title, $cckfield['required'], $js_rules);
-            _clientside_validation_set_minmax($el_name, $el_title, $cckfield['min'], $cckfield['max'], $js_rules);
+            _clientside_validation_set_required ($el_name, $element['#title'], $cckfield['required'], $js_rules);
+            _clientside_validation_set_minmax($el_name, $element['#title'], $cckfield['min'], $cckfield['max'], $js_rules);
             break;
           case 'radio':
             _clientside_validation_set_required ($el_name, $cckfield['widget']['label'], $cckfield['required'], $js_rules);

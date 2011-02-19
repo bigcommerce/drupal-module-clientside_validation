@@ -77,7 +77,7 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
             $firstone = array_shift($all);
             foreach ($all as $component) {
               $js_rules['submitted[' . $component['form_key'] . ']']['notEqualTo'] = ':input[name=\'submitted[' . $firstone['form_key'] . ']\']';
-              if (isset($webform_validation_rule['data']) && !empty($webform_validation_rule['data'])) {
+              if (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) {
                 $js_rules['submitted[' . $component['form_key'] . ']']['messages']['notEqualTo'] = $webform_validation_rule['error_message'];
               }
               else {
@@ -89,7 +89,7 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
         case 'specific_value':
           foreach ($webform_validation_rule['components'] as $component) {
             $js_rules['submitted[' . $component['form_key'] . ']']['oneOf'] = explode(',', $webform_validation_rule['data']);
-            if (isset($webform_validation_rule['data']) && !empty($webform_validation_rule['data'])) {
+            if (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) {
               $js_rules['submitted[' . $component['form_key'] . ']']['messages']['oneOf'] = $webform_validation_rule['error_message'];
             }
             else {
@@ -110,6 +110,17 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
         case 'select_exact':
           foreach ($webform_validation_rule['components'] as $component) {
             _clientside_validation_set_minmaxlength ('submitted[' . $component['form_key'] . ']', $component['name'], $webform_validation_rule['data'], $webform_validation_rule['data'], $js_rules);
+          }
+          break;
+        case 'validEAN':
+          foreach ($webform_validation_rule['components'] as $component) {
+            $js_rules['submitted[' . $component['form_key'] . ']']['validEAN'] = TRUE;
+            if (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) {
+              $js_rules['submitted[' . $component['form_key'] . ']']['messages']['validEAN'] = $webform_validation_rule['error_message'];
+            }
+            else {
+              $js_rules['submitted[' . $component['form_key'] . ']']['messages']['validEAN'] = t('!name field is not a valid EAN number.', array('!name' => $component['name']));
+            }
           }
           break;
       }

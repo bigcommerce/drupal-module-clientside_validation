@@ -79,18 +79,13 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
 
   // One of the values
   jQuery.validator.addMethod("oneOf", function(value, element, param) { 
-    if (this.optional(element)) {
-      return this.optional(element);
-    }
-    else {
-      for (var p in param) {
-        if (param[p] == value) {
-          return true;
-          break;
-        }
+    for (var p in param) {
+      if (param[p] == value) {
+        return true;
+        break;
       }
-      return false;      
     }
+    return false;
   }, jQuery.format(''));
 
   // Unique values
@@ -100,4 +95,36 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
     });
     return value != target.val();
   }, jQuery.format('Please don\'t enter the same value again.'));
+  
+  // EAN code
+  jQuery.validator.addMethod("validEAN", function(value, element, param) { 
+    if (this.optional(element) && value == '') {
+      return this.optional(element);
+    }
+    else {
+      if (value.length > 13) {
+        return false;
+      }
+      else if (value.length != 13) {
+        value = '0000000000000'.substr(0, 13 - value.length).concat(value);
+      }
+      var runningTotal = 0;
+      for (var c = 0; c < 12; c++) {
+        if (c % 2 == 0) {
+          runningTotal += 3 * parseInt(value.substr(c, 1));
+        }
+        else {
+          runningTotal += parseInt(value.substr(c, 1));
+        }
+      }
+      var rem = runningTotal % 10;
+      if (rem != 0) {
+        rem = 10 - rem;
+      }
+      
+      return rem == parseInt(value.substr(12, 1));
+      
+    }
+  }, jQuery.format('Please don\'t enter the same value again.'));
+  
 }

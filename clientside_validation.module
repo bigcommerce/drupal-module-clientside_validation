@@ -34,88 +34,6 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
   $js_rules = array();
   clientside_validation_webform_after_build_recurse($form['#id'], &$form, &$form_state, &$js_rules);
 
-  if ($webform_validation_rules = clientside_validation_webform_validation($form_state['values']['details']['nid'])) {
-    dpm($webform_validation_rules);
-    foreach ($webform_validation_rules as $webform_validation_rule) {
-      switch ($webform_validation_rule['validator']) {
-        case 'min_length':
-          foreach ($webform_validation_rule['components'] as $component) {
-            $js_rules['submitted[' . $component['form_key'] . ']']['minlength'] = $webform_validation_rule['data'];
-            $js_rules['submitted[' . $component['form_key'] . ']']['messages']['minlength'] = t('!name field has a minimum length of !minl characters.', array('!name' => $component['name'], '!minl' => $webform_validation_rule['data']));
-          }
-          break;
-        case 'max_length':
-          foreach ($webform_validation_rule['components'] as $component) {
-            $js_rules['submitted[' . $component['form_key'] . ']']['maxlength'] = $webform_validation_rule['data'];
-            $js_rules['submitted[' . $component['form_key'] . ']']['messages']['maxlength'] = t('!name field has a maximum length of !maxl characters.', array('!name' => $component['name'], '!maxl' => $webform_validation_rule['data']));
-          }
-          break;
-        case 'numeric':
-          foreach ($webform_validation_rule['components'] as $component) {
-            $range = explode('-', $webform_validation_rule['data']);
-            if (!empty($range[0]) && $range[0] != '0') {
-              if (!isset($range[1])) {
-                $range[1] = $range[0];
-                $range[0] = 0;
-              }
-              $js_rules['submitted[' . $component['form_key'] . ']']['range'] = array($range[0], $range[1]);
-              $js_rules['submitted[' . $component['form_key'] . ']']['messages']['range'] = t('The entered number needs to be between the @start and @end.', array('@start' => $range[0], '@end' => $range[1]));
-            }
-          }
-          break;
-        case 'equal':
-          $others = $webform_validation_rule['components'];
-          $firstone = array_shift($others);
-          foreach ($others as $component) {
-            $js_rules['submitted[' . $component['form_key'] . ']']['equalTo'] = ':input[name=\'submitted[' . $firstone['form_key'] . ']\']';
-            $js_rules['submitted[' . $component['form_key'] . ']']['messages']['equalTo'] = t('!name field has to be equal to !firstone.', array('!name' => $component['name'], '!firstone' => $firstone['name']));
-          }
-          break;
-        case 'unique':
-          $all = $webform_validation_rule['components'];
-          while (count($all) > 1) {
-            $firstone = array_shift($all);
-            foreach ($all as $component) {
-              $js_rules['submitted[' . $component['form_key'] . ']']['notEqualTo'] = ':input[name=\'submitted[' . $firstone['form_key'] . ']\']';
-              if (isset($webform_validation_rule['data']) && !empty($webform_validation_rule['data'])) {
-                $js_rules['submitted[' . $component['form_key'] . ']']['messages']['notEqualTo'] = $webform_validation_rule['error_message'];
-              }
-              else {
-                $js_rules['submitted[' . $component['form_key'] . ']']['messages']['notEqualTo'] = t('!name field has to different from !firstone.', array('!name' => $component['name'], '!firstone' => $firstone['name']));
-              }
-            }
-          }
-          break;
-        case 'specific_value':
-          foreach ($webform_validation_rule['components'] as $component) {
-            $js_rules['submitted[' . $component['form_key'] . ']']['oneOf'] = explode(',', $webform_validation_rule['data']);
-            if (isset($webform_validation_rule['data']) && !empty($webform_validation_rule['data'])) {
-              $js_rules['submitted[' . $component['form_key'] . ']']['messages']['oneOf'] = $webform_validation_rule['error_message'];
-            }
-            else {
-              $js_rules['submitted[' . $component['form_key'] . ']']['messages']['oneOf'] = t('!name field has to one of the following values: !values.', array('!name' => $component['name'], '!values' => $webform_validation_rule['data']));
-            }
-          }
-          break;
-        case 'select_min':
-          foreach ($webform_validation_rule['components'] as $component) {
-            _clientside_validation_set_minmaxlength ('submitted[' . $component['form_key'] . ']', $component['name'], $webform_validation_rule['data'], '', $js_rules);
-          }
-          break;
-        case 'select_max':
-          foreach ($webform_validation_rule['components'] as $component) {
-            _clientside_validation_set_minmaxlength ('submitted[' . $component['form_key'] . ']', $component['name'], '', $webform_validation_rule['data'], $js_rules);
-          }
-          break;
-        case 'select_exact':
-          foreach ($webform_validation_rule['components'] as $component) {
-            _clientside_validation_set_minmaxlength ('submitted[' . $component['form_key'] . ']', $component['name'], $webform_validation_rule['data'], $webform_validation_rule['data'], $js_rules);
-          }
-          break;
-      }
-    }
-  }
-      
   if (!empty($js_rules)) {
     $settings['clientsideValidation']['general'] = array (
       "errorClass" => "error",
@@ -183,7 +101,6 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
             $js_rules[$element['#name']]['messages']['required'] = t('!name field is required.', array('!name' => $element['#title']));
           }
         }
-        
         if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'file' && $element['#webform_component']['mandatory'] == "1") {
           $js_rules[$element['#name']]['required'] = TRUE;
           $js_rules[$element['#name']]['messages']['required'] = t('!name field is required.', array('!name' => $element['#title']));
@@ -194,37 +111,22 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
             $js_rules[$element['#name']]['messages']['accept'] = t("Only files with a %exts extension are allowed.", array('%exts' => $extension_list));
           }
         }
-        
         if ($element['#maxlength']) {
           $js_rules[$element['#name']]['maxlength'] = $element['#maxlength'];
           $js_rules[$element['#name']]['messages']['maxlength'] = t('!name field has a max length of !maxl characters.', array('!name' => $element['#title'], '!maxl' => $element['#maxlength']));
         }
-        
         if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'email') {
           $js_rules[$element['#name']]['email'] = TRUE;
           $js_rules[$element['#name']]['messages']['email'] = t('The value in !name is not a valid email address.', array('!name' => $element['#title']));
         }
+
+//          $js_rules[$element['#name']]['messages']['email'] = 'jQuery.validator.format(\'' . t('!value is not a valid email address.', array('!value' => '{0}')) . '\')';
+
       }
      
       clientside_validation_webform_after_build_recurse($form_id, $element, $form_state, $js_rules);
-
-
-      
     }
   }
-}
-
-function clientside_validation_webform_validation($nid) {
-  static $webform_validation_rules;
-  if (!isset($webform_validation_rules[$nid])) {
-    if (module_exists('webform_validation')) {
-      $webform_validation_rules[$nid] = webform_validation_get_node_rules($nid);
-    }
-    else {
-      $webform_validation_rules[$nid] = NULL;
-    }
-  }
-  return $webform_validation_rules[$nid];
 }
 
 /**

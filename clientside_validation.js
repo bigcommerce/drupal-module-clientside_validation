@@ -76,28 +76,5 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
   jQuery.validator.addMethod("digits_negative", function(value, element, param) { 
     return this.optional(element) || /^-?\d+$/.test(value);
   }, jQuery.format('Please enter only digits.'));
-
-  // One of the values
-  jQuery.validator.addMethod("oneOf", function(value, element, param) { 
-    if (this.optional(element)) {
-      return this.optional(element);
-    }
-    else {
-      for (var p in param) {
-        if (param[p] == value) {
-          return true;
-          break;
-        }
-      }
-      return false;      
-    }
-  }, jQuery.format(''));
-
-  // Unique values
-  jQuery.validator.addMethod("notEqualTo", function(value, element, param) { 
-    var target = $(param).unbind(".validate-notEqualTo").bind("blur.validate-notEqualTo", function() {
-      $(element).valid();
-    });
-    return value != target.val();
-  }, jQuery.format('Please don\'t enter the same value again.'));
+    
 }

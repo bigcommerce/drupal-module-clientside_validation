@@ -115,6 +115,7 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
         case 'validEAN':
           foreach ($webform_validation_rule['components'] as $component) {
             $js_rules['submitted[' . $component['form_key'] . ']']['validEAN'] = TRUE;
+            _clientside_validation_set_number ('submitted[' . $component['form_key'] . ']', $component['name'], 0, $js_rules);
             if (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) {
               $js_rules['submitted[' . $component['form_key'] . ']']['messages']['validEAN'] = $webform_validation_rule['error_message'];
             }

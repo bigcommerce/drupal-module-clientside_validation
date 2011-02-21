@@ -102,6 +102,10 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
       return this.optional(element);
     }
     else {
+      var numonly = new RegExp("^[0-9]+$");
+      if (!numonly.test(value)) {
+        return false;
+      }
       if (value.length > 13) {
         return false;
       }
@@ -110,7 +114,7 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
       }
       var runningTotal = 0;
       for (var c = 0; c < 12; c++) {
-        if (c % 2 == 0) {
+        if (c % 2 != 0) {
           runningTotal += 3 * parseInt(value.substr(c, 1));
         }
         else {

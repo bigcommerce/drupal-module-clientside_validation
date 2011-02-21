@@ -22,8 +22,12 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
   jQuery.each (self.forms, function(f) {
     // Add error container above the form
     var errorel = self.prefix + f + '-errors';
-    if (!$('#' + errorel).length) {
+    if ($('div.error.messages').length) {
+      errorel = 'div.error.messages';
+    }
+    else if (!$('#' + errorel).length) {
       $('<div id="' + errorel + '" class="messages error clientside-error"><ul></ul></div>').insertBefore('#' + f).hide();
+      errorel = '#' + errorel;
     }
     
     // Remove any existing validation stuff
@@ -36,8 +40,8 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
     // Add basic settings
     self.validators[f] = $('#' + f).validate({
       errorClass: 'error',
-      errorContainer: '#' + errorel,
-      errorLabelContainer: '#' + errorel + ' ul',
+      errorContainer: errorel,
+      errorLabelContainer: errorel + ' ul',
       wrapper: 'li'
     });
 

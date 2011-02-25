@@ -103,7 +103,7 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
   // EAN code
   jQuery.validator.addMethod("validEAN", function(value, element, param) { 
     if (this.optional(element) && value == '') {
-      return this.optional(element);
+      return true;
     }
     else {
       var numonly = new RegExp("^[0-9]+$");

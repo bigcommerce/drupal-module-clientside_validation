@@ -168,6 +168,7 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
         if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'file' && $element['#webform_component']['mandatory'] == "1") {
           _clientside_validation_set_required($element['#name'], $element['#title'], TRUE, $js_rules);
           if (isset($element['#webform_component']['extra']['filtering']['types'])) {
+            $extensions = $element['#webform_component']['extra']['filtering']['types'];
             _clientside_validation_set_extensions($element['#name'], $extensions, $js_rules);
           }
         }

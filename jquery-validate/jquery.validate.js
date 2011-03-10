@@ -6,6 +6,7 @@
  *
  * Copyright (c) 2006 - 2008 Jörn Zaefferer
  *
+ * $Id: jquery.validate.js 6403 2009-06-17 14:27:16Z joern.zaefferer $
  *
  * Dual licensed under the MIT and GPL licenses:
  *   http://www.opensource.org/licenses/mit-license.php
@@ -569,16 +570,15 @@ $.extend($.validator, {
 			} else if (theregex.test(message)) {
 				message = jQuery.format(message.replace(theregex, '{$1}'), rule.parameters);
 			}
-      // ATTIKS, if added
-			if (message) {
-        this.errorList.push({
-          message: message,
-          element: element
-        });
-      }
-      
-			this.errorMap[element.name] = message;
-			this.submitted[element.name] = message;
+            // ATTIKS, if added
+            if (message) {
+              this.errorList.push({
+                message: message,
+                element: element
+              });
+              this.errorMap[element.name] = message;
+              this.submitted[element.name] = message;
+            }
 		},
 		
 		addWrapper: function(toToggle) {

@@ -22,12 +22,8 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
   jQuery.each (self.forms, function(f) {
     // Add error container above the form
     var errorel = self.prefix + f + '-errors';
-    if ($('div.error.messages').length) {
-      errorel = 'div.error.messages';
-    }
-    else if (!$('#' + errorel).length) {
+    if (!$('#' + errorel).length) {
       $('<div id="' + errorel + '" class="messages error clientside-error"><ul></ul></div>').insertBefore('#' + f).hide();
-      errorel = '#' + errorel;
     }
     
     // Remove any existing validation stuff
@@ -40,8 +36,8 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
     // Add basic settings
     self.validators[f] = $('#' + f).validate({
       errorClass: 'error',
-      errorContainer: errorel,
-      errorLabelContainer: errorel + ' ul',
+      errorContainer: '#' + errorel,
+      errorLabelContainer: '#' + errorel + ' ul',
       wrapper: 'li'
     });
 
@@ -62,19 +58,15 @@ Drupal.clientsideValidation.prototype.bindRules = function(formid){
 
 Drupal.clientsideValidation.prototype.addExtraRules = function(){
 
-  jQuery.validator.addMethod("numberDE", function(value, element) { 
-    return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d+)?$/.test(value);
-  });
-
   // Min a and maximum b checkboxes from a group
   jQuery.validator.addMethod("checkboxgroupminmax", function(value, element, param) { 
     var validOrNot = $(param[2] + ' input:checked').length >= param[0] && $(param[2] + ' input:checked').length <= param[1];
     
-    if(!$(element).data('being_validated')) {
+   /* if(!$(element).data('being_validated')) {
       var fields = $(param[2] + ' input');
       fields.data('being_validated', true).valid();
       fields.data('being_validated', false);
-    }
+    }*/
     
     return validOrNot;
     
@@ -107,13 +99,9 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
   // EAN code
   jQuery.validator.addMethod("validEAN", function(value, element, param) { 
     if (this.optional(element) && value == '') {
-      return true;
+      return this.optional(element);
     }
     else {
-      var numonly = new RegExp("^[0-9]+$");
-      if (!numonly.test(value)) {
-        return false;
-      }
       if (value.length > 13) {
         return false;
       }
@@ -122,7 +110,7 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
       }
       var runningTotal = 0;
       for (var c = 0; c < 12; c++) {
-        if (c % 2 != 0) {
+        if (c % 2 == 0) {
           runningTotal += 3 * parseInt(value.substr(c, 1));
         }
         else {

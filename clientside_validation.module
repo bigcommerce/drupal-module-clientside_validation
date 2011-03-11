@@ -345,7 +345,7 @@ function clientside_validation_regular($form_id, $element, &$js_rules) {
       }
       break;
     case 'select':
-      if ($is_multiple && $is_multiple !== TRUE) {
+      if ($is_multiple && $is_multiple !== TRUE && isset($element['#minlength'])) {
         $el_name .= '[]';
         _clientside_validation_set_minmaxlength($el_name, $element['#title'], $element['#minlength'], $is_multiple, $js_rules);
       }

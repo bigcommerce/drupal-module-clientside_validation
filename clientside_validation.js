@@ -150,6 +150,6 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
       return rem == parseInt(value.substr(12, 1));
       
     }
-  }, jQuery.format('Please don\'t enter the same value again.'));
+  }, jQuery.format('Not a valid EAN number.'));
   
 }

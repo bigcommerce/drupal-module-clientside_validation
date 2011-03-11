@@ -90,7 +90,7 @@ function clientside_validation_admin_settings(){
  */
 function clientside_validation_webform_after_build(&$form, &$form_state) {
   $js_rules = array();
-  clientside_validation_webform_after_build_recurse($form['#id'], &$form, &$form_state, &$js_rules);
+  clientside_validation_webform_after_build_recurse($form['#id'], $form, $form_state, $js_rules);
   if ($webform_validation_rules = clientside_validation_webform_validation($form_state['values']['details']['nid'])) {
     foreach ($webform_validation_rules as $webform_validation_rule) {
       switch ($webform_validation_rule['validator']) {
@@ -202,7 +202,7 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
 function clientside_validation_webform_after_build_recurse($form_id, &$form, &$form_state, &$js_rules) {
   if ($children = array_values(element_children($form))) {
     foreach ($children as $index => $item) {
-      $element = &$form[$item];
+      $element = $form[$item];
       if (isset($element['#title'])) {
         if ($element['#required']) {
           if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'time' && isset($element['hour']['#name'])) {
@@ -281,7 +281,7 @@ function clientside_validation_webform_validation($nid) {
  */
 function clientside_validation_form_after_build(&$form, &$form_state) {
   static $js_rules = array();
-  clientside_validation_form_after_build_recurse($form['#id'], &$form, &$form_state, $js_rules);
+  clientside_validation_form_after_build_recurse($form['#id'], $form, $form_state, $js_rules);
   if (!empty($js_rules)) {
     $settings['clientsideValidation']['general'] = array(
       "errorClass" => "error",
@@ -304,7 +304,7 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
 function clientside_validation_form_after_build_recurse($form_id, &$form, &$form_state, &$js_rules) {
   if ($children = array_values(element_children($form))) {
     foreach ($children as $index => $item) {
-      $element = &$form[$item];
+      $element = $form[$item];
       if ((isset($element['#type']) && isset($element['#field_name'])) || (isset($element['#type']) && isset($form_state['#field_info'][$element['#parents'][0]]))) {
         clientside_validation_cck($form_id, $element, $js_rules);
       }

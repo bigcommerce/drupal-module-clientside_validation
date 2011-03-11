@@ -48,12 +48,34 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
 
 Drupal.clientsideValidation.prototype.bindRules = function(formid){
   var self = this;
-  jQuery.each (self.forms[formid]['rules'], function(r) {
-    // Check if element exist in DOM before adding the rule
-    if ($("#" + formid + " :input[name='" + r + "']").length) {
-      $("#" + formid + " :input[name='" + r + "']").rules("add", self.forms[formid]['rules'][r]);
-    }
-  });
+  if('checkboxrules' in self.forms[formid]){
+    jQuery.each (self.forms[formid]['checkboxrules'], function(r) {
+      $("#" + formid + ' :input[type="checkbox"]').addClass('require-one');
+    });
+    jQuery.each (self.forms[formid]['checkboxrules'], function(r) {
+      // Check if element exist in DOM before adding the rule
+      var i = 0;
+      if ($("#" + formid + " .require-one").length) {
+        $("#" + formid + " .require-one").each(function(){
+          if(i>0){
+            self.forms[formid]['checkboxrules'][r]['messages']['checkboxgroupminmax'] = ' ';
+          }
+          $(this).rules("add", self.forms[formid]['checkboxrules'][r]);
+          i++;
+        });
+      }
+    });
+  }
+  if('rules' in self.forms[formid]){
+    jQuery.each (self.forms[formid]['rules'], function(r) {
+      // Check if element exist in DOM before adding the rule
+      if ($("#" + formid + " :input[name='" + r + "']").length) {
+        $("#" + formid + " :input[name='" + r + "']").rules("add", self.forms[formid]['rules'][r]);
+      }
+    });
+  }
+
+
 }
 
 Drupal.clientsideValidation.prototype.addExtraRules = function(){
@@ -62,11 +84,11 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
   jQuery.validator.addMethod("checkboxgroupminmax", function(value, element, param) { 
     var validOrNot = $(param[2] + ' input:checked').length >= param[0] && $(param[2] + ' input:checked').length <= param[1];
     
-   /* if(!$(element).data('being_validated')) {
+    if(!$(element).data('being_validated')) {
       var fields = $(param[2] + ' input');
       fields.data('being_validated', true).valid();
       fields.data('being_validated', false);
-    }*/
+    }
     
     return validOrNot;
     

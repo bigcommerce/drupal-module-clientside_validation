@@ -92,7 +92,6 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
   $js_rules = array();
   clientside_validation_webform_after_build_recurse($form['#id'], &$form, &$form_state, &$js_rules);
   if ($webform_validation_rules = clientside_validation_webform_validation($form_state['values']['details']['nid'])) {
-    dpm($webform_validation_rules);
     foreach ($webform_validation_rules as $webform_validation_rule) {
       switch ($webform_validation_rule['validator']) {
         case 'min_length':
@@ -178,7 +177,6 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
       "errorLabelContainer" => "#formerrors-" . $form['#id'] . " ul",
     );
     foreach ($js_rules as $key => $rule) {
-      dpm($rule);
       if(isset($rule['checkboxgroupminmax'])){
         $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(
             'checkboxgroupminmax' => $rule['checkboxgroupminmax'],
@@ -191,7 +189,6 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
         }
       }
       if(!empty($rule)){
-        dpm($rule);
         $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
       }
     }
@@ -232,7 +229,8 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
               _clientside_validation_set_checkboxgroup_minmax($element[$key]['#name'], $element['#title'], '#webform-component-' . end($element['#parents']), $count, $js_rules);
               $count++;
             }*/
-          _clientside_validation_set_checkboxgroup_minmax($element['#name'], $element['#title'], '#webform-component-' . end($element['#parents']), 0, $js_rules);
+            $id = '#webform-component-' . str_replace('_', '-', end($element['#parents']));
+            _clientside_validation_set_checkboxgroup_minmax($element['#name'], $element['#title'], $id, 0, $js_rules);
           }
           elseif ($element['#type'] == 'select' && $element['#multiple']) {
             _clientside_validation_set_required($element['#name'] . '[]', $element['#title'], TRUE, $js_rules);
@@ -347,7 +345,7 @@ function clientside_validation_regular($form_id, $element, &$js_rules) {
       }
       break;
     case 'select':
-      if ($is_multiple) {
+      if ($is_multiple && $is_multiple !== TRUE) {
         $el_name .= '[]';
         _clientside_validation_set_minmaxlength($el_name, $element['#title'], $element['#minlength'], $is_multiple, $js_rules);
       }
@@ -389,6 +387,7 @@ function clientside_validation_cck($form_id, $element, &$js_rules) {
     $cckfield = content_fields($element['#field_name']);
     $el_name = $element['#name'];
     $is_multiple = $cckfield['multiple'];
+    
     switch ($cckfield['type']) {
       case 'text':
         switch ($element['#type']) {
@@ -515,6 +514,18 @@ function clientside_validation_cck($form_id, $element, &$js_rules) {
                 $extensions = explode(' ', $cckfield['widget']['file_extensions']);
                 _clientside_validation_set_extensions($el_name, $extensions, $js_rules);
               }
+            break;
+        }
+        break;
+      case 'date':
+        switch ($element['#type']) {
+          case 'select':
+            $title = $element['#title'];
+            if (empty($title)) {
+              // Is the case when the labels are inside the select box :/
+              $title = t(ucfirst(array_pop(explode('-', $element['#id']))));
+            }
+            _clientside_validation_set_required($el_name, $title, $cckfield['required'], $js_rules);
             break;
         }
         break;
@@ -698,7 +709,6 @@ function theme_clientside_validation_checkboxes($element) {
   }
   $element['#children'] = '<div class="'. $class .'">'. (!empty($element['#children']) ? $element['#children'] : '') .'</div>';
   if ($element['#title'] || $element['#description']) {
-    dpm($element);
     return theme('form_element', $element, $element['#children']);
   }
   else {

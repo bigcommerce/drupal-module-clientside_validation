@@ -130,6 +130,9 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
       else if (value.length != 13) {
         value = '0000000000000'.substr(0, 13 - value.length).concat(value);
       }
+      if (value == '0000000000000') {
+        return false;
+      }
       var runningTotal = 0;
       for (var c = 0; c < 12; c++) {
         if (c % 2 == 0) {

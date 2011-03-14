@@ -160,7 +160,7 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
           break;
         case 'validEAN':
           foreach ($webform_validation_rule['components'] as $component) {
-            $message = (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) ? $webform_validation_rule['error_message'] : '';
+            $message = (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) ? $webform_validation_rule['error_message'] : 'Not a valid EAN number.';
             _clientside_validation_set_ean('submitted[' . $component['form_key'] . ']', $component['name'], $js_rules, $message);
           }
           break;
@@ -642,6 +642,7 @@ function _clientside_validation_set_ean($name, $title, &$js_rules, $message = ''
   $title = variable_get('clientside_validation_prefix', '') . $title .variable_get('clientside_validation_suffix', '');
   $message = empty($message) ? t('!name field is not a valid EAN number.', array('!name' => $title)) : $message;
   $js_rules[$name]['validEAN'] = TRUE;
+  $js_rules[$name]['messages']['validEAN'] = $message;
 }
 
 /**

@@ -133,6 +133,9 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
       if (value == '0000000000000') {
         return false;
       }
+      if (parseInt(value) == NaN || parseInt(value) == 0) {
+        return false;
+      }
       var runningTotal = 0;
       for (var c = 0; c < 12; c++) {
         if (c % 2 == 0) {

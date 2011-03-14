@@ -20,9 +20,17 @@ Drupal.clientsideValidation = function() {
 Drupal.clientsideValidation.prototype.bindForms = function(){
   var self = this;
   jQuery.each (self.forms, function(f) {
-    // Add error container above the form
+    // Add error container above the form, first look for standard message container
     var errorel = self.prefix + f + '-errors';
-    if (!$('#' + errorel).length) {
+    if ($('div.messages').length) {
+      if ($('div.messages').attr('id').length) {
+        errorel = $('div.messages').attr('id');
+      }
+      else {
+        $('div.messages').attr('id', errorel);
+      }
+    }
+    else if (!$('#' + errorel).length) {
       $('<div id="' + errorel + '" class="messages error clientside-error"><ul></ul></div>').insertBefore('#' + f).hide();
     }
     
@@ -84,11 +92,14 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
   jQuery.validator.addMethod("checkboxgroupminmax", function(value, element, param) { 
     var validOrNot = $(param[2] + ' input:checked').length >= param[0] && $(param[2] + ' input:checked').length <= param[1];
     
+    /* This gives problems */
+    /*
     if(!$(element).data('being_validated')) {
       var fields = $(param[2] + ' input');
       fields.data('being_validated', true).valid();
       fields.data('being_validated', false);
     }
+    */
     
     return validOrNot;
     

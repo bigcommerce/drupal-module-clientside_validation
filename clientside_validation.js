@@ -29,6 +29,9 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
       else {
         $('div.messages').attr('id', errorel);
       }
+      if (!$('div.messages').children('ul').length) {
+        $('div.messages').append('<ul></ul>');
+      }
     }
     else if (!$('#' + errorel).length) {
       $('<div id="' + errorel + '" class="messages error clientside-error"><ul></ul></div>').insertBefore('#' + f).hide();

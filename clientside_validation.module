@@ -9,31 +9,33 @@
  * Implementation of hook_form_alter().
  */
 function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
-  if (strpos($form_id, 'webform_client_form') !== FALSE) {
-    if (isset($form['actions']['previous'])) {
-      if (isset($form['actions']['previous']['#attributes'])) {
-        if (isset($form['actions']['previous']['#attributes']['class'])) {
-          $form['actions']['previous']['#attributes']['class'] .= ' cancel';
+  if (!isset($form_state['post']) || (isset($form_state['post']) && empty($form_state['post']))) {
+    if (strpos($form_id, 'webform_client_form') !== FALSE) {
+      if (isset($form['actions']['previous'])) {
+        if (isset($form['actions']['previous']['#attributes'])) {
+          if (isset($form['actions']['previous']['#attributes']['class'])) {
+            $form['actions']['previous']['#attributes']['class'] .= ' cancel';
+          }
+          else {
+            $form['actions']['previous']['#attributes']['class'] = 'cancel';
+          }
         }
         else {
           $form['actions']['previous']['#attributes']['class'] = 'cancel';
         }
       }
-      else {
-        $form['actions']['previous']['#attributes']['class'] = 'cancel';
+      $form['#after_build'][] = 'clientside_validation_webform_after_build';
+    } 
+    else {
+      switch ($form['#id']) {
+        case 'node-form':
+        case 'webform-component-edit-form':
+          $form['#after_build'][] = 'clientside_validation_form_after_build';
+          break;
+        default:
+          $form['#after_build'][] = 'clientside_validation_form_after_build';
+          break;
       }
-    }
-    $form['#after_build'][] = 'clientside_validation_webform_after_build';
-  } 
-  else {
-    switch ($form['#id']) {
-      case 'node-form':
-      case 'webform-component-edit-form':
-        $form['#after_build'][] = 'clientside_validation_form_after_build';
-        break;
-      default:
-        $form['#after_build'][] = 'clientside_validation_form_after_build';
-        break;
     }
   }
 }
@@ -85,11 +87,29 @@ function clientside_validation_admin_settings(){
   return system_settings_form($form);
 }
 
+function _clientside_validation_add_general() {
+  static $js_rules_general_added = FALSE;
+  if (!$js_rules_general_added) {
+    $js_rules_general_added = TRUE;
+    $settings['clientsideValidation']['general'] = array(
+      "errorClass" => "error",
+      "wrapper" => "li",
+    );
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js', 'module');
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', 'module');
+    drupal_add_js($settings, 'setting');
+  }
+}
+
 /**
  * Webform.
  */
 function clientside_validation_webform_after_build(&$form, &$form_state) {
+  static $js_rules_set = array();
   $js_rules = array();
+  if (isset($js_rules_set[$form['#id']])) {
+    $js_rules = $js_rules_set[$form['#id']];
+  }
   clientside_validation_webform_after_build_recurse($form['#id'], $form, $form_state, $js_rules);
   if ($webform_validation_rules = clientside_validation_webform_validation($form_state['values']['details']['nid'])) {
     foreach ($webform_validation_rules as $webform_validation_rule) {
@@ -168,14 +188,8 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
     }
   }
   if (!empty($js_rules)) {
-    $settings['clientsideValidation']['general'] = array(
-      "errorClass" => "error",
-      "wrapper" => "li",
-    );
-    $settings['clientsideValidation']['forms'][$form['#id']]['settings'] = array(
-      "errorContainer" => "#formerrors-" . $form['#id'],
-      "errorLabelContainer" => "#formerrors-" . $form['#id'] . " ul",
-    );
+    $js_rules_set[$form['#id']] = $js_rules;
+    _clientside_validation_add_general();
     foreach ($js_rules as $key => $rule) {
       if(isset($rule['checkboxgroupminmax'])){
         $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(
@@ -192,8 +206,6 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
         $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
       }
     }
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js', 'module');
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', 'module');
     drupal_add_js($settings, 'setting');
   }
   return $form;
@@ -280,13 +292,15 @@ function clientside_validation_webform_validation($nid) {
  * Regular form + CCK
  */
 function clientside_validation_form_after_build(&$form, &$form_state) {
-  static $js_rules = array();
+  static $js_rules_set = array();
+  $js_rules = array();
+  if (isset($js_rules_set[$form['#id']])) {
+    $js_rules = $js_rules_set[$form['#id']];
+  }
   clientside_validation_form_after_build_recurse($form['#id'], $form, $form_state, $js_rules);
   if (!empty($js_rules)) {
-    $settings['clientsideValidation']['general'] = array(
-      "errorClass" => "error",
-      "wrapper" => "li",
-    );
+    $js_rules_set[$form['#id']] = $js_rules;
+    _clientside_validation_add_general();
     $settings['clientsideValidation']['forms'][$form['#id']]['settings'] = array(
       "errorContainer" => "#formerrors-" . $form['#id'],
       "errorLabelContainer" => "#formerrors-" . $form['#id'] . " ul",
@@ -294,8 +308,6 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
     foreach ($js_rules as $key => $rule) {
       $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
     }
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js', 'module');
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', 'module');
     drupal_add_js($settings, 'setting');
   }
   return $form;

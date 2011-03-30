@@ -88,6 +88,10 @@ Drupal.clientsideValidation.prototype.bindRules = function(formid){
 
 Drupal.clientsideValidation.prototype.addExtraRules = function(){
 
+  jQuery.validator.addMethod("numberDE", function(value, element) { 
+    return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d+)?$/.test(value);
+  });
+  
   // Min a and maximum b checkboxes from a group
   jQuery.validator.addMethod("checkboxgroupminmax", function(value, element, param) { 
     var validOrNot = $(param[2] + ' input:checked').length >= param[0] && $(param[2] + ' input:checked').length <= param[1];

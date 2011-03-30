@@ -43,8 +43,8 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
  */
 function clientside_validation_menu(){
   $items['admin/settings/clientside_validation'] = array(
-    'title' => 'Clientside Validation Settings',
-    'description' => 'Administer error display.',
+    'title' => 'Clientside Validation',
+    'description' => 'Administer clientside validation.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('clientside_validation_admin_settings'),
     'access arguments' => array('administer site configuration'),
@@ -54,34 +54,48 @@ function clientside_validation_menu(){
 
 function clientside_validation_admin_settings(){
   $form['clientside_validation'] = array(
-      '#type' => 'fieldset',
-      '#collapsible' => FALSE,
-      '#collapsed' => FALSE,
-      '#title' => t('Field name formatting'),
-      '#description' => t('You can define the prefix and suffix of the field names in the error messages here.'),
+    '#type' => 'fieldset',
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#title' => t('Field name formatting'),
+    '#description' => t('You can define the prefix and suffix of the field names in the error messages here.'),
   );
-
   $form['clientside_validation']['clientside_validation_prefix'] = array(
-      '#title' => t('Field name prefix'),
-      '#description' => t('The prefix of the field name in the error messages.'),
-      '#type' => 'textfield',
-      '#default_value' => variable_get('clientside_validation_prefix', ''),
+    '#title' => t('Field name prefix'),
+    '#description' => t('The prefix of the field name in the error messages.'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('clientside_validation_prefix', ''),
   );
-
   $form['clientside_validation']['clientside_validation_suffix'] = array(
-      '#title' => t('Field name suffix'),
-      '#description' => t('The suffix of the field name in the error messages.'),
-      '#type' => 'textfield',
-      '#default_value' => variable_get('clientside_validation_suffix', ''),
+    '#title' => t('Field name suffix'),
+    '#description' => t('The suffix of the field name in the error messages.'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('clientside_validation_suffix', ''),
   );
-
   $form['clientside_validation']['example_image'] = array(
-      '#type' => 'item',
-      '#title' => t('Example'),
-      '#value' => '<img id="clientside_validation_example_image" src="' . base_path() . drupal_get_path('module', 'clientside_validation') . '/errormsg.png" alt="' . t('Error message example') . '" />',
-      '#description' => t('Filling in double quotes in both the above fields will give this result.'),
+    '#type' => 'item',
+    '#title' => t('Example'),
+    '#value' => '<img id="clientside_validation_example_image" src="' . base_path() . drupal_get_path('module', 'clientside_validation') . '/errormsg.png" alt="' . t('Error message example') . '" />',
+    '#description' => t('Filling in double quotes in both the above fields will give this result.'),
   );
 
+  $form['clientside_validation_min'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#title' => t('Use minified version of jquery.validate.js'),
+    '#description' => t('You can use the minified version of the library.'),
+  );
+  $form['clientside_validation_min']['clientside_validation_use_minified'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '0' => t('No'), 
+      '1' => t('Yes')
+    ),
+    '#default_value' => variable_get('clientside_validation_use_minified', 0), 
+    '#title' => t('Use minified version?'),
+  );
+  
   return system_settings_form($form);
 }
 
@@ -192,7 +206,13 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
         $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
       }
     }
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js', 'module');
+    
+    if (variable_get('clientside_validation_use_minified', 0) == 0) {
+      drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js', 'module');
+    }
+    else {
+      drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.min.js', 'module');
+    }
     drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', 'module');
     drupal_add_js($settings, 'setting');
   }
@@ -294,7 +314,12 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
     foreach ($js_rules as $key => $rule) {
       $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
     }
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js', 'module');
+    if (variable_get('clientside_validation_use_minified', 0) == 0) {
+      drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js', 'module');
+    }
+    else {
+      drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.min.js', 'module');
+    }
     drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', 'module');
     drupal_add_js($settings, 'setting');
   }

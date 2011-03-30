@@ -48,6 +48,9 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
       errorLabelContainer: '#' + errorel + ' ul',
       wrapper: 'li'
     });
+    
+    // Remove class rules
+    jQuery.validator.removeClassRules('number');
 
     // Bind all rules
     self.bindRules(f);

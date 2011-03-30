@@ -356,7 +356,7 @@ $.extend($.validator, {
 				$.extend( this.errorMap, errors );
 				this.errorList = [];
 				for ( var name in errors ) {
-          if (message) {
+          if (errors[name]) {
             this.errorList.push({
               message: errors[name],
               element: this.findByName(name)[0]
@@ -570,11 +570,13 @@ $.extend($.validator, {
 			} else if (theregex.test(message)) {
 				message = jQuery.format(message.replace(theregex, '{$1}'), rule.parameters);
 			}
-			this.errorList.push({
-				message: message,
-				element: element
-			});
-
+      if (message) {
+        this.errorList.push({
+          message: message,
+          element: element
+        });
+      }
+      
 			this.errorMap[element.name] = message;
 			this.submitted[element.name] = message;
 		},
@@ -748,7 +750,6 @@ $.extend($.validator, {
 		dateISO: {dateISO: true},
 		dateDE: {dateDE: true},
 		number: {number: true},
-		numberDE: {numberDE: true},
 		digits: {digits: true},
 		creditcard: {creditcard: true}
 	},
@@ -757,6 +758,10 @@ $.extend($.validator, {
 		className.constructor == String ?
 			this.classRuleSettings[className] = rules :
 			$.extend(this.classRuleSettings, className);
+	},
+
+	removeClassRules: function(className) {
+  	this.classRuleSettings[className] = null;
 	},
 
 	classRules: function(element) {

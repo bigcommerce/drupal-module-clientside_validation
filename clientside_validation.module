@@ -358,7 +358,7 @@ function clientside_validation_regular($form_id, $element, &$js_rules) {
     case 'checkbox':
     case 'checkboxes':
       $is_multiple = (count($element['#options']>1) && isset($element['#options']));
-      if ($is_multiple) {
+      if ($is_multiple && $element['#required']) {
         // We don't have a parent element to connect to, so no go, outer div has only a class
         // The checkboxes element has the unique name, but this isn't added to the outer div
        /* $count = 0;
@@ -367,10 +367,15 @@ function clientside_validation_regular($form_id, $element, &$js_rules) {
           _clientside_validation_set_checkboxgroup_minmax($element[$key]['#name'], $element['#title'], $id, $count, $js_rules);
           $count++;
         }*/
+        static $debug = false;
+        if (!$debug) {
+          $debug = true;
+          dpm($element);
+        }
         $id = '#edit-' . str_replace('_', '-', $element['#parents'][0]) . '-wrapper';
         _clientside_validation_set_checkboxgroup_minmax($element['#name'], $element['#title'], $id, 0, $js_rules);
       }
-      else {
+      elseif ($element['#required']) {
         _clientside_validation_set_required($el_name, $element['#title'], $element['#required'], $js_rules);
       }
       break;

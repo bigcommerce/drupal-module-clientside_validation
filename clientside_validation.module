@@ -213,7 +213,7 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
     else {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.min.js');
     }
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', 'module');
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js');
     drupal_add_js($settings, 'setting');
   }
   return $form;

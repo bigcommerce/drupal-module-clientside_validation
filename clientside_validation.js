@@ -43,10 +43,11 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
     
     // Add basic settings
     self.validators[f] = $('#' + f).validate({
-      errorClass: 'error',
-      errorContainer: '#' + errorel,
-      errorLabelContainer: '#' + errorel + ' ul',
-      wrapper: 'li'
+    ignore: ':hidden',
+    errorClass: 'error',
+    errorContainer: '#' + errorel,
+    errorLabelContainer: '#' + errorel + ' ul',
+    wrapper: 'li'
     });
     
     // Remove class rules

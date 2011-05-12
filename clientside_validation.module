@@ -266,7 +266,7 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
             _clientside_validation_set_extensions($element['#name'], $extensions, $js_rules);
           }
         }
-        if ($element['#maxlength']) {
+        if (isset($element['#maxlength']) && $element['#maxlength']) {
           $message = t('!name field has a max length of !maxl characters.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] .variable_get('clientside_validation_suffix', ''), '!maxl' => $element['#maxlength']));
           _clientside_validation_set_minmaxlength($element['#name'], $element['#title'], '', $element['#maxlength'], $js_rules, $message);
         }

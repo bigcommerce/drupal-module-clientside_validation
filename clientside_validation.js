@@ -25,12 +25,12 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
   jQuery.each (self.forms, function(f) {
     // Add error container above the form, first look for standard message container
     var errorel = self.prefix + f + '-errors';
-    if ($('div.messages').length) {
-      if ($('div.messages').attr('id').length) {
-        errorel = $('div.messages').attr('id');
+    if ($('div.messages.error').length) {
+      if ($('div.messages.error').attr('id').length) {
+        errorel = $('div.messages.error').attr('id');
       }
       else {
-        $('div.messages').attr('id', errorel);
+        $('div.messages.error').attr('id', errorel);
       }
     }
     else if (!$('#' + errorel).length) {
@@ -46,6 +46,7 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
     
     // Add basic settings
     self.validators[f] = $('#' + f).validate({
+      ignore: ':hidden',
       errorClass: 'error',
       errorContainer: '#' + errorel,
       errorLabelContainer: '#' + errorel + ' ul',

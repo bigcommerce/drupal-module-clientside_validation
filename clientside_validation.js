@@ -42,6 +42,7 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
     }
     
     // Add basic settings
+    //@todo group validatie: namen van checkboxgroepen aan groep toevoegen, rule op groep zetten.
     self.validators[f] = $('#' + f).validate({
     ignore: ':hidden',
     errorClass: 'error',
@@ -55,6 +56,7 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
 
     // Bind all rules
     self.bindRules(f);
+    self.addCheckBoxHandlers(f);
   });
 }
 
@@ -62,15 +64,15 @@ Drupal.clientsideValidation.prototype.bindRules = function(formid){
   var self = this;
   if('checkboxrules' in self.forms[formid]){
     jQuery.each (self.forms[formid]['checkboxrules'], function(r) {
-      $("#" + formid + ' :input[type="checkbox"]').addClass('require-one');
+      $("#" + formid + " " + this['checkboxgroupminmax'][2] + ' :input[type="checkbox"]').addClass('require-one');
     });
     jQuery.each (self.forms[formid]['checkboxrules'], function(r) {
       // Check if element exist in DOM before adding the rule
       var i = 0;
-      if ($("#" + formid + " .require-one").length) {
-        $("#" + formid + " .require-one").each(function(){
+      if ($("#" + formid + " " + this['checkboxgroupminmax'][2] + " .require-one").length) {
+        $("#" + formid + " " + this['checkboxgroupminmax'][2] +  " .require-one").each(function(){
           if(i>0){
-            self.forms[formid]['checkboxrules'][r]['messages']['checkboxgroupminmax'] = ' ';
+            self.forms[formid]['checkboxrules'][r]['messages']['checkboxgroupminmax'] = '';
           }
           $(this).rules("add", self.forms[formid]['checkboxrules'][r]);
           i++;
@@ -86,8 +88,15 @@ Drupal.clientsideValidation.prototype.bindRules = function(formid){
       }
     });
   }
+}
 
-
+Drupal.clientsideValidation.prototype.addCheckBoxHandlers = function(formid){
+  var self = this;
+  $('#' + formid + ' input[type=checkbox]').change(function(){
+    if(!$(this).valid()){
+      self.validators[formid].valid();
+    }
+  });
 }
 
 Drupal.clientsideValidation.prototype.addExtraRules = function(){
@@ -97,17 +106,17 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
   });
   
   // Min a and maximum b checkboxes from a group
-  jQuery.validator.addMethod("checkboxgroupminmax", function(value, element, param) { 
+  jQuery.validator.addMethod("checkboxgroupminmax", function(value, element, param) {
     var validOrNot = $(param[2] + ' input:checked').length >= param[0] && $(param[2] + ' input:checked').length <= param[1];
     
     /* This gives problems */
-    /*
-    if(!$(element).data('being_validated')) {
+    
+    /*if(!$(element).data('being_validated')) {
       var fields = $(param[2] + ' input');
       fields.data('being_validated', true).valid();
       fields.data('being_validated', false);
-    }
-    */
+    }*/
+    
     
     return validOrNot;
     

@@ -60,7 +60,9 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
     });
 
     // Add basic settings
-    //@todo group validatie: namen van checkboxgroepen aan groep toevoegen, rule op groep zetten.
+    //@todo: find cleaner fix
+    // ugly fix for nodes in colorbox
+    if(typeof $('#' + f).validate == 'function') {
     self.validators[f] = $('#' + f).validate({
     ignore: ':hidden',
     errorClass: 'error',
@@ -75,7 +77,8 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
 
     // Bind all rules
     self.bindRules(f);
-    //self.addCheckBoxHandlers(f);
+    
+    }
   });
 }
 

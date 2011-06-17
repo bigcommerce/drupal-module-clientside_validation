@@ -13,6 +13,7 @@ Drupal.clientsideValidation = function() {
   this.data = Drupal.settings.clientsideValidation;
   this.forms = this.data['forms'];
   this.validators = {};
+  this.groups = {};
   this.addExtraRules();
   this.bindForms();
 };
@@ -20,6 +21,7 @@ Drupal.clientsideValidation = function() {
 Drupal.clientsideValidation.prototype.bindForms = function(){
   var self = this;
   jQuery.each (self.forms, function(f) {
+    self.groups[f] = {};
     // Add error container above the form, first look for standard message container
     var errorel = self.prefix + f + '-errors';
     if ($('div.messages.error').length) {
@@ -40,7 +42,23 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
       var form = $('#' + f).get(0); 
       jQuery.removeData(form, 'validator');
     }
-    
+
+    groupkey = "";
+    jQuery.each (self.forms[f]['checkboxrules'], function(r) {
+      groupkey = r + '_group';
+      self.groups[f][groupkey] = "";
+      jQuery.each(this, function(){
+        i = 0;
+        $(this[2] + ' input[type=checkbox]').each(function(){
+          if(i > 0){
+            self.groups[f][groupkey] += ' ';
+          }
+          self.groups[f][groupkey] += $(this).attr('name');
+          i++;
+        });
+      });
+    });
+
     // Add basic settings
     //@todo group validatie: namen van checkboxgroepen aan groep toevoegen, rule op groep zetten.
     self.validators[f] = $('#' + f).validate({
@@ -48,7 +66,8 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
     errorClass: 'error',
     errorContainer: '#' + errorel,
     errorLabelContainer: '#' + errorel + ' ul',
-    wrapper: 'li'
+    wrapper: 'li',
+    groups: self.groups[f]
     });
     
     // Remove class rules
@@ -56,7 +75,7 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
 
     // Bind all rules
     self.bindRules(f);
-    self.addCheckBoxHandlers(f);
+    //self.addCheckBoxHandlers(f);
   });
 }
 
@@ -68,14 +87,9 @@ Drupal.clientsideValidation.prototype.bindRules = function(formid){
     });
     jQuery.each (self.forms[formid]['checkboxrules'], function(r) {
       // Check if element exist in DOM before adding the rule
-      var i = 0;
       if ($("#" + formid + " " + this['checkboxgroupminmax'][2] + " .require-one").length) {
         $("#" + formid + " " + this['checkboxgroupminmax'][2] +  " .require-one").each(function(){
-          if(i>0){
-            self.forms[formid]['checkboxrules'][r]['messages']['checkboxgroupminmax'] = '';
-          }
           $(this).rules("add", self.forms[formid]['checkboxrules'][r]);
-          i++;
         });
       }
     });
@@ -90,14 +104,14 @@ Drupal.clientsideValidation.prototype.bindRules = function(formid){
   }
 }
 
-Drupal.clientsideValidation.prototype.addCheckBoxHandlers = function(formid){
+/*Drupal.clientsideValidation.prototype.addCheckBoxHandlers = function(formid){
   var self = this;
   $('#' + formid + ' input[type=checkbox]').change(function(){
     if(!$(this).valid()){
       self.validators[formid].valid();
     }
   });
-}
+}*/
 
 Drupal.clientsideValidation.prototype.addExtraRules = function(){
 

@@ -56,6 +56,20 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
             }
             self.groups[f][groupkey] += $(this).attr('name');
             i++;
+            $(this).change(function(){
+              //wait just one milisecond until the error div is updated
+              window.setTimeout(function(){
+                var visibles = 0;
+                $("div.messages.error ul li").each(function(){
+                  if($(this).is(':visible')){
+                    visibles++;
+                  }
+                });
+                if(visibles < 1){
+                  $("div.messages.error").hide();
+                }
+              }, 1);
+            });
           });
         });
       });
@@ -65,20 +79,20 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
     //@todo: find cleaner fix
     // ugly fix for nodes in colorbox
     if(typeof $('#' + f).validate == 'function') {
-    self.validators[f] = $('#' + f).validate({
-    ignore: ':hidden',
-    errorClass: 'error',
-    errorContainer: '#' + errorel,
-    errorLabelContainer: '#' + errorel + ' ul',
-    wrapper: 'li',
-    groups: self.groups[f]
-    });
+      self.validators[f] = $('#' + f).validate({
+        ignore: ':hidden',
+        errorClass: 'error',
+        errorContainer: '#' + errorel,
+        errorLabelContainer: '#' + errorel + ' ul',
+        wrapper: 'li',
+        groups: self.groups[f]
+      });
     
-    // Remove class rules
-    jQuery.validator.removeClassRules('number');
+      // Remove class rules
+      jQuery.validator.removeClassRules('number');
 
-    // Bind all rules
-    self.bindRules(f);
+      // Bind all rules
+      self.bindRules(f);
     
     }
   });

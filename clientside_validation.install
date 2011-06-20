@@ -8,7 +8,7 @@
 /**
  * Implements hook_install
  */
-function clientside_validation_install() {
+function clientside_validation_enable() {
   //support for module like e.g. select_or_other
   db_query("UPDATE {system} SET weight = 5 WHERE name = '%s'", "clientside_validation");
 }

@@ -56,23 +56,6 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
             }
             self.groups[f][groupkey] += $(this).attr('name');
             i++;
-            $(this).change(function(){
-              //wait just one milisecond until the error div is updated
-              window.setTimeout(function(){
-                var visibles = 0;
-                $("div.messages.error ul li").each(function(){
-                  if($(this).is(':visible')){
-                    visibles++;
-                  }
-                  else {
-                    $(this).remove();
-                  }
-                });
-                if(visibles < 1){
-                  $("div.messages.error").hide();
-                }
-              }, 1);
-            });
           });
         });
       });
@@ -112,6 +95,23 @@ Drupal.clientsideValidation.prototype.bindRules = function(formid){
       if ($("#" + formid + " " + this['checkboxgroupminmax'][2] + " .require-one").length) {
         $("#" + formid + " " + this['checkboxgroupminmax'][2] +  " .require-one").each(function(){
           $(this).rules("add", self.forms[formid]['checkboxrules'][r]);
+          $(this).change(function(){
+            //wait just one milisecond until the error div is updated
+            window.setTimeout(function(){
+              var visibles = 0;
+              $("div.messages.error ul li").each(function(){
+                if($(this).is(':visible')){
+                  visibles++;
+                }
+                else {
+                  $(this).remove();
+                }
+              });
+              if(visibles < 1){
+                $("div.messages.error").hide();
+              }
+            }, 1);
+          });
         });
       }
     });
@@ -121,6 +121,23 @@ Drupal.clientsideValidation.prototype.bindRules = function(formid){
       // Check if element exist in DOM before adding the rule
       if ($("#" + formid + " :input[name='" + r + "']").length) {
         $("#" + formid + " :input[name='" + r + "']").rules("add", self.forms[formid]['rules'][r]);
+        $("#" + formid + " :input[name='" + r + "']").change(function(){
+          //wait just one millisecond until the error div is updated
+          window.setTimeout(function(){
+            var visibles = 0;
+            $("div.messages.error ul li").each(function(){
+              if($(this).is(':visible')){
+                visibles++;
+              }
+              else {
+                $(this).remove();
+              }
+            });
+            if(visibles < 1){
+              $("div.messages.error").hide();
+            }
+          }, 1);
+        });
       }
     });
   }

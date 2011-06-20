@@ -316,6 +316,7 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.min.js', 'module');
     }
     drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', 'module');
+    dpm($settings);
     drupal_add_js($settings, 'setting');
   }
   return $form;
@@ -717,6 +718,7 @@ function clientside_validation_cck($form_id, $element, &$js_rules) {
       case 'date':
         switch ($element['#type']) {
           case 'select':
+          case 'textfield':
             if (empty($element['#title'])) {
               // Is the case when the labels are inside the select box :/
               $title = t(ucfirst(array_pop(explode('-', $element['#id']))));

@@ -59,6 +59,20 @@
               }
               self.groups[f][groupkey] += $(this).attr('name');
               i++;
+              $(this).change(function(){
+                //wait just one milisecond until the error div is updated
+                window.setTimeout(function(){
+                  var visibles = 0;
+                  $("div.messages.error ul li").each(function(){
+                    if($(this).is(':visible')){
+                      visibles++;
+                    }
+                  });
+                  if(visibles < 1){
+                    $("div.messages.error").hide();
+                  }
+                }, 1);
+              });
             });
           });
         });

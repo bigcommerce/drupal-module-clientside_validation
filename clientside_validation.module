@@ -244,13 +244,8 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
             }            
           }
           elseif ($element['#type'] == 'checkboxes') {
-            /*$count = 0;
-            foreach ($element['#options'] as $key => $value) {
-              _clientside_validation_set_checkboxgroup_minmax($element[$key]['#name'], $element['#title'], '#webform-component-' . end($element['#parents']), $count, $js_rules);
-              $count++;
-            }*/
-            $id = '#webform-component-' . str_replace('_', '-', end($element['#parents']));
-            _clientside_validation_set_checkboxgroup_minmax($element['#name'], $element['#title'], $id, 0, $js_rules);
+            $id = '#' . $element['#id'];
+            _clientside_validation_set_checkboxgroup_minmax($element['#name'], $element['#title'], $id, $js_rules);
           }
           elseif ($element['#type'] == 'select' && $element['#multiple']) {
             _clientside_validation_set_required($element['#name'] . '[]', $element['#title'], TRUE, $js_rules);
@@ -392,11 +387,9 @@ function clientside_validation_regular($form_id, $element, &$js_rules) {
       case 'checkboxes':
         $is_multiple = (isset($element['#options']) && count($element['#options']>1));
         if ($is_multiple && $element['#required']) {
-          $count = 0;
           foreach ($element['#options'] as $key => $value) {
             $id = '#edit-' . str_replace('_', '-', $element['#parents'][0]);
             _clientside_validation_set_checkboxgroup_minmax($element[$key]['#name'], $el_title, $id, $count, $js_rules);
-            $count++;
           }
         }
         else if ($element['#required']) {
@@ -531,15 +524,10 @@ function _clientside_validation_set_extensions($name, $extensions, &$js_rules) {
 /**
  * Set validation rule for checkboxes.
  */
-function _clientside_validation_set_checkboxgroup_minmax($name, $title, $id, $count, &$js_rules, $min = 1, $max = 99) {
-  $title = variable_get('clientside_validation_prefix', '') . $title .variable_get('clientside_validation_suffix', '');
+function _clientside_validation_set_checkboxgroup_minmax($name, $title, $id, &$js_rules, $min = 1, $max = 99) {
+  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   $js_rules[$name]['checkboxgroupminmax'] = array($min, $max, $id);
-  if ($count == 0) {
-    $js_rules[$name]['messages']['checkboxgroupminmax'] = t('!name field is required.', array('!name' => $title));
-  }
-  else {
-    $js_rules[$name]['messages']['checkboxgroupminmax'] = FALSE;
-  }
+  $js_rules[$name]['messages']['checkboxgroupminmax'] = t('!name field is required.', array('!name' => $title));
 }
 
 /**

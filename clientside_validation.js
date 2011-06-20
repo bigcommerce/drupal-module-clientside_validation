@@ -109,15 +109,6 @@ Drupal.clientsideValidation.prototype.bindRules = function(formid){
   }
 }
 
-/*Drupal.clientsideValidation.prototype.addCheckBoxHandlers = function(formid){
-  var self = this;
-  $('#' + formid + ' input[type=checkbox]').change(function(){
-    if(!$(this).valid()){
-      self.validators[formid].valid();
-    }
-  });
-}*/
-
 Drupal.clientsideValidation.prototype.addExtraRules = function(){
 
   jQuery.validator.addMethod("numberDE", function(value, element) { 

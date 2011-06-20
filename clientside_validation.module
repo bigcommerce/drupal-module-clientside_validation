@@ -307,7 +307,20 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
       "errorLabelContainer" => "#formerrors-" . $form['#id'] . " ul",
     );
     foreach ($js_rules as $key => $rule) {
-      $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
+      if (isset($rule['checkboxgroupminmax'])) {
+        $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(
+            'checkboxgroupminmax' => $rule['checkboxgroupminmax'],
+            'messages' => array('checkboxgroupminmax' => $rule['messages']['checkboxgroupminmax'])
+        );
+        unset($rule['checkboxgroupminmax']);
+        unset($rule['messages']['checkboxgroupminmax']);
+        if (empty($rule['messages'])) {
+          unset($rule['messages']);
+        }
+      }
+      if (!empty($rule)) {
+        $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
+      }
     }
     if (variable_get('clientside_validation_use_minified', 0) == 0) {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js');
@@ -387,10 +400,8 @@ function clientside_validation_regular($form_id, $element, &$js_rules) {
       case 'checkboxes':
         $is_multiple = (isset($element['#options']) && count($element['#options']>1));
         if ($is_multiple && $element['#required']) {
-          foreach ($element['#options'] as $key => $value) {
-            $id = '#edit-' . str_replace('_', '-', $element['#parents'][0]);
-            _clientside_validation_set_checkboxgroup_minmax($element[$key]['#name'], $el_title, $id, $count, $js_rules);
-          }
+          $id = '#' . $element['#id'];
+          _clientside_validation_set_checkboxgroup_minmax($element['#name'], $el_title, $id, $js_rules);
         }
         elseif ($element['#required']) {
           _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules);

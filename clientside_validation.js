@@ -193,6 +193,20 @@
       return value != target.val();
     }, jQuery.format('Please don\'t enter the same value again.'));
 
+    jQuery.validator.addMethod("regexMatch", function(value, element, param) {
+      if (this.optional(element) && value == '') {
+        return this.optional(element);
+      }
+      else {
+        var regexp = new RegExp(param);
+        if(regexp.test(value)){
+          return true;
+        }
+        return false;
+      }
+
+    }, jQuery.format('The value does not match the expected format.'));
+
     // EAN code
     jQuery.validator.addMethod("validEAN", function(value, element, param) {
       if (this.optional(element) && value == '') {

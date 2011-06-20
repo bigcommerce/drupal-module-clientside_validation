@@ -43,21 +43,23 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
       jQuery.removeData(form, 'validator');
     }
 
-    groupkey = "";
-    jQuery.each (self.forms[f]['checkboxrules'], function(r) {
-      groupkey = r + '_group';
-      self.groups[f][groupkey] = "";
-      jQuery.each(this, function(){
-        i = 0;
-        $(this[2] + ' input[type=checkbox]').each(function(){
-          if(i > 0){
-            self.groups[f][groupkey] += ' ';
-          }
-          self.groups[f][groupkey] += $(this).attr('name');
-          i++;
+    if('checkboxrules' in self.forms[f]){
+      groupkey = "";
+      jQuery.each (self.forms[f]['checkboxrules'], function(r) {
+        groupkey = r + '_group';
+        self.groups[f][groupkey] = "";
+        jQuery.each(this, function(){
+          i = 0;
+          $(this[2] + ' input[type=checkbox]').each(function(){
+            if(i > 0){
+              self.groups[f][groupkey] += ' ';
+            }
+            self.groups[f][groupkey] += $(this).attr('name');
+            i++;
+          });
         });
       });
-    });
+    }
 
     // Add basic settings
     //@todo: find cleaner fix

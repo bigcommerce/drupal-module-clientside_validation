@@ -64,6 +64,9 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
                   if($(this).is(':visible')){
                     visibles++;
                   }
+                  else {
+                    $(this).remove();
+                  }
                 });
                 if(visibles < 1){
                   $("div.messages.error").hide();

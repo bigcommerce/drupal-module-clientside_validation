@@ -307,7 +307,20 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
       "errorLabelContainer" => "#formerrors-" . $form['#id'] . " ul",
     );
     foreach ($js_rules as $key => $rule) {
-      $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
+      if (isset($rule['checkboxgroupminmax'])) {
+        $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(
+            'checkboxgroupminmax' => $rule['checkboxgroupminmax'],
+            'messages' => array('checkboxgroupminmax' => $rule['messages']['checkboxgroupminmax'])
+        );
+        unset($rule['checkboxgroupminmax']);
+        unset($rule['messages']['checkboxgroupminmax']);
+        if (empty($rule['messages'])) {
+          unset($rule['messages']);
+        }
+      }
+      if (!empty($rule)) {
+        $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
+      }
     }
     if (variable_get('clientside_validation_use_minified', 0) == 0) {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js', 'module');
@@ -391,10 +404,8 @@ function clientside_validation_regular($form_id, $element, &$js_rules) {
       case 'checkboxes':
         $is_multiple = (isset($element['#options']) && count($element['#options']>1));
         if ($is_multiple && $element['#required']) {
-          foreach ($element['#options'] as $key => $value) {
-            $id = '#edit-' . str_replace('_', '-', $element['#parents'][0]);
-            _clientside_validation_set_checkboxgroup_minmax($element[$key]['#name'], $el_title, $id, $js_rules);
-          }
+          $id = '#' . $element['#id'] . '-wrapper';
+          _clientside_validation_set_checkboxgroup_minmax($element[$key]['#name'], $el_title, $id, $js_rules);
         }
         elseif ($element['#required']) {
           _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules);
@@ -632,8 +643,10 @@ function clientside_validation_cck($form_id, $element, &$js_rules) {
             if ($is_multiple) {
               // We don't have a parent element to connect to, so no go, outer div has only a class
               // The checkboxes element has the unique name, but this isn't added to the outer div
-              $id = '#edit-' . str_replace('_', '-', $element['#parents'][0]) . '-value-wrapper';
-              _clientside_validation_set_checkboxgroup_minmax($element['#name'], $element['#title'], $id, $js_rules);
+              $id = '#edit-' . str_replace('_', '-', $element['#field_name']) . '-value-wrapper';
+              module_load_include('inc', 'content', 'includes/content.crud');
+              $inf = content_field_instance_read(array('field_name' => $element['#field_name']));
+              _clientside_validation_set_checkboxgroup_minmax($element['#name'], $inf[0]['widget']['label'], $id, $js_rules);
             }
             else {
               _clientside_validation_set_required($el_name, $title, $cckfield['required'], $js_rules);
@@ -679,8 +692,10 @@ function clientside_validation_cck($form_id, $element, &$js_rules) {
             if ($is_multiple) {
               // We don't have a parent element to connect to, so no go, outer div has only a class
               // The checkboxes element has the unique name, but this isn't added to the outer div
-              $id = '#edit-' . str_replace('_', '-', $element['#parents'][0]) . '-value-wrapper';
-              _clientside_validation_set_checkboxgroup_minmax($element['#name'], $element['#title'], $id, $js_rules);
+              $id = '#edit-' . str_replace('_', '-', $element['#field_name']) . '-value-wrapper';
+              module_load_include('inc', 'content', 'includes/content.crud');
+              $inf = content_field_instance_read(array('field_name' => $element['#field_name']));
+              _clientside_validation_set_checkboxgroup_minmax($element['#name'], $inf[0]['widget']['label'], $id, $js_rules);
             }
             else {
               _clientside_validation_set_required($el_name, $title, $cckfield['required'], $js_rules);

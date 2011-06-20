@@ -107,6 +107,7 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
   clientside_validation_webform_after_build_recurse($form['#id'], $form, $form_state, $js_rules);
   if ($webform_validation_rules = clientside_validation_webform_validation($form_state['values']['details']['nid'])) {
     foreach ($webform_validation_rules as $webform_validation_rule) {
+      dpm($webform_validation_rule);
       switch ($webform_validation_rule['validator']) {
         case 'min_length':
           foreach ($webform_validation_rule['components'] as $component) {
@@ -176,6 +177,13 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
           foreach ($webform_validation_rule['components'] as $component) {
             $message = (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) ? $webform_validation_rule['error_message'] : 'Not a valid EAN number.';
             _clientside_validation_set_ean('submitted[' . $component['form_key'] . ']', $component['name'], $js_rules, $message);
+          }
+          break;
+        case 'regex':
+          foreach ($webform_validation_rule['components'] as $component) {
+            $message = $webform_validation_rule['error_message'];
+            $expression = $webform_validation_rule['data'];
+            _clientside_validation_set_regex('submitted[' . $component['form_key'] . ']', $component['name'], $js_rules, $expression, $message);
           }
           break;
       }
@@ -525,6 +533,16 @@ function _clientside_validation_set_ean($name, $title, &$js_rules, $message = ''
   $message = empty($message) ? t('!name field is not a valid EAN number.', array('!name' => $title)) : $message;
   $js_rules[$name]['validEAN'] = TRUE;
   $js_rules[$name]['messages']['validEAN'] = $message;
+}
+
+/**
+ * Set validation rule for fields with regex validation from webform_validation
+ */
+function _clientside_validation_set_regex($name, $title, &$js_rules, $expression, $message = '') {
+  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $message = empty($message) ? t('!name field is not a valid EAN number.', array('!name' => $title)) : $message;
+  $js_rules[$name]['regexMatch'] = $expression;
+  $js_rules[$name]['messages']['regexMatch'] = $message;
 }
 
 /**

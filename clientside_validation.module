@@ -107,7 +107,6 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
   clientside_validation_webform_after_build_recurse($form['#id'], $form, $form_state, $js_rules);
   if ($webform_validation_rules = clientside_validation_webform_validation($form_state['values']['details']['nid'])) {
     foreach ($webform_validation_rules as $webform_validation_rule) {
-      dpm($webform_validation_rule);
       switch ($webform_validation_rule['validator']) {
         case 'min_length':
           foreach ($webform_validation_rule['components'] as $component) {

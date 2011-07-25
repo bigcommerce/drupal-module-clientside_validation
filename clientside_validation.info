@@ -1,5 +1,5 @@
 ; $Id: 
-name = Clientside validation
+name = Clientside Validation
 description = Add client side validation to forms and webforms
 core = 7.x
 package = Other

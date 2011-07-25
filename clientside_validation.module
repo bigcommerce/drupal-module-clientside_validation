@@ -2,41 +2,8 @@
 // $Id$
 /**
  * @file
- * Add client side validation to a webform.
+ * Add client side validation to forms.
  */
-
-/**
- * Implementation of hook_form_alter().
- */
-function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
-  if (strpos($form_id, 'webform_client_form') !== FALSE) {
-    if (isset($form['actions']['previous'])) {
-      if (isset($form['actions']['previous']['#attributes'])) {
-        if (isset($form['actions']['previous']['#attributes']['class'])) {
-          $form['actions']['previous']['#attributes']['class'] .= ' cancel';
-        }
-        else {
-          $form['actions']['previous']['#attributes']['class'] = 'cancel';
-        }
-      }
-      else {
-        $form['actions']['previous']['#attributes']['class'] = 'cancel';
-      }
-    }
-    $form['#after_build'][] = 'clientside_validation_webform_after_build';
-  } 
-  else {
-    switch ($form['#id']) {
-      case 'node-form':
-      case 'webform-component-edit-form':
-        $form['#after_build'][] = 'clientside_validation_form_after_build';
-        break;
-      default:
-        $form['#after_build'][] = 'clientside_validation_form_after_build';
-        break;
-    }
-  }
-}
 
 /**
  * Implements hook_menu().
@@ -100,94 +67,44 @@ function clientside_validation_admin_settings() {
 }
 
 /**
+ * Implementation of hook_form_alter().
+ */
+function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
+  if (strpos($form_id, 'webform_client_form') !== FALSE) {
+    if (isset($form['actions']['previous'])) {
+      if (isset($form['actions']['previous']['#attributes'])) {
+        if (isset($form['actions']['previous']['#attributes']['class'])) {
+          $form['actions']['previous']['#attributes']['class'] .= ' cancel';
+        }
+        else {
+          $form['actions']['previous']['#attributes']['class'] = 'cancel';
+        }
+      }
+      else {
+        $form['actions']['previous']['#attributes']['class'] = 'cancel';
+      }
+    }
+    $form['#after_build'][] = 'clientside_validation_webform_after_build';
+  }
+  else {
+    switch ($form['#id']) {
+      case 'node-form':
+      case 'webform-component-edit-form':
+        $form['#after_build'][] = 'clientside_validation_form_after_build';
+        break;
+      default:
+        $form['#after_build'][] = 'clientside_validation_form_after_build';
+        break;
+    }
+  }
+}
+
+/**
  * Webform.
  */
 function clientside_validation_webform_after_build(&$form, &$form_state) {
   $js_rules = array();
-  clientside_validation_webform_after_build_recurse($form['#id'], $form, $form_state, $js_rules);
-  if ($webform_validation_rules = clientside_validation_webform_validation($form_state['values']['details']['nid'])) {
-    foreach ($webform_validation_rules as $webform_validation_rule) {
-      switch ($webform_validation_rule['validator']) {
-        case 'min_length':
-          foreach ($webform_validation_rule['components'] as $component) {
-          $message = t('!name field has a minimum length of !minl characters.', array('!name' => variable_get('clientside_validation_prefix', '') . $component['name'] . variable_get('clientside_validation_suffix', ''), '!minl' => $webform_validation_rule['data']));
-           _clientside_validation_set_minmaxlength('submitted[' . $component['form_key'] . ']', $component['name'], $webform_validation_rule['data'], '', $js_rules, $message);
-          }
-          break;
-        case 'max_length':
-          foreach ($webform_validation_rule['components'] as $component) {
-            $message = t('!name field has a maximum length of !maxl characters.', array('!name' => variable_get('clientside_validation_prefix', '') . $component['name'] . variable_get('clientside_validation_suffix', ''), '!maxl' => $webform_validation_rule['data']));
-            _clientside_validation_set_minmaxlength('submitted[' . $component['form_key'] . ']', $component['name'], '', $webform_validation_rule['data'], $js_rules, $message);
-
-          }
-          break;
-        case 'numeric':
-          foreach ($webform_validation_rule['components'] as $component) {
-            $range = explode('-', $webform_validation_rule['data']);
-            if (!empty($range[0]) && $range[0] != '0') {
-              if (!isset($range[1])) {
-                $range[1] = $range[0];
-                $range[0] = 0;
-              }
-              _clientside_validation_set_minmax('submitted[' . $component['form_key'] . ']', $component['name'], $range[0], $range[1], $js_rules);
-            }
-          }
-          break;
-        case 'equal':
-          $others = $webform_validation_rule['components'];
-          $firstone = array_shift($others);
-          foreach ($others as $component) {
-            _clientside_validation_set_equal('submitted[' . $component['form_key'] . ']', $component['name'], $firstone, $js_rules);
-          }
-          break;
-        case 'unique':
-          $all = $webform_validation_rule['components'];
-          while (count($all) > 1) {
-            $firstone = array_shift($all);
-            foreach ($all as $component) {
-              $message = (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) ? $webform_validation_rule['error_message'] : '';
-              _clientside_validation_set_not_equal('submitted[' . $component['form_key'] . ']', $component['name'], $firstone, $js_rules, $message);
-            }
-          }
-          break;
-        case 'specific_value':
-          foreach ($webform_validation_rule['components'] as $component) {
-            $value = explode(',', $webform_validation_rule['data']);
-            $message = (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) ? $webform_validation_rule['error_message'] : '';
-            _clientside_validation_set_specific_value('submitted[' . $component['form_key'] . ']', $component['name'], $value, $js_rules, $message);
-          }
-          break;
-        case 'select_min':
-          foreach ($webform_validation_rule['components'] as $component) {
-            _clientside_validation_set_minmaxlength('submitted[' . $component['form_key'] . ']', $component['name'], $webform_validation_rule['data'], '', $js_rules);
-          }
-          break;
-        case 'select_max':
-          foreach ($webform_validation_rule['components'] as $component) {
-            _clientside_validation_set_minmaxlength('submitted[' . $component['form_key'] . ']', $component['name'], '', $webform_validation_rule['data'], $js_rules);
-          }
-          break;
-        case 'select_exact':
-          foreach ($webform_validation_rule['components'] as $component) {
-            _clientside_validation_set_minmaxlength('submitted[' . $component['form_key'] . ']', $component['name'], $webform_validation_rule['data'], $webform_validation_rule['data'], $js_rules);
-          }
-          break;
-        case 'validEAN':
-          foreach ($webform_validation_rule['components'] as $component) {
-            $message = (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) ? $webform_validation_rule['error_message'] : 'Not a valid EAN number.';
-            _clientside_validation_set_ean('submitted[' . $component['form_key'] . ']', $component['name'], $js_rules, $message);
-          }
-          break;
-        case 'regex':
-          foreach ($webform_validation_rule['components'] as $component) {
-            $message = $webform_validation_rule['error_message'];
-            $expression = $webform_validation_rule['data'];
-            _clientside_validation_set_regex('submitted[' . $component['form_key'] . ']', $component['name'], $js_rules, $expression, $message);
-          }
-          break;
-      }
-    }
-  }
+  drupal_alter("clientside_validation_webform", $form, $form_state, $js_rules);
   if (!empty($js_rules)) {
     $settings['clientsideValidation']['general'] = array(
       "errorClass" => "error",
@@ -226,84 +143,12 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
   return $form;
 }
 
-function clientside_validation_webform_after_build_recurse($form_id, &$form, &$form_state, &$js_rules) {
-  if ($children = array_values(element_children($form))) {
-    foreach ($children as $index => $item) {
-      $element = $form[$item];
-      if (isset($element['#title'])) {
-        if ($element['#required']) {
-          if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'time' && isset($element['hour']['#name'])) {
-            $message = t('Hour in !name field is required.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
-            _clientside_validation_set_required($element['hour']['#name'], $element['#title'], TRUE, $js_rules, $message);
-            $message = t('Minute in !name field is required.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
-            _clientside_validation_set_required($element['minute']['#name'], $element['#title'], TRUE, $js_rules, $message);
-          }
-          elseif (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'date') {
-            $message = t('Month in !name field is required.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
-            _clientside_validation_set_required($element['#name'] . '[month]', $element['#title'], TRUE, $js_rules, $message);
-            $message = t('Day in !name field is required.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
-            _clientside_validation_set_required($element['#name'] . '[day]', $element['#title'], TRUE, $js_rules, $message);
-            $message = t('Year in !name field is required.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
-            _clientside_validation_set_required($element['#name'] . '[year]', $element['#title'], TRUE, $js_rules, $message);
-            if (is_numeric($element['#year_start']) && is_numeric($element['#year_end'])) {
-              $message = t('The entered date needs to be between the years @start and @end.', array('@start' => $element['#year_start'], '@end' => $element['#year_end']));
-              _clientside_validation_set_minmax($element['#name'] . '[year]', $element['#title'], $element['#year_start'], $element['#year_end'], $js_rules, $message);
-            }            
-          }
-          elseif ($element['#type'] == 'checkboxes') {
-            $id = '#' . $element['#id'];
-            _clientside_validation_set_checkboxgroup_minmax($element['#name'], $element['#title'], $id, $js_rules);
-          }
-          elseif ($element['#type'] == 'select' && $element['#multiple']) {
-            _clientside_validation_set_required($element['#name'] . '[]', $element['#title'], TRUE, $js_rules);
-          }
-          elseif (isset($element['#type'])) {
-            _clientside_validation_set_required($element['#name'], $element['#title'], TRUE, $js_rules);
-          }
-        }
-        if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'file' && $element['#webform_component']['mandatory'] == "1") {
-          _clientside_validation_set_required($element['#name'], $element['#title'], TRUE, $js_rules);
-          if (isset($element['#webform_component']['extra']['filtering']['types'])) {
-            $extensions = $element['#webform_component']['extra']['filtering']['types'];
-            _clientside_validation_set_extensions($element['#name'], $extensions, $js_rules);
-          }
-        }
-        if (isset($element['#maxlength']) && $element['#maxlength']) {
-          $message = t('!name field has a max length of !maxl characters.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', ''), '!maxl' => $element['#maxlength']));
-          _clientside_validation_set_minmaxlength($element['#name'], $element['#title'], '', $element['#maxlength'], $js_rules, $message);
-        }
-        
-        if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'email') {
-          _clientside_validation_set_email($element['#name'], $element['#title'], $js_rules);
-        }
-      }
-      clientside_validation_webform_after_build_recurse($form_id, $element, $form_state, $js_rules);
-    }
-  }
-}
-
 /**
- * Implements hook_webform_validation().
- */
-function clientside_validation_webform_validation($nid) {
-  static $webform_validation_rules;
-  if (!isset($webform_validation_rules[$nid])) {
-    if (module_exists('webform_validation')) {
-      $webform_validation_rules[$nid] = webform_validation_get_node_rules($nid);
-    }
-    else {
-      $webform_validation_rules[$nid] = NULL;
-    }
-  }
-  return $webform_validation_rules[$nid];
-}
-
-/**
- * Regular form
+ * Regular form.
  */
 function clientside_validation_form_after_build(&$form, &$form_state) {
   static $js_rules = array();
-  clientside_validation_form_after_build_recurse($form['#id'], $form, $form_state, $js_rules);
+  drupal_alter("clientside_validation_form", $form, $form_state, $js_rules);
   if (!empty($js_rules)) {
     $settings['clientsideValidation']['general'] = array(
       "errorClass" => "error",
@@ -325,6 +170,17 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
           unset($rule['messages']);
         }
       }
+      if(isset($rule['ajaxCallback'])) {
+        $settings['clientsideValidation']['forms'][$form['#id']]['ajaxrules'][$key] = array(
+          'ajaxCallback' => $rule['ajaxCallback'],
+          'messages' => $rule['messages']
+        );
+        unset($rule['ajaxCallback']);
+        unset($rule['messages']['ajaxCallback']);
+        if (empty($rule['messages'])) {
+          unset($rule['messages']);
+        }
+      }
       if (!empty($rule)) {
         $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
       }
@@ -338,84 +194,8 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
     drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js');
     drupal_add_js($settings, 'setting');
   }
-  
+
   return $form;
-}
-
-function clientside_validation_form_after_build_recurse($form_id, &$form, &$form_state, &$js_rules) {
-  if ($children = array_values(element_children($form))) {
-    foreach ($children as $index => $item) {
-      $element = &$form[$item];
-      $types = array(
-        'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'file', 'radios', 'checkboxes',
-      );
-      if (isset($element['#type']) && in_array($element['#type'], $types)) {
-        clientside_validation_regular($form_id, $element, $js_rules);
-      }
-      clientside_validation_form_after_build_recurse($form_id, $element, $form_state, $js_rules);
-    }
-  }
-}
-
-function clientside_validation_regular($form_id, $element, &$js_rules) {
-  static $multiples = array();
-  if (isset($element['#name']) && !isset($js_rules[$element['#name']])) {
-    $el_name = $element['#name'];
-    $el_title = $el_name;
-    if (isset($element['#title'])) {
-      $el_title = $element['#title'];
-    }
-    $is_multiple = FALSE;
-    if (isset($element['#multiple'])) {
-      $is_multiple = $element['#multiple'];
-    }
-    switch ($element['#type']) {
-      case 'textfield':
-      case 'password':
-      case 'textarea':
-      case 'file':
-        if ($is_multiple) {
-          // Only first field is required
-          if (!isset($multiples[$form_id][$el_name])) {
-            _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules);
-            $multiples[$form_id][$el_name] = 1;
-          }
-        }
-        else {
-          _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules);
-        }
-        if (isset($element['#maxlength']) && $element['#maxlength'] > 0) {
-          _clientside_validation_set_minmaxlength($el_name, $el_title, '', $element['#maxlength'], $js_rules);
-        }
-        break;
-      case 'select':
-        if ($is_multiple) {
-          $el_name .= '[]';
-          if (!isset($element['#minlength'])) {
-            $element['#minlength'] = 0;
-          }
-          $max = (($is_multiple === TRUE || $is_multiple == 1) ? '' : $is_multiple);
-          _clientside_validation_set_minmaxlength($el_name, $el_title, $element['#minlength'], $max, $js_rules);
-        }
-        _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules);
-        break;
-      case 'radio':
-      case 'radios':
-        _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules);
-        break;
-      case 'checkbox':
-      case 'checkboxes':
-        $is_multiple = (isset($element['#options']) && count($element['#options']>1));
-        if ($is_multiple && $element['#required']) {
-          $id = '#' . $element['#id'];
-          _clientside_validation_set_checkboxgroup_minmax($element['#name'], $el_title, $id, $js_rules);
-        }
-        elseif ($element['#required']) {
-          _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules);
-        }
-        break;
-    }
-  }
 }
 
 /**
@@ -524,6 +304,17 @@ function _clientside_validation_set_specific_value($name, $title, $value, &$js_r
 }
 
 /**
+ * Set validation rule for fields that consist of one or more of specific values (e.g. string with only a, b and c in it).
+ */
+function _clientside_validation_set_specific_values($name, $title, $values, &$js_rules, $message = '') {
+  $js_rules[$name]['specificVals'] = $values;
+  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  dpm($values);
+  $message = empty($message) ? t('!name field must consist of following elements only: !elements.', array('!name' => $title, '!elements' => implode(', ', $values))) : $message;
+  $js_rules[$name]['messages']['specificVals'] = $message;
+}
+
+/**
  * Set validation rule for ean number fields.
  */
 function _clientside_validation_set_ean($name, $title, &$js_rules, $message = '') {
@@ -536,10 +327,13 @@ function _clientside_validation_set_ean($name, $title, &$js_rules, $message = ''
 /**
  * Set validation rule for fields with regex validation from webform_validation
  */
-function _clientside_validation_set_regex($name, $title, &$js_rules, $expression, $message = '') {
+function _clientside_validation_set_regex($name, $title, &$js_rules, $expression, $message = '', $modifiers = "") {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   $message = empty($message) ? t('!name field is not a valid EAN number.', array('!name' => $title)) : $message;
-  $js_rules[$name]['regexMatch'] = $expression;
+  $js_rules[$name]['regexMatch'] = array($expression);
+  if(!empty($modifiers)) {
+    $js_rules[$name]['regexMatch'][] = $modifiers;
+  }
   $js_rules[$name]['messages']['regexMatch'] = $message;
 }
 
@@ -568,6 +362,90 @@ function _clientside_validation_set_email($name, $title, &$js_rules) {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   $js_rules[$name]['email'] = TRUE;
   $js_rules[$name]['messages']['email'] = t('The value in !name is not a valid email address.', array('!name' => $title));
+}
+
+/**
+ * Set validation rule for url fields.
+ */
+function _clientside_validation_set_url($name, $title, &$js_rules){
+  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $js_rules[$name]['url'] = TRUE;
+  $js_rules[$name]['messages']['url'] = t('The value in !name is not a valid url.', array('!name' => $title));
+}
+
+/**
+ * Set ajax callback validation.
+ */
+function _clientside_validation_set_ajax_callback($name, $title, $callback, $params, &$js_rules, $message = '') {
+  $expressions = array(
+    'fapi_validation_rule_alpha' => array(
+      'pattern' => '^[\pL]++$',
+      'modifiers' => 'uD',
+    ),
+    'fapi_validation_rule_alpha_numeric' => array(
+      'pattern' => '^[\pL\pN]++$',
+      'modifiers' => 'uD',
+    ),
+    'fapi_validation_rule_ipv4' => array(
+      'pattern' => '^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
+      . '(\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$',
+      'modifiers' => '',
+    ),
+    'fapi_validation_rule_alpha_dash' => array(
+      'pattern' => '^[-\pL\pN_]+$',
+      'modifiers' => 'uD',
+    ),
+    'fapi_validation_rule_digit' => array(
+      'pattern' => '^\d+$',
+      'modifiers' => '',
+    ),
+  );
+  switch ($callback) {
+    case 'fapi_validation_rule_alpha':
+    case 'fapi_validation_rule_alpha_numeric':
+    case 'fapi_validation_rule_ipv4':
+    case 'fapi_validation_rule_alpha_dash':
+    case 'fapi_validation_rule_digit':
+    case 'fapi_validation_rule_regexp':
+      if($callback == 'fapi_validation_rule_regexp') {
+        $expressions['fapi_validation_rule_regexp'] = array(
+          'pattern' => substr($params[1][0], 1, strrpos($params[1][0], '/')-1),
+          'modifiers' => substr($params[1][0], strrpos($params[1][0], '/')+1, strlen($params[1][0]) - strrpos($params[1][0], '/') + 1),
+        );
+      }
+      $message = t($message, array('%field' => $title));
+      _clientside_validation_set_regex($name, $title, $js_rules, $expressions[$callback]['pattern'], $message, $expressions[$callback]['modifiers']);
+
+      break;
+    case 'fapi_validation_rule_numeric':
+      _clientside_validation_set_number($name, $title, '.', $js_rules);
+      break;
+    case 'fapi_validation_rule_email':
+      _clientside_validation_set_email($name, $title, $js_rules);
+      break;
+    case 'fapi_validation_rule_length':
+      if (count($params) == 1) {
+        _clientside_validation_set_minmaxlength($name, $title, '', $params[1][0], $js_rules);
+      }
+      else if (count($params) == 2) {
+        _clientside_validation_set_minmaxlength($name, $title, $params[1][0], $params[1][1], $js_rules);
+      }
+      break;
+    case 'fapi_validation_rule_url':
+      _clientside_validation_set_url($name, $title, $js_rules);
+      break;
+    case 'fapi_validation_rule_chars':
+      _clientside_validation_set_specific_values($name, $title, $params[1], $js_rules);
+      break;
+    case 'fapi_validation_rule_decimal':
+      _clientside_validation_set_number_decimal($name, $title, '.', $js_rules);
+      break;
+    default:
+      break;
+  }
+ /* $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $js_rules[$name][$callback] =  array('callback' => $callback, 'params' => $params);
+  $js_rules[$name]['messages'][$callback] = t($message, array('%field' => $title));*/
 }
 
 function clientside_validation_drupal_json_encode($var) {

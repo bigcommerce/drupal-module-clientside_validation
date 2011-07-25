@@ -79,6 +79,14 @@
 
         // Remove class rules
         jQuery.validator.removeClassRules('number');
+        jQuery.validator.removeClassRules('required');
+        jQuery.validator.removeClassRules('email');
+        jQuery.validator.removeClassRules('url');
+        jQuery.validator.removeClassRules('date');
+        jQuery.validator.removeClassRules('dateISO');
+        jQuery.validator.removeClassRules('dateDE');
+        jQuery.validator.removeClassRules('digits');
+        jQuery.validator.removeClassRules('creditcard');
 
         // Bind all rules
         self.bindRules(f);
@@ -185,6 +193,15 @@
       return false;
     }, jQuery.format(''));
 
+    jQuery.validator.addMethod("specificVals", function(value, element, param){
+      for (var i in value){
+        if(param.indexOf(value[i]) == -1) {
+          return false;
+        }
+      }
+      return true;
+    })
+
     // Unique values
     jQuery.validator.addMethod("notEqualTo", function(value, element, param) {
       var target = $(param).unbind(".validate-notEqualTo").bind("blur.validate-notEqualTo", function() {
@@ -198,7 +215,7 @@
         return this.optional(element);
       }
       else {
-        var regexp = new RegExp(param);
+        var regexp = new RegExp(param[0], param[1]);
         if(regexp.test(value)){
           return true;
         }
@@ -244,6 +261,7 @@
       }
     }, jQuery.format('Not a valid EAN number.'));
 
+    
   }
 
 

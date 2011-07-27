@@ -18,6 +18,7 @@ function clientside_validation_enable() {
     ->condition('name', 'clientside_validation')
     ->execute();
 }
+
 /**
  * Clientside validation was split up into form validation, webform validation and fapi validation.
  * This update enables the form and webform clientside validation module. It does not enable the

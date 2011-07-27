@@ -16,7 +16,7 @@ function clientside_validation_menu() {
     'page arguments' => array('clientside_validation_admin_settings'),
     'access arguments' => array('administer site configuration'),
   );
-   $items['clientside_validation/ajax'] = array(
+  $items['clientside_validation/ajax'] = array(
     'title' => 'Clientside validation ajax callback',
     'page callback' => '_clientside_validation_ajax_call',
     'access arguments' => array('access content'),
@@ -244,7 +244,7 @@ function _clientside_validation_set_number($name, $title, $decimalpoint, &$js_ru
 /**
  * Set validation rule for decimal fields.
  */
-function _clientside_validation_set_number_decimal($name, $title, $decimalpoint, &$js_rules, $decimals = 0, $digits = 0) {
+function _clientside_validation_set_number_decimal($name, $title, $decimalpoint, &$js_rules) {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   if ($decimalpoint == '.') {
     $js_rules[$name]['number'] = TRUE;

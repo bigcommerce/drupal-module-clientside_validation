@@ -90,5 +90,3 @@ function clientside_validation_regular($form_id, $element, &$js_rules) {
     }
   }
 }
-
-?>

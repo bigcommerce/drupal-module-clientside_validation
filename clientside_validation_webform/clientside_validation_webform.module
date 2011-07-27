@@ -163,4 +163,3 @@ function clientside_validation_webform_webform_validation($nid) {
   }
   return $webform_validation_rules[$nid];
 }
-?>

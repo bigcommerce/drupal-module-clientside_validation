@@ -25,7 +25,7 @@ function clientside_validation_menu() {
   return $items;
 }
 
-function _clientside_validation_ajax_call(){
+function _clientside_validation_ajax_call() {
   $param = $_POST['param'];
   $value = $_POST['value'];
   $result = array();
@@ -193,17 +193,6 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
           unset($rule['messages']);
         }
       }
-      if(isset($rule['ajaxCallback'])) {
-        $settings['clientsideValidation']['forms'][$form['#id']]['ajaxrules'][$key] = array(
-          'ajaxCallback' => $rule['ajaxCallback'],
-          'messages' => $rule['messages']
-        );
-        unset($rule['ajaxCallback']);
-        unset($rule['messages']['ajaxCallback']);
-        if (empty($rule['messages'])) {
-          unset($rule['messages']);
-        }
-      }
       if (!empty($rule)) {
         $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
       }
@@ -280,7 +269,7 @@ function _clientside_validation_set_minmax($name, $title, $min, $max, &$js_rules
  */
 function _clientside_validation_set_minmaxlength($name, $title, $min, $max, &$js_rules, $message = '') {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
-  if($max == 1){
+  if ($max == 1) {
     $max = '';
   }
   if (isset($min) && $min != '' && isset($max) && $max != '') {
@@ -353,7 +342,7 @@ function _clientside_validation_set_regex($name, $title, &$js_rules, $expression
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   $message = empty($message) ? t('!name field is not a valid EAN number.', array('!name' => $title)) : $message;
   $js_rules[$name]['regexMatch'] = array($expression);
-  if(!empty($modifiers)) {
+  if (!empty($modifiers)) {
     $js_rules[$name]['regexMatch'][] = $modifiers;
   }
   $js_rules[$name]['messages']['regexMatch'] = $message;
@@ -399,7 +388,7 @@ function _clientside_validation_set_email($name, $title, &$js_rules) {
 /**
  * Set validation rule for url fields.
  */
-function _clientside_validation_set_url($name, $title, &$js_rules){
+function _clientside_validation_set_url($name, $title, &$js_rules) {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   $js_rules[$name]['url'] = TRUE;
   $js_rules[$name]['messages']['url'] = t('The value in !name is not a valid url.', array('!name' => $title));
@@ -424,7 +413,7 @@ function _clientside_validation_set_fapi_validation($name, $title, $callback, $p
     case 'fapi_validation_rule_alpha_dash':
     case 'fapi_validation_rule_digit':
     case 'fapi_validation_rule_regexp':
-      if($callback == 'fapi_validation_rule_regexp') {
+      if ($callback == 'fapi_validation_rule_regexp') {
         $expressions['fapi_validation_rule_regexp'] = $params[1][0];
       }
       $message = t($message, array('%field' => $title));
@@ -441,7 +430,7 @@ function _clientside_validation_set_fapi_validation($name, $title, $callback, $p
       if (count($params[1]) == 1) {
         _clientside_validation_set_minmaxlength($name, $title, '', $params[1][0], $js_rules);
       }
-      else if (count($params[1]) == 2) {
+      elseif (count($params[1]) == 2) {
         _clientside_validation_set_minmaxlength($name, $title, $params[1][0], $params[1][1], $js_rules);
       }
       break;
@@ -453,8 +442,8 @@ function _clientside_validation_set_fapi_validation($name, $title, $callback, $p
       break;
     case 'fapi_validation_rule_decimal':
       $message = t($message, array('%field' => $title));
-      if(count($params[1]) == 2) {
-        $expression = '/^[0-9]{'.$params[1][0].'}\.[0-9]{'.$params[1][1].'}$/';
+      if (count($params[1]) == 2) {
+        $expression = '/^[0-9]{' . $params[1][0] . '}\.[0-9]{' . $params[1][1] . '}$/';
       }
       else {
         $expression = '/\d+\.\d+/';

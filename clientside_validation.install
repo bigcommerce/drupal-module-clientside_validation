@@ -24,6 +24,6 @@ function clientside_validation_enable() {
  * This update enables the form and webform clientside validation module. It does not enable the
  * fapi clientside validation module, because it's a new feature since this release.
  */
-function clientside_validation_update_7100(){
+function clientside_validation_update_7100() {
   module_enable(array('clientside_validation_form', 'clientside_validation_webform'));
 }

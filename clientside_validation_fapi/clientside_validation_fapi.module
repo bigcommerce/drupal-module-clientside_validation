@@ -1,0 +1,71 @@
+<?php
+// $Id$
+/**
+ * @file
+ * Add client side validation support for fapi validation
+ */
+
+function clientside_validation_fapi_clientside_validation_form_alter(&$form, &$form_state, &$js_rules){
+  clientside_validation_fapi_after_build_recurse($form['#id'], $form, $form_state, $js_rules);
+}
+
+function clientside_validation_fapi_after_build_recurse($form_id, &$form, &$form_state, &$js_rules) {
+  if ($children = array_values(element_children($form))) {
+    foreach ($children as $index => $item) {
+      $element = &$form[$item];
+      $types = array(
+        'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'file', 'radios', 'checkboxes',
+      );
+      if (isset($element['#type']) && in_array($element['#type'], $types)) {
+        clientside_validation_fapi_regular($form_id, $element, $js_rules);
+      }
+      clientside_validation_form_after_build_recurse($form_id, $element, $form_state, $js_rules);
+    }
+  }
+}
+
+function clientside_validation_fapi_regular($form_id, $element, &$js_rules) {
+  if (isset($element['#name']) && isset($element['#rules'])) {
+    $el_name = $element['#name'];
+    $el_title = $el_name;
+    if (isset($element['#title'])) {
+      $el_title = $element['#title'];
+    }
+    $data = _fapi_validation_data('rules');
+    foreach($element['#rules'] as $rule) {
+      $params = array($element['#value']);
+      $error_message = NULL;
+
+      // If $rule is an array, use error message if is set.
+      if (is_array($rule)) {
+        if (isset($rule['error'])) {
+          $error_message = $rule['error'];
+        }
+
+        if (!isset($rule['rule'])) {
+          drupal_set_message(t('Rule array with wrong structure on %field.', array('%field'=>$element['#name'])), 'error');
+          continue;
+        }
+        $rule = $rule['rule'];
+      }
+
+      preg_match('/^(.*?)(\[(.*)\])?$/', $rule, $rs);
+
+      $rule = $rs[1];
+
+      if (!isset($data[$rule])) {
+        $error_message = t('Rule %rule not found!', array('%rule'=>$rule));
+        continue;
+      }
+
+      // Parsing parameters.
+      if (isset($rs[3])) {
+        $params[] = preg_split('/ *, */', $rs[3]);
+      }
+      $error = is_null($error_message) ? $data[$rule]['error_msg'] : $error_message;
+      _clientside_validation_set_fapi_validation($el_name, $el_title, $data[$rule]['callback'], $params, $js_rules, $error);
+    }
+  }
+}
+
+?>

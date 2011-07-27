@@ -1,0 +1,89 @@
+<?php
+
+// $Id$
+/**
+ * @file
+ * Add clientside validation to regular forms
+ */
+
+function clientside_validation_form_clientside_validation_form_alter(&$form, &$form_state, &$js_rules) {
+  clientside_validation_form_after_build_recurse($form['#id'], $form, $form_state, $js_rules);
+}
+
+function clientside_validation_form_after_build_recurse($form_id, &$form, &$form_state, &$js_rules) {
+  if ($children = array_values(element_children($form))) {
+    foreach ($children as $index => $item) {
+      $element = &$form[$item];
+      $types = array(
+        'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'file', 'radios', 'checkboxes',
+      );
+      if (isset($element['#type']) && in_array($element['#type'], $types)) {
+        clientside_validation_regular($form_id, $element, $js_rules);
+      }
+      clientside_validation_form_after_build_recurse($form_id, $element, $form_state, $js_rules);
+    }
+  }
+}
+
+function clientside_validation_regular($form_id, $element, &$js_rules) {
+  static $multiples = array();
+  if (isset($element['#name'])) {
+    $el_name = $element['#name'];
+    $el_title = $el_name;
+    if (isset($element['#title'])) {
+      $el_title = $element['#title'];
+    }
+    $is_multiple = FALSE;
+    if (isset($element['#multiple'])) {
+      $is_multiple = $element['#multiple'];
+    }
+    switch ($element['#type']) {
+      case 'textfield':
+      case 'password':
+      case 'textarea':
+      case 'file':
+        if ($is_multiple) {
+          // Only first field is required
+          if (!isset($multiples[$form_id][$el_name])) {
+            _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules);
+            $multiples[$form_id][$el_name] = 1;
+          }
+        }
+        else {
+          _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules);
+        }
+        if (isset($element['#maxlength']) && $element['#maxlength'] > 0) {
+          _clientside_validation_set_minmaxlength($el_name, $el_title, '', $element['#maxlength'], $js_rules);
+        }
+        break;
+      case 'select':
+        if ($is_multiple) {
+          $el_name .= '[]';
+          if (!isset($element['#minlength'])) {
+            $element['#minlength'] = 0;
+          }
+          $max = (($is_multiple === TRUE || $is_multiple == 1) ? '' : $is_multiple);
+          _clientside_validation_set_minmaxlength($el_name, $el_title, $element['#minlength'], $max, $js_rules);
+        }
+        _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules);
+        break;
+      case 'radio':
+      case 'radios':
+        _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules);
+        break;
+      case 'checkbox':
+      case 'checkboxes':
+        $is_multiple = (isset($element['#options']) && count($element['#options']>1));
+        if ($is_multiple && $element['#required']) {
+          $id = '#' . $element['#id'];
+          _clientside_validation_set_checkboxgroup_minmax($element['#name'], $el_title, $id, $js_rules);
+        }
+        elseif ($element['#required']) {
+          _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules);
+        }
+        break;
+    }
+  }
+}
+
+?>

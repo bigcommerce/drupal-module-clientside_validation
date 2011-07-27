@@ -200,7 +200,32 @@
         }
       }
       return true;
-    })
+    });
+
+    jQuery.validator.addMethod("regexMatchPCRE", function(value, element, param) {
+      var result = false;
+      jQuery.ajax({
+        'url': Drupal.settings.basePath + 'clientside_validation/ajax',
+        'type': "POST",
+        'data': {
+          'value': value,
+          'param': param
+        },
+        'dataType': 'json',
+        'async': false,
+        'success': function(res){
+          result = res;
+        }
+      });
+      if (result['result'] === false) {
+        if (result['message'].length) {
+          jQuery.extend(jQuery.validator.messages, {
+            "regexMatchPCRE": result['message']
+          });
+        }
+      }
+      return result['result'];
+    }, jQuery.format('The value does not match the expected format.'));
 
     // Unique values
     jQuery.validator.addMethod("notEqualTo", function(value, element, param) {

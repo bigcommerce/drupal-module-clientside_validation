@@ -99,7 +99,7 @@ function clientside_validation_admin_settings() {
     '#type' => 'fieldset',
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
-    '#title' => t("Don't ignore hidden fields on the follow forms"),
+    '#title' => t("Don't ignore hidden fields on the following forms"),
     '#description' => t('You can specify form IDs (one per line) of forms that should have hidden elements validated.'),
   );
   $form['clientside_validation_include_hidden_fieldset']['clientside_validation_include_hidden'] = array(

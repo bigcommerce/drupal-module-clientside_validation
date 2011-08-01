@@ -1,0 +1,9 @@
+; $Id: 
+name = Clientside Validation Field Validation
+description = Add client side validation support for <a href="http://www.drupal.org/project/field_validation">Field Validation</a>
+core = 7.x
+package = Other
+
+files[] = clientside_validation_field_validation.module
+dependencies[] = clientside_validation
+dependencies[] = field_validation

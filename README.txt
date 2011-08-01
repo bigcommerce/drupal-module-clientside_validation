@@ -4,31 +4,29 @@ Description
 ===========
 This module allows you to add clientside validation to forms and webforms.
 
-Added support for http://drupal.org/project/webform_validation, for the moment only for:
-- Numeric values
-- Minimum length
-- Maximum length
-- Equal values
-- Unique values
-- Specific value(s)
-- Minimum number of selections required
-- Maximum number of selections allowed
-- Exact number of selections required
+Usage
+=====
+The only thing this module will do is translate validation rules defined in php to javascript counter parts,
+if you mark a field as required it will create a javascript rule that checks the field on submit. This means
+no configuration is needed. You can however configure the prefix and suffix used for the field names in the
+error messages (e.g.: prefix:", suffix:" or prefix:<<, suffix:>>) and whether or not to use the minified version
+of jquery.validate.js.
 
-Must be empty, not implemented because it can be used as anti-spam
-
-Still todo:
-- Require at least one of two fields
-- Require at least one of several fields
-- Plain text (disallow tags)
-- Regular expression
-- Words blacklist
+You can find an example here: http://drupal.org/sandbox/jelles/1193994
 
 Dependencies
 ============
-- none
+- Clientside Validation (Main module): none
+- Clientside Validation Webform:
+  * Clientside Validation
+  * Webform (http://drupal.org/project/webform)
+- Clientside Validation Form:
+  * Clientside Validation
+- Clientside Validation FAPI:
+  * Clientside Validation
+  * FAPI Validation (http://drupal.org/project/fapi_validation)
 
-Known problems
-==============
-
-CCK Multivalue checkboxes cannot be checked, see code
+TODO
+====
+- Allow user to select to which forms the validation has to be added
+- Add settings to control position and behaviour of the error messages

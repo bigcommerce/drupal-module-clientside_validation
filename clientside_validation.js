@@ -68,14 +68,18 @@
       //@todo: find cleaner fix
       // ugly fix for nodes in colorbox
       if(typeof $('#' + f).validate == 'function') {
-        self.validators[f] = $('#' + f).validate({
-          ignore: ':hidden',
+        var validate_options = {
           errorClass: 'error',
           errorContainer: '#' + errorel,
           errorLabelContainer: '#' + errorel + ' ul',
           wrapper: 'li',
           groups: self.groups[f]
-        });
+        };
+
+        if (!Drupal.settings.clientsideValidation.forms[f].includeHidden) {
+          validate_options.ignore = ':hidden';
+        }
+        self.validators[f] = $('#' + f).validate(validate_options);
 
         // Remove class rules
         jQuery.validator.removeClassRules('number');

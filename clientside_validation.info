@@ -6,6 +6,8 @@ package = Other
 
 files[] = clientside_validation.module
 
+configure = admin/config/validation/clientside_validation
+
 ; Information added by drupal.org packaging script on 2010-12-25
 version = "7.x-1.x-dev"
 core = "7.x"

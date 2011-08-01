@@ -9,7 +9,16 @@
  * Implements hook_menu().
  */
 function clientside_validation_menu() {
-  $items['admin/structure/clientside_validation'] = array(
+  $items['admin/config/validation'] = array(
+    'title' => 'Validation',
+    'description' => 'Validation settings.',
+    'position' => 'right',
+    'weight' => -10,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('clientside_validation_admin_settings'),
+    'access arguments' => array('access administration pages'),
+  );
+  $items['admin/config/validation/clientside_validation'] = array(
     'title' => 'Clientside Validation',
     'description' => 'Administer clientside validation.',
     'page callback' => 'drupal_get_form',
@@ -65,7 +74,7 @@ function clientside_validation_admin_settings() {
   $form['clientside_validation']['example_image'] = array(
     '#type' => 'item',
     '#title' => t('Example'),
-    '#value' => '<img id="clientside_validation_example_image" src="' . base_path() . drupal_get_path('module', 'clientside_validation') . '/errormsg.png" alt="' . t('Error message example') . '" />',
+    '#markup' => '<img id="clientside_validation_example_image" src="' . base_path() . drupal_get_path('module', 'clientside_validation') . '/errormsg.png" alt="' . t('Error message example') . '" />',
     '#description' => t('Filling in double quotes in both the above fields will give this result.'),
   );
 

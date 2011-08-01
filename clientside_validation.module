@@ -36,6 +36,14 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
         break;
     }
   }
+
+  // Add a setting for this form if the hidden elements should still be validated
+  $include_hidden_setting = variable_get('clientside_validation_include_hidden', '');
+  $include_hidden = preg_split('/(\r\n?|\n)/', $include_hidden_setting, -1, PREG_SPLIT_NO_EMPTY);
+  if (in_array($form_id, $include_hidden)) {
+    $setting['clientsideValidation']['forms'][$form['#id']]['includeHidden'] = TRUE;
+    drupal_add_js($setting, 'setting');
+  }
 }
 
 /**
@@ -117,7 +125,19 @@ function clientside_validation_admin_settings() {
     '#default_value' => variable_get('clientside_validation_use_minified', 0), 
     '#title' => t('Use minified version?'),
   );
-  
+
+  $form['clientside_validation_include_hidden_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#title' => t("Don't ignore hidden fields on the follow forms"),
+    '#description' => t('You can specify form IDs (one per line) of forms that should have hidden elements validated.'),
+  );
+  $form['clientside_validation_include_hidden_fieldset']['clientside_validation_include_hidden'] = array(
+    '#type' => 'textarea',
+    '#default_value' => variable_get('clientside_validation_include_hidden', ''),
+  );
+
   return system_settings_form($form);
 }
 

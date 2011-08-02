@@ -175,10 +175,6 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
       "errorContainer" => "#formerrors-" . $form['#id'],
       "errorLabelContainer" => "#formerrors-" . $form['#id'] . " ul",
     );
-    if (isset($js_rules['includeHidden']) && $js_rules['includeHidden']) {
-      $settings['clientsideValidation']['forms'][$form['#id']]['includeHidden'] = TRUE;
-      unset($js_rules['includeHidden']);
-    }
     foreach ($js_rules as $key => $rule) {
       if (isset($rule['checkboxgroupminmax'])) {
         $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(
@@ -218,15 +214,12 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
     $settings['clientsideValidation']['general'] = array(
       "errorClass" => "error",
       "wrapper" => "li",
+      "validateTabs" =>  variable_get('clientside_validation_validate_tabs', 0),
     );
     $settings['clientsideValidation']['forms'][$form['#id']]['settings'] = array(
       "errorContainer" => "#formerrors-" . $form['#id'],
       "errorLabelContainer" => "#formerrors-" . $form['#id'] . " ul",
     );
-    if (isset($js_rules['includeHidden']) && $js_rules['includeHidden']) {
-      $settings['clientsideValidation']['forms'][$form['#id']]['includeHidden'] = TRUE;
-      unset($js_rules['includeHidden']);
-    }
     foreach ($js_rules as $key => $rule) {
       if (isset($rule['checkboxgroupminmax'])) {
         $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(
@@ -243,6 +236,7 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
         $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
       }
     }
+    dpm($settings);
     if (variable_get('clientside_validation_use_minified', 0) == 0) {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js');
     }

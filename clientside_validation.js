@@ -139,7 +139,10 @@
         };
 
         if (!Drupal.settings.clientsideValidation.forms[f].includeHidden) {
-          validate_options.ignore = ':hidden';
+          validate_options.ignore = ':input:hidden';
+        }
+        if(Drupal.settings.clientsideValidation.general.validateTabs) {
+          validate_options.ignore += ' :not(.vertical-tabs-pane:input)';
         }
         self.validators[f] = $('#' + f).validate(validate_options);
 

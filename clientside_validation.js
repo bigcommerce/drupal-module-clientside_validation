@@ -21,6 +21,22 @@
     this.bindForms();
   };
 
+  Drupal.clientsideValidation.prototype.findVerticalTab = function(element) {
+    element = $(element);
+
+    // Check for the vertical tabs fieldset and the verticalTab data
+    var fieldset = element.parents('fieldset.vertical-tabs-pane');
+    if ((fieldset.size() > 0) && (typeof(fieldset.data('verticalTab')) != 'undefined')) {
+      var tab = $(fieldset.data('verticalTab').item[0]).find('a');
+      if (tab.size()) {
+        return tab;
+      }
+    }
+
+    // Return null by default
+    return null;
+  }
+
   Drupal.clientsideValidation.prototype.bindForms = function(){
     var self = this;
     jQuery.each (self.forms, function(f) {
@@ -73,7 +89,53 @@
           errorContainer: '#' + errorel,
           errorLabelContainer: '#' + errorel + ' ul',
           wrapper: 'li',
-          groups: self.groups[f]
+          groups: self.groups[f],
+          unhighlight: function(element, errorClass, validClass) {
+            // Default behavior
+            $(element).removeClass(errorClass).addClass(validClass);
+
+            // Sort the classes out for the tabs - we only want to remove the
+            // highlight if there are no inputs with errors...
+            var fieldset = $(element).parents('fieldset.vertical-tabs-pane');
+            if (fieldset.size() && fieldset.find('.' + errorClass).size() == 0) {
+              var tab = self.findVerticalTab(element);
+              if (tab) {
+                tab.removeClass(errorClass).addClass(validClass);
+              }
+            }
+          },
+          highlight: function(element, errorClass, validClass) {
+            // Default behavior
+            $(element).addClass(errorClass).removeClass(validClass);
+
+            // Sort the classes out for the tabs
+            var tab = self.findVerticalTab(element);
+            if (tab) {
+              tab.addClass(errorClass).removeClass(validClass);
+            }
+      		},
+          invalidHandler: function(form, validator) {
+            if (validator.errorList.length > 0) {
+              // Check if any of the errors are in the selected tab
+              var errors_in_selected = false;
+              for (var i = 0; i < validator.errorList.length; i++) {
+                var tab = self.findVerticalTab(validator.errorList[i].element);
+                if (tab && tab.parent().hasClass('selected')) {
+                  errors_in_selected = true;
+                  break;
+                }
+              }
+
+              // Only focus the first tab with errors if the selected tab doesn't have
+              // errors itself. We shouldn't hide a tab that contains errors!
+              if (!errors_in_selected) {
+                var tab = self.findVerticalTab(validator.errorList[0].element);
+                if (tab) {
+                  tab.click();
+                }
+              }
+            }
+          }
         };
 
         if (!Drupal.settings.clientsideValidation.forms[f].includeHidden) {
@@ -292,7 +354,5 @@
 
     
   }
-
-
 
 })(jQuery);

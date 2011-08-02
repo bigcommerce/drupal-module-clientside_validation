@@ -17,8 +17,13 @@ function clientside_validation_form_after_build_recurse($form_id, &$form, &$form
       $types = array(
         'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'file', 'radios', 'checkboxes',
       );
-      if (isset($element['#type']) && in_array($element['#type'], $types)) {
-        clientside_validation_regular($form_id, $element, $js_rules);
+      if (isset($element['#type'])) {
+        if (in_array($element['#type'], $types)) {
+          clientside_validation_regular($form_id, $element, $js_rules);
+        }
+        elseif ($element['#type'] == 'vertical_tabs' && variable_get('clientside_validation_validate_tabs', 0) == 1) {
+          $js_rules['includeHidden'] = TRUE;
+        }
       }
       clientside_validation_form_after_build_recurse($form_id, $element, $form_state, $js_rules);
     }

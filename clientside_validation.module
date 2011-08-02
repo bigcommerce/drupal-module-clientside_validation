@@ -95,16 +95,25 @@ function clientside_validation_admin_settings() {
     '#title' => t('Use minified version?'),
   );
 
-  $form['clientside_validation_include_hidden_fieldset'] = array(
+  $form['clientside_validation_include_hidden'] = array(
     '#type' => 'fieldset',
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
+    '#title' => 'Behaviour for hidden fields',
+  );
+  $form['clientside_validation_include_hidden']['clientside_validation_include_hidden'] = array(
+    '#type' => 'textarea',
+    '#default_value' => variable_get('clientside_validation_include_hidden', ''),
     '#title' => t("Don't ignore hidden fields on the following forms"),
     '#description' => t('You can specify form IDs (one per line) of forms that should have hidden elements validated.'),
   );
-  $form['clientside_validation_include_hidden_fieldset']['clientside_validation_include_hidden'] = array(
-    '#type' => 'textarea',
-    '#default_value' => variable_get('clientside_validation_include_hidden', ''),
+  $form['clientside_validation_include_hidden']['clientside_validation_validate_tabs'] = array(
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('clientside_validation_validate_tabs', 0),
+    '#title' => t('Validate all vertical tabs'),
+    '#description' => t('If you check this, all tabs will be validated on submit
+                      (including the hidden ones). Warning: if there are other hidden
+                      fields (e.g. conditional fields), those will be validated too.'),
   );
 
   return system_settings_form($form);
@@ -166,6 +175,10 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
       "errorContainer" => "#formerrors-" . $form['#id'],
       "errorLabelContainer" => "#formerrors-" . $form['#id'] . " ul",
     );
+    if (isset($js_rules['includeHidden']) && $js_rules['includeHidden']) {
+      $settings['clientsideValidation']['forms'][$form['#id']]['includeHidden'] = TRUE;
+      unset($js_rules['includeHidden']);
+    }
     foreach ($js_rules as $key => $rule) {
       if (isset($rule['checkboxgroupminmax'])) {
         $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(
@@ -210,6 +223,10 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
       "errorContainer" => "#formerrors-" . $form['#id'],
       "errorLabelContainer" => "#formerrors-" . $form['#id'] . " ul",
     );
+    if (isset($js_rules['includeHidden']) && $js_rules['includeHidden']) {
+      $settings['clientsideValidation']['forms'][$form['#id']]['includeHidden'] = TRUE;
+      unset($js_rules['includeHidden']);
+    }
     foreach ($js_rules as $key => $rule) {
       if (isset($rule['checkboxgroupminmax'])) {
         $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(

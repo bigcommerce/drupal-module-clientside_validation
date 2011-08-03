@@ -9,6 +9,11 @@
  * Implementation of hook_form_alter().
  */
 function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
+  $validate_specific_setting = variable_get('clientside_validation_validate_specific', '');
+  $validate_specific = preg_split('/(\r\n?|\n)/', $validate_specific_setting, -1, PREG_SPLIT_NO_EMPTY);
+  if (!variable_get('clientside_validation_validate_all', 1) && !in_array($form_id, $validate_specific)) {
+    return;
+  }
   if (strpos($form_id, 'webform_client_form') !== FALSE) {
     if (isset($form['actions']['previous'])) {
       if (isset($form['actions']['previous']['#attributes'])) {
@@ -145,6 +150,26 @@ function clientside_validation_admin_settings() {
     '#description' => t('If you check this, all tabs will be validated on submit
                       (including the hidden ones). Warning: if there are other hidden
                       fields (e.g. conditional fields), those will be validated too.'),
+  );
+
+  $form['clientside_validation_validate_forms'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#title' => t('Forms to validate'),
+  );
+
+  $form['clientside_validation_validate_forms']['clientside_validation_validate_all'] = array(
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('clientside_validation_validate_all', 1),
+    '#title' => t('Validate all forms'),
+  );
+
+  $form['clientside_validation_validate_forms']['clientside_validation_validate_specific'] = array(
+    '#type' => 'textarea',
+    '#default_value' => variable_get('clientside_validation_validate_specific', ''),
+    '#title' => t("Only validate these specific forms"),
+    '#description' => t('You can specify form IDs (one per line) of forms that should be validated.'),
   );
 
   return system_settings_form($form);

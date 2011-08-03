@@ -2,7 +2,7 @@
 name = Clientside validation
 description = Add client side validation to forms and webforms
 core = 6.x
-package = Other
+package = Clientside Validation
 dependencies[] = jquery_update
 
 ; Information added by drupal.org packaging script on 2010-08-20

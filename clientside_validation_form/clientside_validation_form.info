@@ -2,7 +2,7 @@
 name = Clientside Validation Form
 description = Add client side validation to regular forms
 core = 6.x
-package = Other
+package = Clientside Validation
 
 files[] = clientside_validation_form.module
 dependencies[] = clientside_validation

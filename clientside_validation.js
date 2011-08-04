@@ -3,6 +3,8 @@ Drupal.behaviors.clientsideValidation = function (context) {
     Drupal.myClientsideValidation = new Drupal.clientsideValidation();
   }
   else {
+    Drupal.myClientsideValidation.data = Drupal.settings.clientsideValidation;
+    Drupal.myClientsideValidation.forms = Drupal.myClientsideValidation.data['forms'];
     Drupal.myClientsideValidation.bindForms();
   }
 }
@@ -135,10 +137,10 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
         }
       };
 
-      if (!Drupal.settings.clientsideValidation.forms[f].includeHidden) {
+      if (!self.forms[f].includeHidden) {
         validate_options.ignore = ':input:hidden';
       }
-      if(Drupal.settings.clientsideValidation.general.validateTabs) {
+      if (self.data.general.validateTabs) {
         validate_options.ignore += ' :not(.vertical-tabs-pane:input)';
       }
       self.validators[f] = $('#' + f).validate(validate_options);

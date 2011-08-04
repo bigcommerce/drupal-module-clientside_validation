@@ -15,7 +15,7 @@ function clientside_validation_form_after_build_recurse($form_id, &$form, &$form
     foreach ($children as $index => $item) {
       $element = &$form[$item];
       $types = array(
-        'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'file', 'radios', 'checkboxes',
+        'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'managed_file', 'file', 'radios', 'checkboxes',
       );
       if (isset($element['#type']) && in_array($element['#type'], $types)) {
         clientside_validation_regular($form_id, $element, $js_rules);
@@ -42,6 +42,11 @@ function clientside_validation_regular($form_id, $element, &$js_rules) {
       case 'password':
       case 'textarea':
       case 'file':
+      case 'managed_file':
+        if ($element['#type'] == 'managed_file') {
+          $el_name = $element['upload']['#name'];
+        }
+
         if ($is_multiple) {
           // Only first field is required
           if (!isset($multiples[$form_id][$el_name])) {

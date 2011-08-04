@@ -235,6 +235,11 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
  */
 function clientside_validation_form_after_build(&$form, &$form_state) {
   static $js_rules = array();
+  static $form_ids = array();
+  if (isset($form_ids[$form['#id']])) {
+    return $form;
+  }
+
   drupal_alter("clientside_validation_form", $form, $form_state, $js_rules);
   if (!empty($js_rules)) {
     $settings['clientsideValidation']['general'] = array(
@@ -270,6 +275,7 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
     }
     drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js');
     drupal_add_js($settings, 'setting');
+    $form_ids[$form['#id']] = TRUE;
   }
 
   return $form;

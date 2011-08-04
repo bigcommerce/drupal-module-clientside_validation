@@ -157,21 +157,14 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
   }
   if (strpos($form_id, 'webform_client_form') !== FALSE) {
     if (isset($form['actions']['previous'])) {
-      if (isset($form['actions']['previous']['#attributes'])) {
-        if (isset($form['actions']['previous']['#attributes']['class'])) {
-          $form['actions']['previous']['#attributes']['class'] .= ' cancel';
-        }
-        else {
-          $form['actions']['previous']['#attributes']['class'] = 'cancel';
-        }
-      }
-      else {
-        $form['actions']['previous']['#attributes']['class'] = 'cancel';
-      }
+      $form['actions']['previous']['#attributes']['class'][] = 'cancel';
     }
     $form['#after_build'][] = 'clientside_validation_webform_after_build';
   }
   else {
+    if (isset($form['actions']['delete'])) {
+      $form['actions']['delete']['#attributes']['class'][] = 'cancel';
+    }
     switch ($form['#id']) {
       case 'node-form':
       case 'webform-component-edit-form':

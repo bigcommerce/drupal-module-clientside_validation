@@ -62,7 +62,9 @@
       if (self.validators[f]) {
         // Doesn't work :: $('#' + f).rules('remove');
         var form = $('#' + f).get(0);
-        jQuery.removeData(form, 'validator');
+        if (typeof(form) != 'undefined') {
+          jQuery.removeData(form, 'validator');
+        }
       }
 
       if('checkboxrules' in self.forms[f]){

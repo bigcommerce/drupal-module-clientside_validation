@@ -31,6 +31,19 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
     $form['#after_build'][] = 'clientside_validation_webform_after_build';
   } 
   else {
+    if (isset($form['buttons']['delete'])) {
+      if (isset($form['buttons']['delete']['#attributes'])) {
+        if (isset($form['buttons']['delete']['#attributes']['class'])) {
+          $form['buttons']['delete']['#attributes']['class'] .= ' cancel';
+        }
+        else {
+          $form['buttons']['delete']['#attributes']['class'] = 'cancel';
+        }
+      }
+      else {
+        $form['buttons']['delete']['#attributes']['class'] = 'cancel';
+      }
+    }
     switch ($form['#id']) {
       case 'node-form':
       case 'webform-component-edit-form':

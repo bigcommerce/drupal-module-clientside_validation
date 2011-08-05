@@ -484,10 +484,11 @@ function _clientside_validation_set_extensions($name, $extensions, &$js_rules) {
 /**
  * Set validation rule for checkboxes.
  */
-function _clientside_validation_set_checkboxgroup_minmax($name, $title, $id, &$js_rules, $min = 1, $max = 99) {
+function _clientside_validation_set_checkboxgroup_minmax($name, $title, $id, &$js_rules, $message = '', $min = 1, $max = 99) {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $message = empty($message) ? t('!name field is required.', array('!name' => $title)) : $message;
   $js_rules[$name]['checkboxgroupminmax'] = array($min, $max, $id);
-  $js_rules[$name]['messages']['checkboxgroupminmax'] = t('!name field is required.', array('!name' => $title));
+  $js_rules[$name]['messages']['checkboxgroupminmax'] = $message;
 }
 
 /**

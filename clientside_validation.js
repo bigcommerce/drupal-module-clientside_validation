@@ -139,6 +139,11 @@
                   tab.click();
                 }
               }
+              if (self.data.general.scrollTo) {
+                $("#" + errorel).show();
+                var x = $("#" + errorel).offset().top - $("#" + errorel).height() - 100; // provides buffer in viewport
+                $('html, body').animate({scrollTop: x}, self.data.general.scrollSpeed);
+              }
             }
           }
         };

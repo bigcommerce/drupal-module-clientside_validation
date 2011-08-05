@@ -113,27 +113,48 @@ function clientside_validation_admin_settings() {
     '#type' => 'fieldset',
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
-    '#title' => t('Field name formatting'),
-    '#description' => t('You can define the prefix and suffix of the field names in the error messages here.'),
+    '#title' => t('Error message settings'),
+    '#description' => t('Change error message related settings.'),
   );
+
   $form['clientside_validation']['clientside_validation_prefix'] = array(
     '#title' => t('Field name prefix'),
     '#description' => t('The prefix of the field name in the error messages.'),
     '#type' => 'textfield',
     '#default_value' => variable_get('clientside_validation_prefix', ''),
   );
+
   $form['clientside_validation']['clientside_validation_suffix'] = array(
     '#title' => t('Field name suffix'),
     '#description' => t('The suffix of the field name in the error messages.'),
     '#type' => 'textfield',
     '#default_value' => variable_get('clientside_validation_suffix', ''),
   );
+
   $form['clientside_validation']['example_image'] = array(
     '#type' => 'item',
     '#title' => t('Example'),
     '#value' => '<img id="clientside_validation_example_image" src="' . base_path() . drupal_get_path('module', 'clientside_validation') . '/errormsg.png" alt="' . t('Error message example') . '" />',
     '#description' => t('Filling in double quotes in both the above fields will give this result.'),
   );
+
+  $form['clientside_validation']['clientside_validation_scrollto_errormessage'] = array(
+    '#title' => t('Scroll to error message'),
+    '#description' => t('If checked, the page will automatically scroll to the error messages when validation fails.'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('clientside_validation_scrollto_errormessage', 1),
+  );
+
+  $form['clientside_validation']['clientside_validation_scroll_speed'] = array(
+    '#title' => t('Scroll speed'),
+    '#description' => t('The scroll speed in milliseconds'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('clientside_validation_scroll_speed', 1000),
+  );
+
+  if (module_exists('fapi_validation') && module_exists('clientside_validation_fapi')) {
+    $form['clientside_validation']['clientside_validation_scroll_speed'] += array('#rules' => array('numeric'));
+  }
 
   $form['clientside_validation_min'] = array(
     '#type' => 'fieldset',
@@ -142,6 +163,7 @@ function clientside_validation_admin_settings() {
     '#title' => t('Use minified version of jquery.validate.js'),
     '#description' => t('You can use the minified version of the library.'),
   );
+
   $form['clientside_validation_min']['clientside_validation_use_minified'] = array(
     '#type' => 'radios',
     '#options' => array(
@@ -158,12 +180,14 @@ function clientside_validation_admin_settings() {
     '#collapsed' => FALSE,
     '#title' => t('Behaviour for hidden fields'),
   );
+
   $form['clientside_validation_include_hidden']['clientside_validation_include_hidden'] = array(
     '#type' => 'textarea',
     '#default_value' => variable_get('clientside_validation_include_hidden', ''),
     '#title' => t("Don't ignore hidden fields on the following forms"),
     '#description' => t('You can specify form IDs (one per line) of forms that should have hidden elements validated.'),
   );
+  
   $form['clientside_validation_include_hidden']['clientside_validation_validate_tabs'] = array(
     '#type' => 'checkbox',
     '#default_value' => variable_get('clientside_validation_validate_tabs', 1),
@@ -216,6 +240,8 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
         "errorClass" => "error",
         "wrapper" => "li",
         "validateTabs" =>  variable_get('clientside_validation_validate_tabs', 1),
+        "scrollTo" => variable_get('clientside_validation_scrollto_errormessage', 1),
+        "scrollSpeed" => (int)variable_get('clientside_validation_scroll_speed', 1000),
       );
       $general_settings_added = TRUE;
     }
@@ -268,6 +294,8 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
         "errorClass" => "error",
         "wrapper" => "li",
         "validateTabs" =>  variable_get('clientside_validation_validate_tabs', 1),
+        "scrollTo" => variable_get('clientside_validation_scrollto_errormessage', 1),
+        "scrollSpeed" => (int)variable_get('clientside_validation_scroll_speed', 1000),
       );
       $general_settings_added = TRUE;
     }

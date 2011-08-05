@@ -91,7 +91,7 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
         errorLabelContainer: '#' + errorel + ' ul',
         wrapper: 'li',
         groups: self.groups[f],
-        unhighlight: function(element, errorClass, validClass) {
+        unhighlight: function (element, errorClass, validClass) {
           // Default behavior
           $(element).removeClass(errorClass).addClass(validClass);
 
@@ -105,7 +105,7 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
             }
           }
         },
-        highlight: function(element, errorClass, validClass) {
+        highlight: function (element, errorClass, validClass) {
           // Default behavior
           $(element).addClass(errorClass).removeClass(validClass);
 
@@ -134,6 +134,11 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
               if (tab) {
                 tab.click();
               }
+            }
+            if (self.data.general.scrollTo) {
+              $("#" + errorel).show();
+              var x = $("#" + errorel).offset().top - $("#" + errorel).height() - 100; // provides buffer in viewport
+              $('html, body').animate({scrollTop: x}, self.data.general.scrollSpeed);
             }
           }
         }

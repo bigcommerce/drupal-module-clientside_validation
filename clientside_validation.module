@@ -4,7 +4,9 @@
  * @file
  * Add client side validation to forms.
  */
-
+define('CLIENTSIDE_VALIDATION_VALIDATE_ALL', 1);
+define('CLIENTSIDE_VALIDATION_VALIDATE_SPECIFIC', 0);
+define('CLIENTSIDE_VALIDATION_VALIDATE_ALL_EXCEPT', 2);
 /**
  * Implements hook_menu().
  */
@@ -126,19 +128,24 @@ function clientside_validation_admin_settings() {
   );
 
   $form['clientside_validation_validate_forms']['clientside_validation_validate_all'] = array(
-    '#type' => 'checkbox',
-    '#default_value' => variable_get('clientside_validation_validate_all', 1),
-    '#title' => t('Validate all forms'),
+    '#type' => 'radios',
+    '#default_value' => variable_get('clientside_validation_validate_all', CLIENTSIDE_VALIDATION_VALIDATE_ALL),
+    '#title' => t('Select the forms to validate'),
+    '#options' => array(
+      CLIENTSIDE_VALIDATION_VALIDATE_ALL => t('Validate all forms'),
+      CLIENTSIDE_VALIDATION_VALIDATE_SPECIFIC => t('Only validate forms listed below'),
+      CLIENTSIDE_VALIDATION_VALIDATE_ALL_EXCEPT => t('Validate all forms except those listed below')
+    )
   );
 
   $form['clientside_validation_validate_forms']['clientside_validation_validate_specific'] = array(
     '#type' => 'textarea',
     '#default_value' => variable_get('clientside_validation_validate_specific', ''),
-    '#title' => t("Only validate these specific forms"),
-    '#description' => t('You can specify form IDs (one per line) of forms that should be validated.'),
+    '#title' => t("Enter form IDs below"),
+    '#description' => t('You can specify form IDs (one per line) of forms that should or should not be validated.'),
     '#states' => array(
       'invisible' => array(
-       'input[name="clientside_validation_validate_all"]' => array('checked' => TRUE),
+       'input[name="clientside_validation_validate_all"]' => array('value' => (string)CLIENTSIDE_VALIDATION_VALIDATE_ALL),
       ),
     ),
   );
@@ -152,7 +159,12 @@ function clientside_validation_admin_settings() {
 function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
   $validate_specific_setting = variable_get('clientside_validation_validate_specific', '');
   $validate_specific = preg_split('/(\r\n?|\n)/', $validate_specific_setting, -1, PREG_SPLIT_NO_EMPTY);
-  if (!variable_get('clientside_validation_validate_all', 1) && !in_array($form_id, $validate_specific)) {
+  if (variable_get('clientside_validation_validate_all', CLIENTSIDE_VALIDATION_VALIDATE_ALL) == CLIENTSIDE_VALIDATION_VALIDATE_SPECIFIC
+    && !in_array($form_id, $validate_specific)) {
+    return;
+  }
+  elseif (variable_get('clientside_validation_validate_all', CLIENTSIDE_VALIDATION_VALIDATE_ALL) == CLIENTSIDE_VALIDATION_VALIDATE_ALL_EXCEPT
+    && in_array($form_id, $validate_specific)) {
     return;
   }
   if (strpos($form_id, 'webform_client_form') !== FALSE) {

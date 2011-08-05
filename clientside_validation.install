@@ -20,4 +20,5 @@ function clientside_validation_enable() {
  */
 function clientside_validation_update_6100() {
   module_enable(array('clientside_validation_form', 'clientside_validation_webform'));
+  return array(array('success' => TRUE));
 }

@@ -135,22 +135,13 @@ function _clientside_validation_ajax_call() {
  * Webform.
  */
 function clientside_validation_webform_after_build(&$form, &$form_state) {
-  static $general_settings_added = FALSE;
   static $js_rules = array();
   $data = &$form;
   $data['__drupal_alter_by_ref'] = array(&$form_state, &$js_rules);
   drupal_alter("clientside_validation_webform", $data);
   if (!empty($js_rules)) {
-    if (!$general_settings_added) {
-      $settings['clientsideValidation']['general'] = array(
-        "errorClass" => "error",
-        "wrapper" => "li",
-        "validateTabs" =>  variable_get('clientside_validation_validate_tabs', 1),
-        "scrollTo" => variable_get('clientside_validation_scrollto_errormessage', 1),
-        "scrollSpeed" => (int)variable_get('clientside_validation_scroll_speed', 1000),
-      );
-      $general_settings_added = TRUE;
-    }
+    $settings = array();
+    _clientside_validation_add_general_settings($settings);
 
     $settings['clientsideValidation']['forms'][$form['#id']]['settings'] = array(
       "errorContainer" => "#formerrors-" . $form['#id'],
@@ -190,22 +181,13 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
  * Regular form + CCK
  */
 function clientside_validation_form_after_build(&$form, &$form_state) {
-  static $general_settings_added = FALSE;
   static $js_rules = array();
   $data = &$form;
   $data['__drupal_alter_by_ref'] = array(&$form_state, &$js_rules);
   drupal_alter("clientside_validation_form", $data);
   if (!empty($js_rules)) {
-    if (!$general_settings_added) {
-      $settings['clientsideValidation']['general'] = array(
-        "errorClass" => "error",
-        "wrapper" => "li",
-        "validateTabs" =>  variable_get('clientside_validation_validate_tabs', 1),
-        "scrollTo" => variable_get('clientside_validation_scrollto_errormessage', 1),
-        "scrollSpeed" => (int)variable_get('clientside_validation_scroll_speed', 1000),
-      );
-      $general_settings_added = TRUE;
-    }
+    $settings = array();
+    _clientside_validation_add_general_settings($settings);
     $settings['clientsideValidation']['forms'][$form['#id']]['settings'] = array(
       "errorContainer" => "#formerrors-" . $form['#id'],
       "errorLabelContainer" => "#formerrors-" . $form['#id'] . " ul",
@@ -237,6 +219,20 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
     drupal_add_js($settings, 'setting');
   }
   return $form;
+}
+
+function _clientside_validation_add_general_settings(&$settings) {
+  static $general_settings_added = FALSE;
+  if (!$general_settings_added) {
+    $settings['clientsideValidation']['general'] = array(
+      "errorClass" => "error",
+      "wrapper" => "li",
+      "validateTabs" =>  variable_get('clientside_validation_validate_tabs', 1),
+      "scrollTo" => variable_get('clientside_validation_scrollto_errormessage', 1),
+      "scrollSpeed" => (int)variable_get('clientside_validation_scroll_speed', 1000),
+    );
+    $general_settings_added = TRUE;
+  }
 }
 
 /**

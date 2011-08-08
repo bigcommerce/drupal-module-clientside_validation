@@ -169,6 +169,10 @@
         jQuery.validator.removeClassRules('digits');
         jQuery.validator.removeClassRules('creditcard');
 
+        //Disable HTML5 validation
+        if (self.data.general.disableHtmlValidation) {
+          $('#' + f).attr('novalidate', '');
+        }
         // Bind all rules
         self.bindRules(f);
 

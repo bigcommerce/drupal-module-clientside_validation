@@ -5,6 +5,33 @@
  */
 
 function clientside_validation_admin_settings() {
+
+  //General settings
+  $form['clientside_validation_general'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#title' => t('Use minified version of jquery.validate.js'),
+    '#description' => t('You can use the minified version of the library.'),
+  );
+
+  $form['clientside_validation_general']['clientside_validation_use_minified'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '0' => t('No'),
+      '1' => t('Yes')
+    ),
+    '#default_value' => variable_get('clientside_validation_use_minified', 0),
+    '#title' => t('Use minified version?'),
+  );
+
+  $form['clientside_validation_general']['clientside_validation_disable_html5'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Replace HTML5 validation with Clientside Validation'),
+    '#default_value' => variable_get('clientside_validation_disable_html5', 1),
+    '#description' => t('If checked, HTML5 validation is replaced with Clientside Validation on forms that have Clientside Validation enabled'),
+  );
+
   //Error message settings
   $form['clientside_validation_error'] = array(
     '#type' => 'fieldset',
@@ -85,26 +112,6 @@ function clientside_validation_admin_settings() {
       The '*' character is a wildcard. Example paths are %blog for the blog page and
       %blog-wildcard for every personal blog. %front is the front page.",
       array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
-  );
-
-
-  //js file settings
-  $form['clientside_validation_min'] = array(
-    '#type' => 'fieldset',
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#title' => t('Use minified version of jquery.validate.js'),
-    '#description' => t('You can use the minified version of the library.'),
-  );
-
-  $form['clientside_validation_min']['clientside_validation_use_minified'] = array(
-    '#type' => 'radios',
-    '#options' => array(
-      '0' => t('No'),
-      '1' => t('Yes')
-    ),
-    '#default_value' => variable_get('clientside_validation_use_minified', 0),
-    '#title' => t('Use minified version?'),
   );
 
   //Hidden fields and vertical tabs

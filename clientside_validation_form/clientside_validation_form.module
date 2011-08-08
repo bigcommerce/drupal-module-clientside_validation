@@ -15,7 +15,7 @@ function clientside_validation_form_after_build_recurse($form_id, &$form, &$form
     foreach ($children as $index => $item) {
       $element = &$form[$item];
       $types = array(
-        'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'managed_file', 'file', 'radios', 'checkboxes',
+        'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'managed_file', 'file', 'radios', 'checkboxes', 'number'
       );
       if (isset($element['#type']) && in_array($element['#type'], $types)) {
         clientside_validation_regular($form_id, $element, $js_rules);
@@ -88,6 +88,13 @@ function clientside_validation_regular($form_id, $element, &$js_rules) {
           _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules, $required_error);
         }
         break;
+      case 'number':
+        _clientside_validation_set_required($el_name, $el_title, $element["#required"], $js_rules, $required_error);
+        $min = isset($element['#min']) ? $element['#min'] : '';
+        $max = isset($element['#max']) ? $element['#max'] : '';
+        if(!empty($min) || !empty($max)) {
+          _clientside_validation_set_minmax($el_name, $el_title, $min, $max, $js_rules);
+        }
     }
   }
 }

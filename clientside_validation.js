@@ -148,7 +148,7 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
         validate_options.ignore = ':input:hidden';
       }
       if (self.data.general.validateTabs) {
-        if($('.vertical-tabs-pane:input').length) {
+        if($('.vertical-tabs-pane input').length) {
           validate_options.ignore += ' :not(.vertical-tabs-pane:input)';
         }
       }

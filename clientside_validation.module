@@ -7,6 +7,9 @@
 define('CLIENTSIDE_VALIDATION_VALIDATE_ALL', 1);
 define('CLIENTSIDE_VALIDATION_VALIDATE_SPECIFIC', 0);
 define('CLIENTSIDE_VALIDATION_VALIDATE_ALL_EXCEPT', 2);
+
+define('CLIENTSIDE_VALIDATION_EXCLUDE_PATHS', 0); //Add validation on all paths except those specified
+define('CLIENTSIDE_VALIDATION_INCLUDE_PATHS', 1); //Only add validation on specified paths
 /**
  * Implements hook_menu().
  */
@@ -19,6 +22,7 @@ function clientside_validation_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('clientside_validation_admin_settings'),
     'access arguments' => array('access administration pages'),
+    'file' => 'clientside_validation.admin.inc',
   );
   $items['admin/config/validation/clientside_validation'] = array(
     'title' => 'Clientside Validation',
@@ -26,6 +30,7 @@ function clientside_validation_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('clientside_validation_admin_settings'),
     'access arguments' => array('administer site configuration'),
+    'file' => 'clientside_validation.admin.inc',
   );
   $items['clientside_validation/ajax'] = array(
     'title' => 'Clientside validation ajax callback',
@@ -52,138 +57,29 @@ function _clientside_validation_ajax_call() {
   drupal_json_output($result);
 }
 
-
-function clientside_validation_admin_settings() {
-  $form['clientside_validation'] = array(
-    '#type' => 'fieldset',
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
-    '#title' => t('Error message settings'),
-    '#description' => t('Change error message related settings.'),
-  );
-
-  $form['clientside_validation']['clientside_validation_prefix'] = array(
-    '#title' => t('Field name prefix'),
-    '#description' => t('The prefix of the field name in the error messages.'),
-    '#type' => 'textfield',
-    '#default_value' => variable_get('clientside_validation_prefix', ''),
-  );
-
-  $form['clientside_validation']['clientside_validation_suffix'] = array(
-    '#title' => t('Field name suffix'),
-    '#description' => t('The suffix of the field name in the error messages.'),
-    '#type' => 'textfield',
-    '#default_value' => variable_get('clientside_validation_suffix', ''),
-  );
-
-  $form['clientside_validation']['example_image'] = array(
-    '#type' => 'item',
-    '#title' => t('Example'),
-    '#markup' => '<img id="clientside_validation_example_image" src="' . base_path() . drupal_get_path('module', 'clientside_validation') . '/errormsg.png" alt="' . t('Error message example') . '" />',
-    '#description' => t('Filling in double quotes in both the above fields will give this result.'),
-  );
-
-  $form['clientside_validation']['clientside_validation_scrollto_errormessage'] = array(
-    '#title' => t('Scroll to error message'),
-    '#description' => t('If checked, the page will automatically scroll to the error messages when validation fails.'),
-    '#type' => 'checkbox',
-    '#default_value' => variable_get('clientside_validation_scrollto_errormessage', 1),
-  );
-
-  $form['clientside_validation']['clientside_validation_scroll_speed'] = array(
-    '#title' => t('Scroll speed'),
-    '#description' => t('The scroll speed in milliseconds'),
-    '#type' => 'textfield',
-    '#default_value' => variable_get('clientside_validation_scroll_speed', 1000),
-    '#states' => array(
-      'visible' => array(
-        'input[name="clientside_validation_scrollto_errormessage"]' => array('checked' => TRUE),
-      ),
-    ),
-  );
-
-  if (module_exists('fapi_validation') && module_exists('clientside_validation_fapi')) {
-    $form['clientside_validation']['clientside_validation_scroll_speed'] += array('#rules' => array('numeric'));
-  }
-
-  $form['clientside_validation_min'] = array(
-    '#type' => 'fieldset',
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
-    '#title' => t('Use minified version of jquery.validate.js'),
-    '#description' => t('You can use the minified version of the library.'),
-  );
-
-  $form['clientside_validation_min']['clientside_validation_use_minified'] = array(
-    '#type' => 'radios',
-    '#options' => array(
-      '0' => t('No'), 
-      '1' => t('Yes')
-    ),
-    '#default_value' => variable_get('clientside_validation_use_minified', 0), 
-    '#title' => t('Use minified version?'),
-  );
-
-  $form['clientside_validation_include_hidden'] = array(
-    '#type' => 'fieldset',
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
-    '#title' => t('Behaviour for hidden fields'),
-  );
-
-  $form['clientside_validation_include_hidden']['clientside_validation_include_hidden'] = array(
-    '#type' => 'textarea',
-    '#default_value' => variable_get('clientside_validation_include_hidden', ''),
-    '#title' => t("Don't ignore hidden fields on the following forms"),
-    '#description' => t('You can specify form IDs (one per line) of forms that should have hidden elements validated.'),
-  );
-
-  $form['clientside_validation_include_hidden']['clientside_validation_validate_tabs'] = array(
-    '#type' => 'checkbox',
-    '#default_value' => variable_get('clientside_validation_validate_tabs', 1),
-    '#title' => t('Validate all vertical tabs'),
-    '#description' => t('If you check this, all tabs will be validated on submit
-                      (including the hidden ones). Warning: if there are other hidden
-                      fields (e.g. conditional fields), those will be validated too.'),
-  );
-  
-  $form['clientside_validation_validate_forms'] = array(
-    '#type' => 'fieldset',
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
-    '#title' => t('Forms to validate'),
-  );
-
-  $form['clientside_validation_validate_forms']['clientside_validation_validate_all'] = array(
-    '#type' => 'radios',
-    '#default_value' => variable_get('clientside_validation_validate_all', CLIENTSIDE_VALIDATION_VALIDATE_ALL),
-    '#title' => t('Select the forms to validate'),
-    '#options' => array(
-      CLIENTSIDE_VALIDATION_VALIDATE_ALL => t('Validate all forms'),
-      CLIENTSIDE_VALIDATION_VALIDATE_SPECIFIC => t('Only validate forms listed below'),
-      CLIENTSIDE_VALIDATION_VALIDATE_ALL_EXCEPT => t('Validate all forms except those listed below')
-    )
-  );
-
-  $form['clientside_validation_validate_forms']['clientside_validation_validate_specific'] = array(
-    '#type' => 'textarea',
-    '#default_value' => variable_get('clientside_validation_validate_specific', ''),
-    '#title' => t("Enter form IDs below"),
-    '#description' => t('You can specify form IDs (one per line) of forms that should or should not be validated.'),
-    '#states' => array(
-      'invisible' => array(
-       'input[name="clientside_validation_validate_all"]' => array('value' => (string)CLIENTSIDE_VALIDATION_VALIDATE_ALL),
-      ),
-    ),
-  );
-
-  return system_settings_form($form);
-}
-
 /**
  * Implementation of hook_form_alter().
  */
 function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
+  $page_match = TRUE;
+  $path_filter = variable_get('clientside_validation_path_list', '');
+  $in_or_exclude = variable_get('clientside_validation_filter_paths', CLIENTSIDE_VALIDATION_EXCLUDE_PATHS);
+  if (!empty($path_filter)) {
+    $path = drupal_get_path_alias($_GET['q']);
+    // Compare with the internal and path alias (if any).
+    $page_match = drupal_match_path($path, $path_filter);
+    if ($path != $_GET['q']) {
+      $page_match = $page_match || drupal_match_path($_GET['q'], $path_filter);
+    }
+    // When $in_or_exclude has a value of 0 (CLIENTSIDE_VALIDATION_EXCLUDE_PATHS),
+    // Clientside Validation is added on all pages except those listed in $path_filter.
+    // When set to 1 (CLIENTSIDE_VALIDATION_INCLUDE_PATHS), it is displayed only on
+    // those pages listed in $path_filter.
+    $page_match = !((bool)$in_or_exclude xor $page_match);
+  }
+  if(!$page_match) {
+    return;
+  }
   $validate_specific_setting = variable_get('clientside_validation_validate_specific', '');
   $validate_specific = preg_split('/(\r\n?|\n)/', $validate_specific_setting, -1, PREG_SPLIT_NO_EMPTY);
   if (variable_get('clientside_validation_validate_all', CLIENTSIDE_VALIDATION_VALIDATE_ALL) == CLIENTSIDE_VALIDATION_VALIDATE_SPECIFIC
@@ -265,7 +161,8 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
     else {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.min.js');
     }
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js');
+    //add our js file to the footer to support vertical_tabs
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', array('scope' => 'footer'));
     drupal_add_js($settings, 'setting');
   }
   return $form;
@@ -316,7 +213,8 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
     else {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.min.js');
     }
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js');
+    //add our js file to the footer to support vertical_tabs
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', array('scope' => 'footer'));
     drupal_add_js($settings, 'setting');
     $form_ids[$form['#id']] = TRUE;
   }

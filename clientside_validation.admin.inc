@@ -86,7 +86,7 @@ function clientside_validation_admin_settings() {
   //js file settings
   $form['clientside_validation_min'] = array(
     '#type' => 'fieldset',
-    '#collapsible' => FALSE,
+    '#collapsible' => TRUE,
     '#collapsed' => FALSE,
     '#title' => t('Use minified version of jquery.validate.js'),
     '#description' => t('You can use the minified version of the library.'),

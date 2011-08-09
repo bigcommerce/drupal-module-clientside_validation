@@ -134,6 +134,9 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
       "scrollTo" => variable_get('clientside_validation_scrollto_errormessage', 1),
       "scrollSpeed" => (int)variable_get('clientside_validation_scroll_speed', 1000),
       "disableHtml5Validation" => variable_get('clientside_validation_disable_html5', 1),
+      "validateOnBlur" => variable_get('clientside_validation_validate_onblur', 1),
+      "validateOnKeyUp" => variable_get('clientside_validation_validate_onkeyup', 1),
+      "validateOnSubmit" => variable_get('clientside_validation_validate_onsubmit', 1),
     );
     $settings['clientsideValidation']['forms'][$form['#id']]['settings'] = array(
       "errorContainer" => "#formerrors-" . $form['#id'],
@@ -188,6 +191,9 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
       "scrollTo" => variable_get('clientside_validation_scrollto_errormessage', 1),
       "scrollSpeed" => (int)variable_get('clientside_validation_scroll_speed', 1000),
       "disableHtml5Validation" => variable_get('clientside_validation_disable_html5', 1),
+      "validateOnBlur" => variable_get('clientside_validation_validate_onblur', 1),
+      "validateOnKeyUp" => variable_get('clientside_validation_validate_onkeyup', 1),
+      "validateOnSubmit" => variable_get('clientside_validation_validate_onsubmit', 1),
     );
     $settings['clientsideValidation']['forms'][$form['#id']]['settings'] = array(
       "errorContainer" => "#formerrors-" . $form['#id'],

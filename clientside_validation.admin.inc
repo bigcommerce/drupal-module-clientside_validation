@@ -6,8 +6,8 @@
 
 function clientside_validation_admin_settings() {
 
-  //General settings
-  $form['clientside_validation_general'] = array(
+  //jquery.validate.js settings
+  $form['clientside_validation_min'] = array(
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
@@ -15,21 +15,67 @@ function clientside_validation_admin_settings() {
     '#description' => t('You can use the minified version of the library.'),
   );
 
-  $form['clientside_validation_general']['clientside_validation_use_minified'] = array(
+  $form['clientside_validation_min']['clientside_validation_use_minified'] = array(
     '#type' => 'radios',
     '#options' => array(
+      '1' => t('Yes'),
       '0' => t('No'),
-      '1' => t('Yes')
     ),
     '#default_value' => variable_get('clientside_validation_use_minified', 0),
     '#title' => t('Use minified version?'),
   );
 
-  $form['clientside_validation_general']['clientside_validation_disable_html5'] = array(
-    '#type' => 'checkbox',
+   //Validate options
+  $form['clientside_validation_validate_options'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#title' => t('Validate options'),
+    '#description' => t('Set the validate options for Clientside Validation.'),
+  );
+
+  $form['clientside_validation_validate_options']['clientside_validation_disable_html5'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '1' => t('Yes'),
+      '0' => t('No'),
+    ),
     '#title' => t('Replace HTML5 validation with Clientside Validation'),
     '#default_value' => variable_get('clientside_validation_disable_html5', 1),
-    '#description' => t('If checked, HTML5 validation is replaced with Clientside Validation on forms that have Clientside Validation enabled'),
+    '#description' => t('Replace HTML5 validation with Clientside Validation on forms that have Clientside Validation enabled'),
+  );
+
+  $form['clientside_validation_validate_options']['clientside_validation_validate_onsubmit'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '1' => t('Yes'),
+      '0' => t('No'),
+    ),
+    '#title' => t('Validate fields on submit'),
+    '#description' => t('"No" disables onsubmit validation, allowing the user to submit whatever he wants, while still validating on keyup/blur/click events (if not specified otherwise).'),
+    '#default_value' => variable_get('clientside_validation_validate_onsubmit', 1),
+  );
+
+  $form['clientside_validation_validate_options']['clientside_validation_validate_onblur'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '1' => t('Yes'),
+      '0' => t('No'),
+    ),
+    '#title' => t('Validate fields on blur'),
+    '#description' => t('Validate elements (except checkboxes/radio buttons) on blur. <strong>If nothing is entered, all rules are skipped, except when the field was already marked as invalid.</strong>'),
+    '#default_value' => variable_get('clientside_validation_validate_onblur', 1),
+  );
+
+  $form['clientside_validation_validate_options']['clientside_validation_validate_onkeyup'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '1' => t('Yes'),
+      '0' => t('No'),
+    ),
+    '#title' => t('Validate fields on key up'),
+    '#description' => t('Validate elements on keyup. <strong>As long as the field is not marked as invalid, nothing happens</strong>. Otherwise, all rules are checked on each key up event.'),
+    '#default_value' => variable_get('clientside_validation_validate_onkeyup', 1),
   );
 
   //Error message settings

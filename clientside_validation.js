@@ -156,6 +156,17 @@
             validate_options.ignore += ' :not(.vertical-tabs-pane:input)';
           }
         }
+        //Since we can only give boolean false to onsubmit, onfocusout and onkeyup, we need
+        //a lot of if's (boolean true can not be passed to these properties).
+        if (!Boolean(parseInt(self.data.general.validateOnSubmit))) {
+          validate_options.onsubmit = false;
+        }
+        if (!Boolean(parseInt(self.data.general.validateOnBlur))) {
+          validate_options.onfocusout = false;
+        }
+        if (!Boolean(parseInt(self.data.general.validateOnKeyUp))) {
+          validate_options.onkeyup = false;
+        }
         self.validators[f] = $('#' + f).validate(validate_options);
 
         // Remove class rules

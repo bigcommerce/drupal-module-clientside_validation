@@ -20,7 +20,7 @@ function clientside_validation_html5_after_build_recurse($form_id, &$form, &$for
     foreach ($children as $index => $item) {
       $element = &$form[$item];
       $types = array(
-        'number', 'url',
+        'number', 'url', 'email',
       );
       if (isset($element['#type']) && in_array($element['#type'], $types)) {
         clientside_validation_html5($form_id, $element, $js_rules);
@@ -63,6 +63,11 @@ function clientside_validation_html5($form_id, $element, &$js_rules) {
         break;
       case 'url':
         _clientside_validation_set_url($el_name, $el_title, $js_rules);
+        break;
+      case 'email':
+        _clientside_validation_set_email($el_name, $el_title, $js_rules);
+        break;
+
     }
   }
 }

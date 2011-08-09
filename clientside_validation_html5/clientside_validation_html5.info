@@ -1,0 +1,8 @@
+; $Id: 
+name = Clientside Validation HTML5
+description = Add Clientside Validation support for HTML5 elements (e.g. 'number', 'email', ...)
+core = 7.x
+package = Clientside Validation
+
+files[] = clientside_validation_html5.module
+dependencies[] = clientside_validation

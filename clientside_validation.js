@@ -170,7 +170,7 @@
         jQuery.validator.removeClassRules('creditcard');
 
         //Disable HTML5 validation
-        if (self.data.general.disableHtmlValidation) {
+        if (self.data.general.disableHtml5Validation) {
           $('#' + f).attr('novalidate', '');
         }
         // Bind all rules
@@ -371,7 +371,8 @@
       }
     }, jQuery.format('Not a valid EAN number.'));
 
-    
+    //Allow other modules to add more rules:
+    jQuery.event.trigger('clientsideValidationAddCustomRules');
   }
 
 })(jQuery);

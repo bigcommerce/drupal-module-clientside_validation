@@ -48,10 +48,38 @@ function clientside_validation_html5($form_id, $element, &$js_rules) {
         _clientside_validation_set_required($el_name, $el_title, $element["#required"], $js_rules, $required_error);
         $min = isset($element['#min']) ? $element['#min'] : '';
         $max = isset($element['#max']) ? $element['#max'] : '';
-        if(!empty($min) || !empty($max)) {
-          _clientside_validation_set_minmax($el_name, $el_title, $min, $max, $js_rules);
+        $step = isset($element['#step']) ? $element['#step'] : 1;
+        $is_decimal = $step != 'any' && (floor($step) != $step || floor($min) != $step);
+        if ($is_decimal) {
+          _clientside_validation_set_number_decimal($el_name, $el_title, '.', $js_rules);
         }
+        else {
+          _clientside_validation_set_number($el_name, $el_title, $js_rules);
+        }
+        if(!empty($min) || !empty($max)) {
+          _clientside_validation_set_minmax_html5($el_name, $el_title, $min, $max, $step, $js_rules);
+        }
+
         break;
     }
+  }
+}
+
+function _clientside_validation_set_minmax_html5($name, $title, $min, $max, $step, &$js_rules, $message=''){
+  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  if( $step == 'any') {
+    _clientside_validation_set_minmax($name, $title, $min, $max, $js_rules, $message);
+  }
+  elseif (isset($min) && $min != '' && isset($max) && $max != '') {
+    $js_rules[$name]['Html5Range'] = array($min, $max, $step);
+    $js_rules[$name]['messages']['Html5Range'] = (empty($message)) ? t('!name field has to be greater than !min with steps of !step and smaller than !max.', array('!name' => $title, '!min' => $min, '!max' => $max, '!step' => $step)) : $message;
+  }
+  elseif (isset($min) && $min != '') {
+    $js_rules[$name]['Html5Min'] = array($min, $step);
+    $js_rules[$name]['messages']['Html5Min'] = (empty($message)) ? t('!name field has to be greater than !min with steps of !step.', array('!name' => $title, '!min' => $min, '!step' => $step)) : $message;
+  }
+  elseif (isset($max) && $max != '') {
+    $js_rules[$name]['Html5Max'] = array($max, $step);
+    $js_rules[$name]['messages']['Html5Max'] = (empty($message)) ? t('!name field has to be smaller than !max and must be dividable by !step.', array('!name' => $title, '!max' => $max, '!step' => $step)) : $message;
   }
 }

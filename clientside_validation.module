@@ -238,7 +238,7 @@ function _clientside_validation_set_required($name, $title, $required, &$js_rule
 /**
  * Set validation rule for number fields.
  */
-function _clientside_validation_set_number($name, $title, $decimalpoint, &$js_rules) {
+function _clientside_validation_set_number($name, $title, &$js_rules) {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   $js_rules[$name]['digits_negative'] = TRUE;
   $js_rules[$name]['messages']['digits_negative'] = t('!name field accepts only numbers.', array('!name' => $title));
@@ -413,6 +413,12 @@ function _clientside_validation_set_url($name, $title, &$js_rules) {
  * Set fapi validation.
  */
 function _clientside_validation_set_fapi_validation($name, $title, $callback, $params, &$js_rules, $message = '') {
+  if (strpos($message, '%field') !== FALSE) {
+    $message = t($message, array('%field' => $title));
+  }
+  else {
+    $message = t($message);
+  }
   $expressions = array(
     'fapi_validation_rule_alpha' => '/^[\pL]++$/uD',
     'fapi_validation_rule_alpha_numeric' => '/^[\pL\pN]++$/uD',
@@ -431,12 +437,11 @@ function _clientside_validation_set_fapi_validation($name, $title, $callback, $p
       if ($callback == 'fapi_validation_rule_regexp') {
         $expressions['fapi_validation_rule_regexp'] = $params[1][0];
       }
-      $message = t($message, array('%field' => $title));
       _clientside_validation_set_regex_pcre($name, $title, $js_rules, $expressions[$callback], $message);
 
       break;
     case 'fapi_validation_rule_numeric':
-      _clientside_validation_set_number($name, $title, '.', $js_rules);
+      _clientside_validation_set_number($name, $title, $js_rules);
       break;
     case 'fapi_validation_rule_email':
       _clientside_validation_set_email($name, $title, $js_rules);
@@ -456,7 +461,6 @@ function _clientside_validation_set_fapi_validation($name, $title, $callback, $p
       _clientside_validation_set_specific_values($name, $title, $params[1], $js_rules);
       break;
     case 'fapi_validation_rule_decimal':
-      $message = t($message, array('%field' => $title));
       if (count($params[1]) == 2) {
         $expression = '/^[0-9]{' . $params[1][0] . '}\.[0-9]{' . $params[1][1] . '}$/';
       }

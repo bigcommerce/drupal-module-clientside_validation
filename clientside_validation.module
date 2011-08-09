@@ -360,7 +360,7 @@ function _clientside_validation_set_ean($name, $title, &$js_rules, $message = ''
  */
 function _clientside_validation_set_regex($name, $title, &$js_rules, $expression, $message = '', $modifiers = "") {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
-  $message = empty($message) ? t('!name field is not a valid EAN number.', array('!name' => $title)) : $message;
+  $message = empty($message) ? t('!name field is not match the given format.', array('!name' => $title)) : $message;
   $js_rules[$name]['regexMatch'] = array($expression);
   if (!empty($modifiers)) {
     $js_rules[$name]['regexMatch'][] = $modifiers;

@@ -362,5 +362,7 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
       
     }
   }, jQuery.format('Not a valid EAN number.'));
-  
+
+  //Allow other modules to add more rules:
+  jQuery.event.trigger('clientsideValidationAddCustomRules');
 }

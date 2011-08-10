@@ -169,20 +169,13 @@
         }
         self.validators[f] = $('#' + f).validate(validate_options);
 
-        // Remove class rules
-        jQuery.validator.removeClassRules('number');
-        jQuery.validator.removeClassRules('required');
-        jQuery.validator.removeClassRules('email');
-        jQuery.validator.removeClassRules('url');
-        jQuery.validator.removeClassRules('date');
-        jQuery.validator.removeClassRules('dateISO');
-        jQuery.validator.removeClassRules('dateDE');
-        jQuery.validator.removeClassRules('digits');
-        jQuery.validator.removeClassRules('creditcard');
+        //disable class and attribute rules
+        jQuery.validator.disableAutoAddClassRules = true;
+        jQuery.validator.disableAutoAddAttributeRules = true;
 
         //Disable HTML5 validation
-        if (self.data.general.disableHtml5Validation) {
-          $('#' + f).attr('novalidate', '');
+        if (!Boolean(parseInt(self.data.general.disableHtml5Validation))) {
+          $('#' + f).removeAttr('novalidate');
         }
         // Bind all rules
         self.bindRules(f);

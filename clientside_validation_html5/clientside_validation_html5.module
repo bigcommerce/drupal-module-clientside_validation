@@ -20,7 +20,7 @@ function clientside_validation_html5_after_build_recurse($form_id, &$form, &$for
     foreach ($children as $index => $item) {
       $element = &$form[$item];
       $types = array(
-        'number', 'url', 'email', 'range',
+        'number', 'url', 'email', 'range', 'search', 'tel',
       );
       if ((isset($element['#type']) && in_array($element['#type'], $types)) || isset($element['#pattern'])) {
         clientside_validation_html5($form_id, $element, $js_rules);

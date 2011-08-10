@@ -28,6 +28,10 @@
           }
           return this.optional(element) || (mismatch == 0 && value >= param[0] && value <= param[1]);
         }, jQuery.format('Value must be greater than {0} with steps of {2} and smaller than {1}.'));
+
+        jQuery.validator.addMethod("Html5Color", function(value, element, param) {
+          return /^#([a-f]|[A-F]|[0-9]){6}$/.test(value);
+        }, jQuery.format('Value must be a valid color code'));
       });
     }
   }

@@ -20,7 +20,7 @@ function clientside_validation_html5_after_build_recurse($form_id, &$form, &$for
     foreach ($children as $index => $item) {
       $element = &$form[$item];
       $types = array(
-        'number', 'url', 'email', 'range', 'search', 'tel',
+        'number', 'url', 'email', 'range', 'search', 'tel', 'color',
       );
       if ((isset($element['#type']) && in_array($element['#type'], $types)) || isset($element['#pattern'])) {
         clientside_validation_html5($form_id, $element, $js_rules);
@@ -41,6 +41,11 @@ function clientside_validation_html5($form_id, $element, &$js_rules) {
     $is_multiple = FALSE;
     if (isset($element['#multiple'])) {
       $is_multiple = $element['#multiple'];
+    }
+    if ($element['#type'] == 'color') {
+      //color elements are required by design, see: http://dev.w3.org/html5/spec/Overview.html#colors
+      //"If input is not exactly seven characters long, then return an error."
+      $element['#required'] = TRUE;
     }
     $required_error = isset($element['#required_error']) ? $element['#required_error'] : '';
     _clientside_validation_set_required($el_name, $el_title, $element["#required"], $js_rules, $required_error);
@@ -80,6 +85,8 @@ function clientside_validation_html5($form_id, $element, &$js_rules) {
       case 'email':
         _clientside_validation_set_email($el_name, $el_title, $js_rules);
         break;
+      case 'color':
+        _clientside_validation_set_html5_color($el_name, $el_title, $js_rules);
 
     }
   }
@@ -102,4 +109,10 @@ function _clientside_validation_set_minmax_html5($name, $title, $min, $max, $ste
     $js_rules[$name]['Html5Max'] = array($max, $step);
     $js_rules[$name]['messages']['Html5Max'] = (empty($message)) ? t('!name field has to be smaller than !max and must be dividable by !step.', array('!name' => $title, '!max' => $max, '!step' => $step)) : $message;
   }
+}
+
+function _clientside_validation_set_html5_color($name, $title, &$js_rules, $message='') {
+  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $js_rules[$name]['Html5Color'] = TRUE;
+  $js_rules[$name]['messages']['Html5Color'] = (empty($message)) ? t('!name field must be a vlid color code', array('!name' => $name)) : $message;
 }

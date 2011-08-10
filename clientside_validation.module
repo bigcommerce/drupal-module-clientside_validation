@@ -31,7 +31,7 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
     // those pages listed in $path_filter.
     $page_match = !((bool)$in_or_exclude xor $page_match);
   }
-  if(!$page_match) {
+  if (!$page_match) {
     return;
   }
   $validate_specific_setting = variable_get('clientside_validation_validate_specific', '');

@@ -47,6 +47,9 @@ function clientside_validation_html5($form_id, $element, &$js_rules) {
     if (isset($element['#pattern'])) {
       _clientside_validation_set_regex($el_name, $el_title, $js_rules, $element['#pattern']);
     }
+    if (isset($element['#maxlength']) && $element['#maxlength'] > 0) {
+      _clientside_validation_set_minmaxlength($el_name, $el_title, '', $element['#maxlength'], $js_rules);
+    }
     switch ($element['#type']) {
       case 'range':
         $default_min = 0;

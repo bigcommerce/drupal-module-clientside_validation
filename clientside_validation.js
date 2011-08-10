@@ -165,16 +165,9 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
       }
       self.validators[f] = $('#' + f).validate(validate_options);
     
-      // Remove class rules
-      jQuery.validator.removeClassRules('number');
-      jQuery.validator.removeClassRules('required');
-      jQuery.validator.removeClassRules('email');
-      jQuery.validator.removeClassRules('url');
-      jQuery.validator.removeClassRules('date');
-      jQuery.validator.removeClassRules('dateISO');
-      jQuery.validator.removeClassRules('dateDE');
-      jQuery.validator.removeClassRules('digits');
-      jQuery.validator.removeClassRules('creditcard');
+      //disable class and attribute rules
+      jQuery.validator.disableAutoAddClassRules = true;
+      jQuery.validator.disableAutoAddAttributeRules = true;
 
       // Bind all rules
       self.bindRules(f);

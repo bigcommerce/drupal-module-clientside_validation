@@ -230,6 +230,9 @@ function _clientside_validation_add_general_settings(&$settings) {
       "validateTabs" =>  variable_get('clientside_validation_validate_tabs', 1),
       "scrollTo" => variable_get('clientside_validation_scrollto_errormessage', 1),
       "scrollSpeed" => (int)variable_get('clientside_validation_scroll_speed', 1000),
+      "validateOnBlur" => variable_get('clientside_validation_validate_onblur', 1),
+      "validateOnKeyUp" => variable_get('clientside_validation_validate_onkeyup', 1),
+      "validateOnSubmit" => variable_get('clientside_validation_validate_onsubmit', 1),
     );
     $general_settings_added = TRUE;
   }

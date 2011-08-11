@@ -20,6 +20,11 @@
     this.forms = this.data['forms'];
     this.validators = {};
     this.groups = {};
+    
+    //disable class and attribute rules
+    $.validator.classRules = function() { return {}; };
+    $.validator.attributeRules = function() { return {}; };
+    
     this.addExtraRules();
     this.bindForms();
   };
@@ -42,6 +47,7 @@
 
   Drupal.clientsideValidation.prototype.bindForms = function(){
     var self = this;
+    
     jQuery.each (self.forms, function(f) {
       self.groups[f] = {};
       // Add error container above the form, first look for standard message container
@@ -168,10 +174,6 @@
           validate_options.onkeyup = false;
         }
         self.validators[f] = $('#' + f).validate(validate_options);
-
-        //disable class and attribute rules
-        jQuery.validator.disableAutoAddClassRules = true;
-        jQuery.validator.disableAutoAddAttributeRules = true;
 
         //Disable HTML5 validation
         if (!Boolean(parseInt(self.data.general.disableHtml5Validation))) {

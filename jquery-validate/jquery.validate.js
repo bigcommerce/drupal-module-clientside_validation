@@ -144,27 +144,13 @@ $.extend($.fn, {
 		}
 
 		var data = $.validator.normalizeRules(
-			$.extend(
-				{},
-				$.validator.metadataRules(element),
-				$.validator.staticRules(element)
-			), element);
-
-		if (!$.validator.disableAutoAddClassRules) {
-			data = $.extend(
-				data,
-				$.validator.classRules(element)
-			);
-		}
-
-		if (!$.validator.disableAutoAddAttributeRules) {
-			data = $.extend(
-				data,
-				$.validator.attributeRules(element)
-			);
-		}
-
-		data = $.validator.normalizeRules(data, element);
+		$.extend(
+			{},
+			$.validator.metadataRules(element),
+			$.validator.classRules(element),
+			$.validator.attributeRules(element),
+			$.validator.staticRules(element)
+		), element);
 
 		// make sure required is at front
 		if (data.required) {
@@ -297,8 +283,6 @@ $.extend($.validator, {
 	},
 
 	autoCreateRanges: false,
-	disableAutoAddClassRules : false,
-	disableAutoAddAttributeRules : false,
 
 	prototype: {
 

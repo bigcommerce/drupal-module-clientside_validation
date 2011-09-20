@@ -142,7 +142,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
           break;
         case 'validEAN':
           foreach ($webform_validation_rule['components'] as $component) {
-            $message = (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) ? $webform_validation_rule['error_message'] : 'Not a valid EAN number.';
+            $message = (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) ? $webform_validation_rule['error_message'] : t('Not a valid EAN number.');
             _clientside_validation_set_ean($component['element_name'], $component['element_title'], $js_rules, $message);
           }
           break;
@@ -153,11 +153,18 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
             _clientside_validation_set_regex($component['element_name'], $component['element_title'], $js_rules, $expression, $message);
           }
           break;
+        default:
+          foreach ($webform_validation_rule['components'] as $component) {
+            $message = (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) ? $webform_validation_rule['error_message'] : t('Invalid value for !name', array('!name' => variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', '')));
+            $context = array('type' => 'webform', 'rule' => $webform_validation_rule, 'message' => $message);
+            drupal_alter('clientside_validation_rule', $js_rules, $component, $context);
+          }
+          break;
       }
     }
   }
 }
- 
+
 /**
  * Implements hook_webform_validation().
  */

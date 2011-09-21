@@ -18,6 +18,7 @@ define('CLIENTSIDE_VALIDATION_AFTER_LABEL', 3);
 define('CLIENTSIDE_VALIDATION_BEFORE_INPUT', 4);
 define('CLIENTSIDE_VALIDATION_AFTER_INPUT', 5);
 define('CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM', 6);
+define('CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION', 7);
 
 /**
  * Implementation of hook_form_alter().
@@ -229,8 +230,9 @@ function _clientside_validation_add_general_settings(&$settings, $form_id) {
     $after_label = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_after_label', ''), -1, PREG_SPLIT_NO_EMPTY);
     $before_input = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_before_input', ''), -1, PREG_SPLIT_NO_EMPTY);
     $after_input = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_after_input', ''), -1, PREG_SPLIT_NO_EMPTY);
+    $custom_function = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_custom_function', ''), -1, PREG_SPLIT_NO_EMPTY);
     $jquery_selector = variable_get('clientside_validation_jquery_selector', '');
-    
+
     if (in_array(str_replace('-', '_', $form_id), $jquery) && !empty($jquery_selector)) {
       $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_JQUERY_SELECTOR;
       $settings['clientsideValidation']['forms'][$form_id]['errorJquerySelector'] = $jquery_selector;
@@ -250,6 +252,10 @@ function _clientside_validation_add_general_settings(&$settings, $form_id) {
     elseif (in_array(str_replace('-', '_', $form_id), $after_input)) {
       $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_AFTER_INPUT;
     }
+    elseif (in_array(str_replace('-', '_', $form_id), $custom_function)) {
+      $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION;
+      $settings['clientsideValidation']['forms'][$form_id]['customErrorFunction'] = variable_get('clientside_validation_custom_error_function', '');
+    }
     else {
       if (variable_get('clientside_validation_error_placement_default', CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM) == CLIENTSIDE_VALIDATION_JQUERY_SELECTOR
           && empty($jquery_selector)) {
@@ -258,6 +264,7 @@ function _clientside_validation_add_general_settings(&$settings, $form_id) {
       else {
         $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = variable_get('clientside_validation_error_placement_default', CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM);
         $settings['clientsideValidation']['forms'][$form_id]['errorJquerySelector'] = $jquery_selector;
+        $settings['clientsideValidation']['forms'][$form_id]['customErrorFunction'] = variable_get('clientside_validation_custom_error_function', '');
       }
     }
     $form_settings_added[] = str_replace('-', '_', $form_id);

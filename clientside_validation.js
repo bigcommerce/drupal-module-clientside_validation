@@ -140,6 +140,7 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
       //CLIENTSIDE_VALIDATION_BEFORE_INPUT: 4
       //CLIENTSIDE_VALIDATION_AFTER_INPUT: 5
       //CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM: 6
+      //CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION: 7
       switch (parseInt(self.forms[f].errorPlacement)) {
         case 0:
           if ($(self.forms[f].errorJquerySelector).length) {
@@ -222,6 +223,10 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
           validate_options.errorLabelContainer = '#' + errorel + ' ul';
           validate_options.wrapper = 'li';
           break;
+        case 7:
+          validate_options.errorPlacement = function (error, element) {
+            window[self.forms[f].customErrorFunction](error, element);
+          }
       }
 
 

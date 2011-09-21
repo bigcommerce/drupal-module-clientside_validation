@@ -128,6 +128,10 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
                 var x = $(validator.errorList[0].element).offset().top - $(validator.errorList[0].element).height() - 100;
               }
               $('html, body').animate({scrollTop: x}, self.data.general.scrollSpeed);
+              $('.wysiwyg-toggle-wrapper a').each(function() {
+                $(this).click();
+                $(this).click();
+              });
             }
           }
         }

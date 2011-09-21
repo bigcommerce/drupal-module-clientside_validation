@@ -10,6 +10,15 @@ define('CLIENTSIDE_VALIDATION_VALIDATE_ALL_EXCEPT', 2);
 
 define('CLIENTSIDE_VALIDATION_EXCLUDE_PATHS', 0); //Add validation on all paths except those specified
 define('CLIENTSIDE_VALIDATION_INCLUDE_PATHS', 1); //Only add validation on specified paths
+
+define('CLIENTSIDE_VALIDATION_JQUERY_SELECTOR', 0);
+define('CLIENTSIDE_VALIDATION_TOP_OF_FORM', 1);
+define('CLIENTSIDE_VALIDATION_BEFORE_LABEL', 2);
+define('CLIENTSIDE_VALIDATION_AFTER_LABEL', 3);
+define('CLIENTSIDE_VALIDATION_BEFORE_INPUT', 4);
+define('CLIENTSIDE_VALIDATION_AFTER_INPUT', 5);
+define('CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM', 6);
+
 /**
  * Implements hook_menu().
  */
@@ -110,14 +119,6 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
         break;
     }
   }
-
-  // Add a setting for this form if the hidden elements should still be validated
-  $include_hidden_setting = variable_get('clientside_validation_include_hidden', '');
-  $include_hidden = preg_split('/(\r\n?|\n)/', $include_hidden_setting, -1, PREG_SPLIT_NO_EMPTY);
-  if (in_array($form_id, $include_hidden)) {
-    $setting['clientsideValidation']['forms'][$form['#id']]['includeHidden'] = TRUE;
-    drupal_add_js($setting, 'setting');
-  }
 }
 
 /**
@@ -128,11 +129,7 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
   drupal_alter("clientside_validation_webform", $form, $form_state, $js_rules);
   if (!empty($js_rules)) {
     $settings = array();
-    _clientside_validation_add_general_settings($settings);
-    $settings['clientsideValidation']['forms'][$form['#id']]['settings'] = array(
-      "errorContainer" => "#formerrors-" . $form['#id'],
-      "errorLabelContainer" => "#formerrors-" . $form['#id'] . " ul",
-    );
+    _clientside_validation_add_general_settings($settings, $form['#id']);
     foreach ($js_rules as $key => $rule) {
       if (isset($rule['checkboxgroupminmax'])) {
         $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(
@@ -176,11 +173,7 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
   drupal_alter("clientside_validation_form", $form, $form_state, $js_rules);
   if (!empty($js_rules)) {
     $settings = array();
-    _clientside_validation_add_general_settings($settings);
-    $settings['clientsideValidation']['forms'][$form['#id']]['settings'] = array(
-      "errorContainer" => "#formerrors-" . $form['#id'],
-      "errorLabelContainer" => "#formerrors-" . $form['#id'] . " ul",
-    );
+    _clientside_validation_add_general_settings($settings, $form['#id']);
     foreach ($js_rules as $key => $rule) {
       if (isset($rule['checkboxgroupminmax'])) {
         $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(
@@ -212,7 +205,52 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
   return $form;
 }
 
-function _clientside_validation_add_general_settings(&$settings) {
+function _clientside_validation_add_general_settings(&$settings, $form_id) {
+  // Add a setting for this form if the hidden elements should still be validated
+  $include_hidden_setting = variable_get('clientside_validation_include_hidden', '');
+  $include_hidden = preg_split('/(\r\n?|\n)/', $include_hidden_setting, -1, PREG_SPLIT_NO_EMPTY);
+  if (in_array(str_replace('-', '_', $form_id), $include_hidden)) {
+    $setting['clientsideValidation']['forms'][$form_id]['includeHidden'] = TRUE;
+  }
+
+  $jquery = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_jquery', ''), -1, PREG_SPLIT_NO_EMPTY);
+  $top_of_form = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_top_of_form', ''), -1, PREG_SPLIT_NO_EMPTY);
+  $before_label = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_before_label', ''), -1, PREG_SPLIT_NO_EMPTY);
+  $after_label = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_after_label', ''), -1, PREG_SPLIT_NO_EMPTY);
+  $before_input = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_before_input', ''), -1, PREG_SPLIT_NO_EMPTY);
+  $after_input = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_after_input', ''), -1, PREG_SPLIT_NO_EMPTY);
+  $jquery_selector = variable_get('clientside_validation_jquery_selector', '');
+
+  if (in_array(str_replace('-', '_', $form_id), $jquery) && !empty($jquery_selector)) {
+    $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_JQUERY_SELECTOR;
+    $settings['clientsideValidation']['forms'][$form_id]['errorJquerySelector'] = $jquery_selector;
+  }
+  elseif (in_array(str_replace('-', '_', $form_id), $top_of_form)) {
+    $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_TOP_OF_FORM;
+  }
+  elseif (in_array(str_replace('-', '_', $form_id), $before_label)) {
+    $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_BEFORE_LABEL;
+  }
+  elseif (in_array(str_replace('-', '_', $form_id), $after_label)) {
+    $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_AFTER_LABEL;
+  }
+  elseif (in_array(str_replace('-', '_', $form_id), $before_input)) {
+    $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_BEFORE_INPUT;
+  }
+  elseif (in_array(str_replace('-', '_', $form_id), $after_input)) {
+    $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_AFTER_INPUT;
+  }
+  else {
+    if (variable_get('clientside_validation_error_placement_default', CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM) == CLIENTSIDE_VALIDATION_JQUERY_SELECTOR
+        && empty($jquery_selector)) {
+      $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM;
+    }
+    else {
+      $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = variable_get('clientside_validation_error_placement_default', CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM);
+      $settings['clientsideValidation']['forms'][$form_id]['errorJquerySelector'] = $jquery_selector;
+    }
+  }
+  $form_settings_added[] = str_replace('-', '_', $form_id);
   $settings['clientsideValidation']['general'] = array(
     "errorClass" => "error",
     "wrapper" => "li",

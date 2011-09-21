@@ -49,21 +49,8 @@
     var self = this;
     
     jQuery.each (self.forms, function(f) {
-      self.groups[f] = {};
-      // Add error container above the form, first look for standard message container
       var errorel = self.prefix + f + '-errors';
-      if ($('div.messages.error').length) {
-        if ($('div.messages.error').attr('id').length) {
-          errorel = $('div.messages.error').attr('id');
-        }
-        else {
-          $('div.messages.error').attr('id', errorel);
-        }
-      }
-      else if (!$('#' + errorel).length) {
-        $('<div id="' + errorel + '" class="messages error clientside-error"><ul></ul></div>').insertBefore('#' + f).hide();
-      }
-
+      self.groups[f] = {};
       // Remove any existing validation stuff
       if (self.validators[f]) {
         // Doesn't work :: $('#' + f).rules('remove');
@@ -97,9 +84,6 @@
       if(typeof $('#' + f).validate == 'function') {
         var validate_options = {
           errorClass: 'error',
-          errorContainer: '#' + errorel,
-          errorLabelContainer: '#' + errorel + ' ul',
-          wrapper: 'li',
           groups: self.groups[f],
           unhighlight: function(element, errorClass, validClass) {
             // Default behavior
@@ -146,13 +130,109 @@
                 }
               }
               if (self.data.general.scrollTo) {
-                $("#" + errorel).show();
-                var x = $("#" + errorel).offset().top - $("#" + errorel).height() - 100; // provides buffer in viewport
+                if ($("#" + errorel).length) {
+                  $("#" + errorel).show();
+                  var x = $("#" + errorel).offset().top - $("#" + errorel).height() - 100; // provides buffer in viewport
+                }
+                else {
+                  var x = $(validator.errorList[0].element).offset().top - $(validator.errorList[0].element).height() - 100;
+                }
                 $('html, body').animate({scrollTop: x}, self.data.general.scrollSpeed);
               }
             }
           }
         };
+        
+        //CLIENTSIDE_VALIDATION_JQUERY_SELECTOR: 0
+        //CLIENTSIDE_VALIDATION_TOP_OF_FORM: 1
+        //CLIENTSIDE_VALIDATION_BEFORE_LABEL: 2
+        //CLIENTSIDE_VALIDATION_AFTER_LABEL: 3
+        //CLIENTSIDE_VALIDATION_BEFORE_INPUT: 4
+        //CLIENTSIDE_VALIDATION_AFTER_INPUT: 5
+        //CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM: 6
+        switch (parseInt(self.forms[f].errorPlacement)) {
+          case 0:
+            if ($(self.forms[f].errorJquerySelector).length) {
+              if (!$(self.forms[f].errorJquerySelector + ' #' + errorel).length) {
+                $('<div id="' + errorel + '" class="messages error clientside-error"><ul></ul></div>').prependTo(self.forms[f].errorJquerySelector).hide();
+              }
+            }
+            else if (!$('#' + errorel).length) {
+              $('<div id="' + errorel + '" class="messages error clientside-error"><ul></ul></div>').insertBefore('#' + f).hide();
+            }
+            validate_options.errorContainer = '#' + errorel;
+            validate_options.errorLabelContainer = '#' + errorel + ' ul';
+            validate_options.wrapper = 'li';
+            break;
+          case 1:
+            if (!$('#' + errorel).length) {
+              $('<div id="' + errorel + '" class="messages error clientside-error"><ul></ul></div>').insertBefore('#' + f).hide();
+            }
+            validate_options.errorContainer = '#' + errorel;
+            validate_options.errorLabelContainer = '#' + errorel + ' ul';
+            validate_options.wrapper = 'li';
+            break;
+          case 2:
+            validate_options.errorPlacement = function(error, element) {
+              if (element.is(":radio")) {
+                error.insertBefore(element.parents('.form-radios').prev('label'));
+              }
+              else if (element.is(":checkbox")) {
+                error.insertBefore(element.parents('.form-checkboxes').prev('label'));
+              }
+              else {
+                error.insertBefore('label[for="'+ element.attr('id') +'"]');
+              }
+            }
+            break;
+          case 3:
+            validate_options.errorPlacement = function(error, element) {
+              if (element.is(":radio")) {
+                error.insertAfter(element.parents('.form-radios').prev('label'));
+              }
+              else if (element.is(":checkbox")) {
+                error.insertAfter(element.parents('.form-checkboxes').prev('label'));
+              }
+              else {
+                error.insertAfter('label[for="'+ element.attr('id') +'"]');
+              }
+            }
+            break;
+          case 4:
+            validate_options.errorPlacement = function(error, element) {
+              error.insertBefore(element);
+            }
+            break;
+          case 5:
+            validate_options.errorPlacement = function(error, element) {
+              if (element.is(":radio")) {
+                error.insertAfter(element.parents('.form-radios'));
+              }
+              else if (element.is(":checkbox")) {
+                error.insertAfter(element.parents('.form-checkboxes'));
+              }
+              else {
+                error.insertAfter(element);
+              }
+            }
+            break;
+          case 6:
+            if ($('div.messages.error').length) {
+              if ($('div.messages.error').attr('id').length) {
+                errorel = $('div.messages.error').attr('id');
+              }
+              else {
+                $('div.messages.error').attr('id', errorel);
+              }
+            }
+            else if (!$('#' + errorel).length) {
+              $('<div id="' + errorel + '" class="messages error clientside-error"><ul></ul></div>').insertBefore('#' + f).hide();
+            }
+            validate_options.errorContainer = '#' + errorel;
+            validate_options.errorLabelContainer = '#' + errorel + ' ul';
+            validate_options.wrapper = 'li';
+            break;
+        }
 
         if (!self.forms[f].includeHidden) {
           validate_options.ignore = ':input:hidden';

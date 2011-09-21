@@ -131,6 +131,91 @@ function clientside_validation_admin_settings() {
     $form['clientside_validation_error']['clientside_validation_scroll_speed'] += array('#rules' => array('numeric'));
   }
 
+  //Error Placement
+   $form['clientside_validation_error_placement'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#title' => t('Error message placement'),
+    '#description' => t('Change error message placement settings.'),
+  );
+
+  $form['clientside_validation_error_placement']['clientside_validation_error_placement_default'] = array(
+    '#type' => 'select',
+    '#title' => t('Default location'),
+    '#description' => t('Default location to show the error messages.'),
+    '#options' => array(
+      CLIENTSIDE_VALIDATION_JQUERY_SELECTOR => t('jQuery selector'),
+      CLIENTSIDE_VALIDATION_TOP_OF_FORM => t('Top of form'),
+      CLIENTSIDE_VALIDATION_BEFORE_LABEL => t('Before label'),
+      CLIENTSIDE_VALIDATION_AFTER_LABEL => t('After label'),
+      CLIENTSIDE_VALIDATION_BEFORE_INPUT => t('Before input'),
+      CLIENTSIDE_VALIDATION_AFTER_INPUT => t('After input'),
+      CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM => t('Top of first form'),
+    ),
+    '#default_value' => variable_get('clientside_validation_error_placement_default', CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM),
+  );
+
+  $form['clientside_validation_error_placement']['clientside_validation_jquery_selector'] = array(
+    '#type' => 'textfield',
+    '#title' => t('jQuery selector'),
+    '#description' => t('Enter a jQuery selector here if you selected "jQuery selector" in the previous step.
+                      The error messages will be shown in this div if it exists.
+                      If it doesn\'t, error messages will be shown above the first form on the page.'),
+    '#default_value' => variable_get('clientside_validation_jquery_selector', ''),
+  );
+
+  //Error placement exceptions
+  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#title' => t('Error message placement exceptions'),
+    '#description' => t('Add exceptions to the default error message placement.'),
+  );
+
+  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions']['clientside_validation_error_placement_jquery'] = array(
+    '#type' => 'textarea',
+    '#title' => t('jQuery selector forms'),
+    '#description' => t('Enter form IDs of the forms of which the errors should appear in the div with the entered jQuery selector.'),
+    '#default_value' => variable_get('clientside_validation_error_placement_jquery', ''),
+  );
+
+  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions']['clientside_validation_error_placement_top_of_form'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Top of form'),
+    '#description' => t('Enter form IDs of the forms of which the errors should appear right above the form.'),
+    '#default_value' => variable_get('clientside_validation_error_placement_top_of_form', ''),
+  );
+
+  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions']['clientside_validation_error_placement_before_label'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Before label'),
+    '#description' => t('Enter form IDs of the forms of which the errors should appear before the label of the element.'),
+    '#default_value' => variable_get('clientside_validation_error_placement_before_label', ''),
+  );
+
+  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions']['clientside_validation_error_placement_after_label'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Before label'),
+    '#description' => t('Enter form IDs of the forms of which the errors should appear after the label of the element.'),
+    '#default_value' => variable_get('clientside_validation_error_placement_after_label', ''),
+  );
+
+  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions']['clientside_validation_error_placement_before_input'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Before input'),
+    '#description' => t('Enter form IDs of the forms of which the errors should appear before the input element.'),
+    '#default_value' => variable_get('clientside_validation_error_placement_before_input', ''),
+  );
+
+  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions']['clientside_validation_error_placement_after_input'] = array(
+    '#type' => 'textarea',
+    '#title' => t('After input'),
+    '#description' => t('Enter form IDs of the forms of which the errors should appear after the input element.'),
+    '#default_value' => variable_get('clientside_validation_error_placement_after_input', ''),
+  );
+
   //Page settings
   $form['clientside_validation_pages'] = array(
     '#type' => 'fieldset',

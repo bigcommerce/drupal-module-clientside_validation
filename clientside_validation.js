@@ -120,8 +120,13 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
               }
             }
             if (self.data.general.scrollTo) {
-              $("#" + errorel).show();
-              var x = $("#" + errorel).offset().top - $("#" + errorel).height() - 100; // provides buffer in viewport
+              if ($("#" + errorel).length) {
+                $("#" + errorel).show();
+                var x = $("#" + errorel).offset().top - $("#" + errorel).height() - 100; // provides buffer in viewport
+              }
+              else {
+                var x = $(validator.errorList[0].element).offset().top - $(validator.errorList[0].element).height() - 100;
+              }
               $('html, body').animate({scrollTop: x}, self.data.general.scrollSpeed);
             }
           }
@@ -139,7 +144,7 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
         case 0:
           if ($(self.forms[f].errorJquerySelector).length) {
             if (!$(self.forms[f].errorJquerySelector + ' #' + errorel).length) {
-              $('<div id="' + errorel + '" class="messages error clientside-error"><ul></ul></div>').appendTo(self.forms[f].errorJquerySelector).hide();
+              $('<div id="' + errorel + '" class="messages error clientside-error"><ul></ul></div>').prependTo(self.forms[f].errorJquerySelector).hide();
             }
           }
           else if (!$('#' + errorel).length) {

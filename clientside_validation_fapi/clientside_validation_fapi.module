@@ -77,10 +77,10 @@ function _clientside_validation_set_fapi_validation($element, $rule, $params, &$
     $title = $element['#title'];
   }
   if (strpos($message, '%field') !== FALSE) {
-    $message = t($message, array('%field' => variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '')));
+    $message = theme('clientside_error', array('message' => $message, 'placeholders' => array('%field' => variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', ''))));
   }
   else {
-    $message = t($message);
+    $message = theme('clientside_error', array('message' => $message));
   }
   $expressions = array(
     'fapi_validation_rule_alpha' => '/^[\pL]++$/uD',

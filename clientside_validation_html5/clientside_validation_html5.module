@@ -99,20 +99,20 @@ function _clientside_validation_set_minmax_html5($name, $title, $min, $max, $ste
   }
   elseif (isset($min) && $min !== '' && isset($max) && $max !== '') {
     $js_rules[$name]['Html5Range'] = array($min, $max, $step);
-    $js_rules[$name]['messages']['Html5Range'] = (empty($message)) ? t('!name field has to be greater than !min with steps of !step and smaller than !max.', array('!name' => $title, '!min' => $min, '!max' => $max, '!step' => $step)) : $message;
+    $js_rules[$name]['messages']['Html5Range'] = (empty($message)) ? theme('clientside_error', array('message' => '!name field has to be greater than !min with steps of !step and smaller than !max.', 'placeholders' => array('!name' => $title, '!min' => $min, '!max' => $max, '!step' => $step))) : theme('clientside_error', array('message' => $message));
   }
   elseif (isset($min) && $min !== '') {
     $js_rules[$name]['Html5Min'] = array($min, $step);
-    $js_rules[$name]['messages']['Html5Min'] = (empty($message)) ? t('!name field has to be greater than !min with steps of !step.', array('!name' => $title, '!min' => $min, '!step' => $step)) : $message;
+    $js_rules[$name]['messages']['Html5Min'] = (empty($message)) ? theme('clientside_error', array('message' => '!name field has to be greater than !min with steps of !step.', 'placeholders' => array('!name' => $title, '!min' => $min, '!step' => $step))) : theme('clientside_error', array('message' => $message));
   }
   elseif (isset($max) && $max !== '') {
     $js_rules[$name]['Html5Max'] = array($max, $step);
-    $js_rules[$name]['messages']['Html5Max'] = (empty($message)) ? t('!name field has to be smaller than !max and must be dividable by !step.', array('!name' => $title, '!max' => $max, '!step' => $step)) : $message;
+    $js_rules[$name]['messages']['Html5Max'] = (empty($message)) ? theme('clientside_error', array('message' => '!name field has to be smaller than !max and must be dividable by !step.', 'placeholders' => array('!name' => $title, '!max' => $max, '!step' => $step))) : theme('clientside_error', array('message' => $message));
   }
 }
 
 function _clientside_validation_set_html5_color($name, $title, &$js_rules, $message='') {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   $js_rules[$name]['Html5Color'] = TRUE;
-  $js_rules[$name]['messages']['Html5Color'] = (empty($message)) ? t('!name field must be a vlid color code', array('!name' => $name)) : $message;
+  $js_rules[$name]['messages']['Html5Color'] = (empty($message)) ? theme('clientside_error', array('message' => '!name field must be a vlid color code', 'placeholders' => array('!name' => $name))) : theme('clientside_error', array('message' => $message));
 }

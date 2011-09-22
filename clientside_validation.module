@@ -299,7 +299,7 @@ function _clientside_validation_set_required($name, $title, $required, &$js_rule
 /**
  * Set validation rule for number fields.
  */
-function _clientside_validation_set_number($name, $title, $decimalpoint, &$js_rules) {
+function _clientside_validation_set_number($name, $title, &$js_rules) {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   $js_rules[$name]['digits_negative'] = TRUE;
   $js_rules[$name]['messages']['digits_negative'] = theme('clientside_error', '!name field accepts only numbers.', array('!name' => $title));

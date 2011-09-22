@@ -109,7 +109,7 @@ function _clientside_validation_set_fapi_validation($element, $rule, $params, &$
 
       break;
     case 'fapi_validation_rule_numeric':
-      _clientside_validation_set_number($name, $title, '.', $js_rules);
+      _clientside_validation_set_number_decimal($name, $title, '.', $js_rules);
       break;
     case 'fapi_validation_rule_email':
       _clientside_validation_set_email($name, $title, $js_rules);

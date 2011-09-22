@@ -88,6 +88,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
           break;
         case 'numeric':
           $data = $webform_validation_rule['data'];
+          $range = array('min' => NULL, 'max' => NULL);
           if (strpos($data, '|') !== FALSE) {
             list($min, $max) = explode('|', $data);
             if ($min != '' && is_numeric($min)) {
@@ -98,7 +99,12 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
             }
           }
           foreach ($webform_validation_rule['components'] as $component) {
-            _clientside_validation_set_minmax($component['element_name'], $component['element_title'], $range['min'], $range['max'], $js_rules);
+            if (!empty($range['min']) || !empty($range['max'])) {
+              _clientside_validation_set_minmax($component['element_name'], $component['element_title'], $range['min'], $range['max'], $js_rules);
+            }
+            else {
+              _clientside_validation_set_number($component['element_name'], $component['element_title'], $js_rules);
+            }
           }
           break;
         case 'equal':

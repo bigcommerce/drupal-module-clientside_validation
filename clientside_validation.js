@@ -6,9 +6,11 @@
       }
       else {
         // Update the settings
-        Drupal.myClientsideValidation.data = Drupal.settings.clientsideValidation;
-        Drupal.myClientsideValidation.forms = Drupal.myClientsideValidation.data['forms'];
-        Drupal.myClientsideValidation.bindForms();
+        if (context[0].tagName =! 'TR') {
+          Drupal.myClientsideValidation.data = Drupal.settings.clientsideValidation;
+          Drupal.myClientsideValidation.forms = Drupal.myClientsideValidation.data['forms'];
+          Drupal.myClientsideValidation.bindForms();
+        }
       }
     }
   }

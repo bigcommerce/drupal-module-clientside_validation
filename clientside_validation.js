@@ -5,8 +5,14 @@
         Drupal.myClientsideValidation = new Drupal.clientsideValidation();
       }
       else {
-        // Update the settings
-        if (context[0].tagName =! 'TR') {
+        var update = false;
+        jQuery.each(Drupal.settings.clientsideValidation.forms, function (f) {
+          if ($(context).find('#' + f).length || $(context).attr('id') == f) {
+            update = true;
+          }
+        });
+        //update settings
+        if (update) {
           Drupal.myClientsideValidation.data = Drupal.settings.clientsideValidation;
           Drupal.myClientsideValidation.forms = Drupal.myClientsideValidation.data['forms'];
           Drupal.myClientsideValidation.bindForms();

@@ -8,6 +8,14 @@
 function clientside_validation_webform_clientside_validation_webform_alter(&$form, &$form_state, &$js_rules) {
   clientside_validation_webform_after_build_recurse($form['#id'], $form, $form_state, $js_rules);
   clientside_validation_webform_add_webform_validation($form['#id'], $form, $form_state, $js_rules);
+  
+  // check for Save Draft button
+  if (isset($form['actions']['draft'])) {
+    if (!isset($form['actions']['draft']['#attributes']['class'])) {
+      $form['actions']['draft']['#attributes']['class'] = array();
+    }
+    $form['actions']['draft']['#attributes']['class'][0] = 'cancel';
+  }
 }
 
 function clientside_validation_webform_after_build_recurse($form_id, &$form, &$form_state, &$js_rules) {

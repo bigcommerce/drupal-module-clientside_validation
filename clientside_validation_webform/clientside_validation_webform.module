@@ -17,17 +17,17 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
       if (isset($element['#title'])) {
         if ($element['#required']) {
           if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'time' && isset($element['hour']['#name'])) {
-            $message = t('Hour in !name field is required.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
+            $message = t('Hour in !title field is required.', array('!title' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
             _clientside_validation_set_required($element['hour']['#name'], $element['#title'], TRUE, $js_rules, $message);
-            $message = t('Minute in !name field is required.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
+            $message = t('Minute in !title field is required.', array('!title' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
             _clientside_validation_set_required($element['minute']['#name'], $element['#title'], TRUE, $js_rules, $message);
           }
           elseif (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'date') {
-            $message = t('Month in !name field is required.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
+            $message = t('Month in !title field is required.', array('!title' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
             _clientside_validation_set_required($element['#name'] . '[month]', $element['#title'], TRUE, $js_rules, $message);
-            $message = t('Day in !name field is required.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
+            $message = t('Day in !title field is required.', array('!title' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
             _clientside_validation_set_required($element['#name'] . '[day]', $element['#title'], TRUE, $js_rules, $message);
-            $message = t('Year in !name field is required.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
+            $message = t('Year in !title field is required.', array('!title' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
             _clientside_validation_set_required($element['#name'] . '[year]', $element['#title'], TRUE, $js_rules, $message);
             if (is_numeric($element['#year_start']) && is_numeric($element['#year_end'])) {
               $message = t('The entered date needs to be between the years @start and @end.', array('@start' => $element['#year_start'], '@end' => $element['#year_end']));
@@ -53,7 +53,7 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
           }
         }
         if ($element['#maxlength']) {
-          $message = t('!name field has a max length of !maxl characters.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', ''), '!maxl' => $element['#maxlength']));
+          $message = t('!title field has a max length of !maxl characters.', array('!title' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', ''), '!maxl' => $element['#maxlength']));
           _clientside_validation_set_minmaxlength($element['#name'], $element['#title'], '', $element['#maxlength'], $js_rules, $message);
         }
 
@@ -76,13 +76,13 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
       switch ($webform_validation_rule['validator']) {
         case 'min_length':
           foreach ($webform_validation_rule['components'] as $component) {
-            $message = t('!name field has a minimum length of !minl characters.', array('!name' => variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', ''), '!minl' => $webform_validation_rule['data']));
+            $message = t('!title field has a minimum length of !minl characters.', array('!title' => variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', ''), '!minl' => $webform_validation_rule['data']));
              _clientside_validation_set_minmaxlength($component['element_name'], $component['element_title'], $webform_validation_rule['data'], '', $js_rules, $message);
           }
           break;
         case 'max_length':
           foreach ($webform_validation_rule['components'] as $component) {
-            $message = t('!name field has a maximum length of !maxl characters.', array('!name' => variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', ''), '!maxl' => $webform_validation_rule['data']));
+            $message = t('!title field has a maximum length of !maxl characters.', array('!title' => variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', ''), '!maxl' => $webform_validation_rule['data']));
             _clientside_validation_set_minmaxlength($component['element_name'], $component['element_title'], '', $webform_validation_rule['data'], $js_rules, $message);
           }
           break;
@@ -166,7 +166,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
           break;
         default:
           foreach ($webform_validation_rule['components'] as $component) {
-            $message = (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) ? $webform_validation_rule['error_message'] : t('Invalid value for !name', array('!name' => variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', '')));
+            $message = (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) ? $webform_validation_rule['error_message'] : t('Invalid value for !title', array('!title' => variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', '')));
             $context = array('type' => 'webform', 'rule' => $webform_validation_rule, 'message' => $message);
             drupal_alter('clientside_validation_rule', $js_rules, $component, $context);
           }

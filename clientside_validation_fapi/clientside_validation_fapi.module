@@ -81,12 +81,6 @@ function _clientside_validation_set_fapi_validation($element, $rule, $params, &$
   if (isset($element['#title'])) {
     $title = $element['#title'];
   }
-  if (strpos($message, '%field') !== FALSE) {
-    $message = theme('clientside_error', $message, array('%field' => variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '')));
-  }
-  else {
-    $message = theme('clientside_error', $message);
-  }
   $expressions = array(
     'fapi_validation_rule_alpha' => '/^[\pL]++$/uD',
     'fapi_validation_rule_alpha_numeric' => '/^[\pL\pN]++$/uD',
@@ -97,15 +91,24 @@ function _clientside_validation_set_fapi_validation($element, $rule, $params, &$
   );
   switch ($callback) {
     case 'fapi_validation_rule_alpha':
+      $type = 'alpha';
     case 'fapi_validation_rule_alpha_numeric':
+      $type = 'alpha numeric';
     case 'fapi_validation_rule_ipv4':
+      $type = 'ipv4';
     case 'fapi_validation_rule_alpha_dash':
+      $type = 'alpha dash';
     case 'fapi_validation_rule_digit':
+      $type = 'digit';
     case 'fapi_validation_rule_regexp':
       if ($callback == 'fapi_validation_rule_regexp') {
         $expressions['fapi_validation_rule_regexp'] = $params[1][0];
+        $type = 'regexp';
       }
-      _clientside_validation_set_regex_pcre($name, $title, $js_rules, $expressions[$callback], $message);
+      if (strpos($message, '%field') !== FALSE) {
+        $message = t($message, array('%field' => variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '')));
+      }
+      _clientside_validation_set_regex_pcre($name, $title, $js_rules, $expressions[$callback], $message, $type);
 
       break;
     case 'fapi_validation_rule_numeric':
@@ -135,7 +138,10 @@ function _clientside_validation_set_fapi_validation($element, $rule, $params, &$
       else {
         $expression = '/\d+\.\d+/';
       }
-      _clientside_validation_set_regex_pcre($name, $title, $js_rules, $expression, $message);
+      if (strpos($message, '%field') !== FALSE) {
+        $message = t($message, array('%field' => variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '')));
+      }
+      _clientside_validation_set_regex_pcre($name, $title, $js_rules, $expression, $message, 'decimal');
       break;
     default:
       $context = array('type' => 'fapi', 'rule' => $rule, 'message' => $message, 'params' => $params);

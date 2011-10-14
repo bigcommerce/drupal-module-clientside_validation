@@ -30,8 +30,12 @@
     this.groups = {};
     
     //disable class and attribute rules
-    $.validator.classRules = function() { return {}; };
-    $.validator.attributeRules = function() { return {}; };
+    $.validator.classRules = function() {
+      return {};
+    };
+    $.validator.attributeRules = function() {
+      return {};
+    };
     
     this.addExtraRules();
     this.bindForms();
@@ -76,6 +80,24 @@
           jQuery.each(this, function(){
             i = 0;
             $(this[2] + ' input[type=checkbox]').each(function(){
+              if(i > 0){
+                self.groups[f][groupkey] += ' ';
+              }
+              self.groups[f][groupkey] += $(this).attr('name');
+              i++;
+            });
+          });
+        });
+      }
+
+      if('daterangerules' in self.forms[f]){
+        groupkey = "";
+        jQuery.each (self.forms[f]['daterangerules'], function(r) {
+          groupkey = r + '_group';
+          self.groups[f][groupkey] = "";
+          jQuery.each(this, function(){
+            i = 0;
+            $('#' + f + ' #' + r + ' :input').not('input[type=image]').each(function(){
               if(i > 0){
                 self.groups[f][groupkey] += ' ';
               }
@@ -285,6 +307,23 @@
 
   Drupal.clientsideValidation.prototype.bindRules = function(formid){
     var self = this;
+    var hideErrordiv = function(){
+      //wait just one milisecond until the error div is updated
+      window.setTimeout(function(){
+        var visibles = 0;
+        $("div.messages.error ul li").each(function(){
+          if($(this).is(':visible')){
+            visibles++;
+          }
+          else {
+            $(this).remove();
+          }
+        });
+        if(visibles < 1){
+          $("div.messages.error").hide();
+        }
+      }, 1);
+    };
     if('checkboxrules' in self.forms[formid]){
       jQuery.each (self.forms[formid]['checkboxrules'], function(r) {
         $("#" + formid + " " + this['checkboxgroupminmax'][2] + ' :input[type="checkbox"]').addClass('require-one');
@@ -294,25 +333,17 @@
         if ($("#" + formid + " " + this['checkboxgroupminmax'][2] + " .require-one").length) {
           $("#" + formid + " " + this['checkboxgroupminmax'][2] +  " .require-one").each(function(){
             $(this).rules("add", self.forms[formid]['checkboxrules'][r]);
-            $(this).change(function(){
-              //wait just one milisecond until the error div is updated
-              window.setTimeout(function(){
-                var visibles = 0;
-                $("div.messages.error ul li").each(function(){
-                  if($(this).is(':visible')){
-                    visibles++;
-                  }
-                  else {
-                    $(this).remove();
-                  }
-                });
-                if(visibles < 1){
-                  $("div.messages.error").hide();
-                }
-              }, 1);
-            });
+            $(this).change(hideErrordiv);
           });
         }
+      });
+    }
+    if('daterangerules' in self.forms[formid]){
+      jQuery.each (self.forms[formid]['daterangerules'], function(r) {
+        $('#' + formid + ' #' + r + ' :input').not('input[type=image]').each(function(){
+          $(this).rules("add", self.forms[formid]['daterangerules'][r]);
+          $(this).blur(hideErrordiv);
+        });
       });
     }
     if('rules' in self.forms[formid]){
@@ -437,6 +468,63 @@
 
     }, jQuery.format('The value does not match the expected format.'));
 
+    jQuery.validator.addMethod("daterange", function(value, element, param) {
+      //Assume [month], [day], and [year] ??
+      var dayelem, monthelem, yearelem, name;
+      if ($(element).attr('name').indexOf('[day]') > 0) {
+        dayelem = $(element);
+        name = dayelem.attr('name').replace('[day]', '');
+        monthelem = $("[name='" + name + "[month]']");
+        yearelem = $("[name='" + name + "[year]']");
+      }
+      else if ($(element).attr('name').indexOf('[month]') > 0) {
+        monthelem = $(element);
+        name = monthelem.attr('name').replace('[month]', '');
+        dayelem = $("[name='" + name + "[day]']");
+        yearelem = $("[name='" + name + "[year]']");
+      }
+      else if ($(element).attr('name').indexOf('[year]') > 0) {
+        yearelem = $(element);
+        name = yearelem.attr('name').replace('[year]', '');
+        dayelem = $("[name='" + name + "[day]']");
+        monthelem = $("[name='" + name + "[month]']");
+
+      }
+
+      if (parseInt(yearelem.val(), 10) < parseInt(param[0][0], 10)) {
+        return false;
+      }
+      else if (parseInt(yearelem.val(), 10) == parseInt(param[0][0], 10)){
+        if (parseInt(monthelem.val(), 10) < parseInt(param[0][1])){
+          return false;
+        }
+        else if (parseInt(monthelem.val(), 10) == parseInt(param[0][1], 10)){
+          if(parseInt(dayelem.val(), 10) < parseInt(param[0][2], 10)) {
+            return false;
+          }
+        }
+      }
+
+      if (parseInt(yearelem.val(), 10) > parseInt(param[1][0], 10)) {
+        return false;
+      }
+      else if (parseInt(yearelem.val(), 10) == parseInt(param[1][0], 10)){
+        if (parseInt(monthelem.val(), 10) > parseInt(param[1][1])){
+          return false;
+        }
+        else if (parseInt(monthelem.val(), 10) == parseInt(param[1][1], 10)){
+          if(parseInt(dayelem.val(), 10) > parseInt(param[1][2], 10)) {
+            return false;
+          }
+        }
+      }
+      yearelem.removeClass('error');
+      monthelem.removeClass('error');
+      dayelem.removeClass('error');
+      return true;
+    }, jQuery.format('The value does not match the expected format.'));
+
+    
     // EAN code
     jQuery.validator.addMethod("validEAN", function(value, element, param) {
       if (this.optional(element) && value == '') {

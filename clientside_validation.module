@@ -131,22 +131,8 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
   if (!empty($js_rules)) {
     $settings = array();
     _clientside_validation_add_general_settings($settings, $form['#id']);
-    foreach ($js_rules as $key => $rule) {
-      if (isset($rule['checkboxgroupminmax'])) {
-        $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(
-            'checkboxgroupminmax' => $rule['checkboxgroupminmax'],
-            'messages' => array('checkboxgroupminmax' => $rule['messages']['checkboxgroupminmax'])
-        );
-        unset($rule['checkboxgroupminmax']);
-        unset($rule['messages']['checkboxgroupminmax']);
-        if (empty($rule['messages'])) {
-          unset($rule['messages']);
-        }
-      }
-      if (!empty($rule)) {
-        $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
-      }
-    }
+    _clientside_validation_add_special_rules($js_rules, $settings, $form);
+    
     
     if (variable_get('clientside_validation_use_minified', 0) == 0) {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js');
@@ -159,6 +145,58 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
     drupal_add_js($settings, 'setting');
   }
   return $form;
+}
+
+function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form) {
+  foreach ($js_rules as $key => $rule) {
+    if (isset($rule['checkboxgroupminmax'])) {
+      $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(
+          'checkboxgroupminmax' => $rule['checkboxgroupminmax'],
+          'messages' => array('checkboxgroupminmax' => $rule['messages']['checkboxgroupminmax'])
+      );
+      unset($rule['checkboxgroupminmax']);
+      unset($rule['messages']['checkboxgroupminmax']);
+      if (empty($rule['messages'])) {
+        unset($rule['messages']);
+      }
+    }
+    if (isset($rule['daterange'])) {
+      $settings['clientsideValidation']['forms'][$form['#id']]['daterangerules'][$key] = array(
+          'daterange' => $rule['daterange'],
+          'messages' => array('daterange' => $rule['messages']['daterange'])
+      );
+      unset($rule['daterange']);
+      unset($rule['messages']['daterange']);
+      if (empty($rule['messages'])) {
+        unset($rule['messages']);
+      }
+    }
+    if (isset($rule['datemin'])) {
+      $settings['clientsideValidation']['forms'][$form['#id']]['dateminrules'][$key] = array(
+          'daterange' => $rule['datemin'],
+          'messages' => array('datemin' => $rule['messages']['datemin'])
+      );
+      unset($rule['datemin']);
+      unset($rule['messages']['datemin']);
+      if (empty($rule['messages'])) {
+        unset($rule['messages']);
+      }
+    }
+    if (isset($rule['datemax'])) {
+      $settings['clientsideValidation']['forms'][$form['#id']]['datemaxrules'][$key] = array(
+          'daterange' => $rule['datemax'],
+          'messages' => array('datemax' => $rule['messages']['datemax'])
+      );
+      unset($rule['datemax']);
+      unset($rule['messages']['datemax']);
+      if (empty($rule['messages'])) {
+        unset($rule['messages']);
+      }
+    }
+    if (!empty($rule)) {
+      $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
+    }
+  }
 }
 
 /**
@@ -175,22 +213,7 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
   if (!empty($js_rules)) {
     $settings = array();
     _clientside_validation_add_general_settings($settings, $form['#id']);
-    foreach ($js_rules as $key => $rule) {
-      if (isset($rule['checkboxgroupminmax'])) {
-        $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(
-            'checkboxgroupminmax' => $rule['checkboxgroupminmax'],
-            'messages' => array('checkboxgroupminmax' => $rule['messages']['checkboxgroupminmax'])
-        );
-        unset($rule['checkboxgroupminmax']);
-        unset($rule['messages']['checkboxgroupminmax']);
-        if (empty($rule['messages'])) {
-          unset($rule['messages']);
-        }
-      }
-      if (!empty($rule)) {
-        $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
-      }
-    }
+    _clientside_validation_add_special_rules($js_rules, $settings, $form);
     if (variable_get('clientside_validation_use_minified', 0) == 0) {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js');
     }
@@ -400,6 +423,67 @@ function _clientside_validation_set_minmax($name, $title, $min, $max, &$js_rules
       );
     }
     $js_rules[$name]['messages']['max'] = theme('clientside_error', $variables);
+  }
+}
+
+function _clientside_validation_set_minmax_date($name, $title, $start_date, $end_date, &$js_rules, $message = '') {
+  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  if (isset($start_date) && $start_date !== '' && isset($end_date) && $end_date !== '') {
+    $js_rules[$name]['daterange'] = array($start_date, $end_date);
+    if (empty($message)) {
+      $variables = array(
+        'message' => '!title field has to be between !min and !max.',
+        'placeholders' => array('!title' => $title, '!min' => $start_date, '!max' => $end_date),
+        'error_type' => 'daterange',
+        'element_name' => $name,
+      );
+    }
+    else {
+      $variables = array(
+        'message' => $message,
+        'error_type' => 'daterange',
+        'element_name' => $name,
+      );
+    }
+    $js_rules[$name]['messages']['daterange'] = theme('clientside_error', $variables);
+  }
+  elseif (isset($start_date) && $start_date !== '') {
+    $js_rules[$name]['datemin'] = $start_date;
+    if (empty($message)) {
+      $variables = array(
+        'message' => '!title field has to be greater than !min.',
+        'placeholders' => array('!title' => $title, '!min' => $start_date),
+        'error_type' => 'datemin',
+        'element_name' => $name,
+      );
+    }
+    else {
+      $variables = array(
+        'message' => $message,
+        'error_type' => 'datemin',
+        'element_name' => $name,
+      );
+    }
+    $js_rules[$name]['messages']['datemin'] = theme('clientside_error', $variables);
+  }
+  elseif (isset($end_date) && $end_date !== '') {
+    $js_rules[$name]['datemax'] = $end_date;
+    if (empty($message)) {
+      $variables = array(
+        'message' => '!title field has to be smaller than !max.',
+        'placeholders' => array('!title' => $title, '!max' => $end_date),
+        'error_type' => 'datemax',
+        'element_name' => $name,
+      );
+    }
+    else {
+      $variables = array(
+        'message' => $message,
+        'error_type' => 'datemax',
+        'element_name' => $name,
+      );
+    }
+    $js_rules[$name]['messages']['datemax'] = theme('clientside_error', $variables);
   }
 }
 

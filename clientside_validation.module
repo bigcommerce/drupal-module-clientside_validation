@@ -636,7 +636,7 @@ function _clientside_validation_set_regex_pcre($name, $title, &$js_rules, $expre
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   if (empty($message)) {
     $variables = array(
-      'message' => 'title field does not match the required pattern.',
+      'message' => '!title field does not match the required pattern.',
       'placeholders' => array('!title' => $title),
       'error_type' => $type,
       'element_name' => $name

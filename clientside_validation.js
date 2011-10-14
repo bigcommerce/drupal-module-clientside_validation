@@ -3,9 +3,18 @@ Drupal.behaviors.clientsideValidation = function (context) {
     Drupal.myClientsideValidation = new Drupal.clientsideValidation();
   }
   else {
-    Drupal.myClientsideValidation.data = Drupal.settings.clientsideValidation;
-    Drupal.myClientsideValidation.forms = Drupal.myClientsideValidation.data['forms'];
-    Drupal.myClientsideValidation.bindForms();
+    var update = false;
+    jQuery.each(Drupal.settings.clientsideValidation.forms, function (f) {
+      if ($(context).find('#' + f).length || $(context).attr('id') == f) {
+        update = true;
+      }
+    });
+    //update settings
+    if (update) {
+      Drupal.myClientsideValidation.data = Drupal.settings.clientsideValidation;
+      Drupal.myClientsideValidation.forms = Drupal.myClientsideValidation.data['forms'];
+      Drupal.myClientsideValidation.bindForms();
+    }
   }
 }
 

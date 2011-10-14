@@ -51,7 +51,8 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
                 $start_date = '';
                 $end_date = explode('-', $element['#end_date']);
               }
-              _clientside_validation_set_minmax_date('webform-component-' . $element['#webform_component']['name'], $element['#title'], $start_date, $end_date, $js_rules, $message);
+              $id = 'webform-component-' . str_replace('_', '-', implode('--', array_slice($element['#parents'], 1)));
+              _clientside_validation_set_minmax_date($id, $element['#title'], $start_date, $end_date, $js_rules, $message);
             }
           }
           elseif ($element['#type'] == 'checkboxes') {

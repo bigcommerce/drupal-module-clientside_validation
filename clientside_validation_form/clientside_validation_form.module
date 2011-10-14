@@ -38,6 +38,10 @@ function clientside_validation_regular($form_id, $element, &$js_rules) {
       $is_multiple = $element['#multiple'];
     }
     $required_error = isset($element['#required_error']) ? $element['#required_error'] : '';
+    if ((empty($el_title) || $el_title == $el_name) && isset($element['#field_name']) && isset($element['#entity_type']) && isset($element['#bundle'])) {
+      $field_info = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
+      $el_title = $field_info['label'];
+    }
     switch ($element['#type']) {
       case 'textfield':
       case 'password':

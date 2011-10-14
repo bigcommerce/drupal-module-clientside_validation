@@ -29,9 +29,29 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
             _clientside_validation_set_required($element['#name'] . '[day]', $element['#title'], TRUE, $js_rules, $message);
             $message = t('Year in !title field is required.', array('!title' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
             _clientside_validation_set_required($element['#name'] . '[year]', $element['#title'], TRUE, $js_rules, $message);
-            if (is_numeric($element['#year_start']) && is_numeric($element['#year_end'])) {
-              $message = t('The entered date needs to be between the years @start and @end.', array('@start' => $element['#year_start'], '@end' => $element['#year_end']));
-              _clientside_validation_set_minmax($element['#name'] . '[year]', $element['#title'], $element['#year_start'], $element['#year_end'], $js_rules, $message);
+            if (isset($element['#year_start']) && isset($element['#year_end'])) {
+              if (is_numeric($element['#year_start']) && is_numeric($element['#year_end'])) {
+                $message = t('The entered date needs to be between the years @start and @end.', array('@start' => $element['#year_start'], '@end' => $element['#year_end']));
+                _clientside_validation_set_minmax($element['#name'] . '[year]', $element['#title'], $element['#year_start'], $element['#year_end'], $js_rules, $message);
+              }
+            }
+            elseif (isset($element['#start_date']) || isset($element['#end_date'])) {
+              if (isset($element['#start_date']) && isset($element['#end_date'])) {
+                $message = t('The entered date needs to be between the dates @start and @end.', array('@start' => $element['#start_date'], '@end' => $element['#end_date']));
+                $start_date = explode('-', $element['#start_date']);
+                $end_date = explode('-', $element['#end_date']);
+              }
+              elseif (isset($element['#start_date'])) {
+                $message = t('The entered date needs to be before @start', array('@start' => $element['#start_date']));
+                $start_date = explode('-', $element['#start_date']);
+                $end_date = '';
+              }
+              else {
+                $message = t('The entered date needs to be before @end', array('@end' => $element['#end_date']));
+                $start_date = '';
+                $end_date = explode('-', $element['#end_date']);
+              }
+              _clientside_validation_set_minmax_date('webform-component-' . $element['#webform_component']['name'], $element['#title'], $start_date, $end_date, $js_rules, $message);
             }
           }
           elseif ($element['#type'] == 'checkboxes') {

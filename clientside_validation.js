@@ -658,6 +658,61 @@
       return true;
     });
 
+    jQuery.validator.addMethod("daterange", function(value, element, param) {
+      //Assume [month], [day], and [year] ??
+      var dayelem, monthelem, yearelem, name;
+      if ($(element).attr('name').indexOf('[day]') > 0) {
+        dayelem = $(element);
+        name = dayelem.attr('name').replace('[day]', '');
+        monthelem = $("[name='" + name + "[month]']");
+        yearelem = $("[name='" + name + "[year]']");
+      }
+      else if ($(element).attr('name').indexOf('[month]') > 0) {
+        monthelem = $(element);
+        name = monthelem.attr('name').replace('[month]', '');
+        dayelem = $("[name='" + name + "[day]']");
+        yearelem = $("[name='" + name + "[year]']");
+      }
+      else if ($(element).attr('name').indexOf('[year]') > 0) {
+        yearelem = $(element);
+        name = yearelem.attr('name').replace('[year]', '');
+        dayelem = $("[name='" + name + "[day]']");
+        monthelem = $("[name='" + name + "[month]']");
+      }
+
+      if (parseInt(yearelem.val(), 10) < parseInt(param[0][0], 10)) {
+        return false;
+      }
+      else if (parseInt(yearelem.val(), 10) == parseInt(param[0][0], 10)){
+        if (parseInt(monthelem.val(), 10) < parseInt(param[0][1])){
+          return false;
+        }
+        else if (parseInt(monthelem.val(), 10) == parseInt(param[0][1], 10)){
+          if(parseInt(dayelem.val(), 10) < parseInt(param[0][2], 10)) {
+            return false;
+          }
+        }
+      }
+
+      if (parseInt(yearelem.val(), 10) > parseInt(param[1][0], 10)) {
+        return false;
+      }
+      else if (parseInt(yearelem.val(), 10) == parseInt(param[1][0], 10)){
+        if (parseInt(monthelem.val(), 10) > parseInt(param[1][1])){
+          return false;
+        }
+        else if (parseInt(monthelem.val(), 10) == parseInt(param[1][1], 10)){
+          if(parseInt(dayelem.val(), 10) > parseInt(param[1][2], 10)) {
+            return false;
+          }
+        }
+      }
+      yearelem.removeClass('error');
+      monthelem.removeClass('error');
+      dayelem.removeClass('error');
+      return true;
+    });
+
     
     // EAN code
     jQuery.validator.addMethod("validEAN", function(value, element, param) {

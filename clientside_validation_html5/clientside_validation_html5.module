@@ -9,7 +9,7 @@
 function clientside_validation_html5_clientside_validation_form_alter(&$form, &$form_state, &$js_rules) {
   static $js_added = FALSE;
   if (!$js_added) {
-    drupal_add_js(drupal_get_path('module', 'clientside_validation_html5') . '/clientside_validation_html5.js', array('scope' => 'footer'));
+    drupal_add_js(drupal_get_path('module', 'clientside_validation_html5') . '/clientside_validation_html5.js', array('scope' => 'footer', 'weight' => 20));
     $js_added = TRUE;
   }
   clientside_validation_html5_after_build_recurse($form['#id'], $form, $form_state, $js_rules);

@@ -141,7 +141,7 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.min.js');
     }
     //add our js file to the footer to support vertical_tabs
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', array('scope' => 'footer'));
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', array('scope' => 'footer', 'weight' => 20));
     drupal_add_js($settings, 'setting');
   }
   return $form;
@@ -221,7 +221,7 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.min.js');
     }
     //add our js file to the footer to support vertical_tabs
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', array('scope' => 'footer'));
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', array('scope' => 'footer', 'weight' => 20));
     drupal_add_js($settings, 'setting');
     $form_ids[$form['#id']] = TRUE;
   }

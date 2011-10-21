@@ -469,9 +469,21 @@
     }, jQuery.format(''));
 
     jQuery.validator.addMethod("specificVals", function(value, element, param){
-      for (var i in value){
+      for (var i in value) {
         if(param.indexOf(value[i]) == -1) {
-          return false;
+            return false;
+        }
+      }
+      return true;
+    });
+
+    jQuery.validator.addMethod("blacklist", function(value, element, param) {
+      if (typeof(value) !== 'object') {
+        value = value.split(' ');
+      }
+      for (var i in value) {
+        if(param.indexOf(value[i]) !== -1) {
+            return false;
         }
       }
       return true;
@@ -524,61 +536,43 @@
 
     }, jQuery.format('The value does not match the expected format.'));
 
-    jQuery.validator.addMethod("daterange", function(value, element, param) {
-      //Assume [month], [day], and [year] ??
-      var dayelem, monthelem, yearelem, name;
-      if ($(element).attr('name').indexOf('[day]') > 0) {
-        dayelem = $(element);
-        name = dayelem.attr('name').replace('[day]', '');
-        monthelem = $("[name='" + name + "[month]']");
-        yearelem = $("[name='" + name + "[year]']");
-      }
-      else if ($(element).attr('name').indexOf('[month]') > 0) {
-        monthelem = $(element);
-        name = monthelem.attr('name').replace('[month]', '');
-        dayelem = $("[name='" + name + "[day]']");
-        yearelem = $("[name='" + name + "[year]']");
-      }
-      else if ($(element).attr('name').indexOf('[year]') > 0) {
-        yearelem = $(element);
-        name = yearelem.attr('name').replace('[year]', '');
-        dayelem = $("[name='" + name + "[day]']");
-        monthelem = $("[name='" + name + "[month]']");
+    jQuery.validator.addMethod("rangewords", function(value, element, param) {
+      return this.optional(element) || (param[0] <= jQuery.trim(value).split(' ').length && value.split(' ').length <= param[1]);
+    }, jQuery.format('The value must be between {0} and {1} words long'));
 
-      }
+    jQuery.validator.addMethod("minwords", function(value, element, param) {
+      return this.optional(element) || param <= jQuery.trim(value).split(' ').length;
+    }, jQuery.format('The value must be more than {0} words long'));
+    
+    jQuery.validator.addMethod("maxwords", function(value, element, param) {
+      return this.optional(element) || jQuery.trim(value).split(' ').length <= param;
+    }, jQuery.format('The value must be less than {0} words long'));
 
-      if (parseInt(yearelem.val(), 10) < parseInt(param[0][0], 10)) {
-        return false;
-      }
-      else if (parseInt(yearelem.val(), 10) == parseInt(param[0][0], 10)){
-        if (parseInt(monthelem.val(), 10) < parseInt(param[0][1])){
-          return false;
-        }
-        else if (parseInt(monthelem.val(), 10) == parseInt(param[0][1], 10)){
-          if(parseInt(dayelem.val(), 10) < parseInt(param[0][2], 10)) {
-            return false;
-          }
-        }
-      }
-
-      if (parseInt(yearelem.val(), 10) > parseInt(param[1][0], 10)) {
-        return false;
-      }
-      else if (parseInt(yearelem.val(), 10) == parseInt(param[1][0], 10)){
-        if (parseInt(monthelem.val(), 10) > parseInt(param[1][1])){
-          return false;
-        }
-        else if (parseInt(monthelem.val(), 10) == parseInt(param[1][1], 10)){
-          if(parseInt(dayelem.val(), 10) > parseInt(param[1][2], 10)) {
-            return false;
-          }
-        }
-      }
-      yearelem.removeClass('error');
-      monthelem.removeClass('error');
-      dayelem.removeClass('error');
-      return true;
+    jQuery.validator.addMethod("plaintext", function(value, element, param){
+      return this.optional(element) || (value == strip_tags(value, param));
     });
+
+    // Unique values
+    jQuery.validator.addMethod("notEqualTo", function(value, element, param) {
+      var target = $(param).unbind(".validate-notEqualTo").bind("blur.validate-notEqualTo", function() {
+        $(element).valid();
+      });
+      return value != target.val();
+    }, jQuery.format('Please don\'t enter the same value again.'));
+
+    jQuery.validator.addMethod("regexMatch", function(value, element, param) {
+      if (this.optional(element) && value == '') {
+        return this.optional(element);
+      }
+      else {
+        var regexp = new RegExp(param[0], param[1]);
+        if(regexp.test(value)){
+          return true;
+        }
+        return false;
+      }
+
+    }, jQuery.format('The value does not match the expected format.'));
 
     jQuery.validator.addMethod("datemin", function(value, element, param) {
       //Assume [month], [day], and [year] ??
@@ -704,6 +698,15 @@
 
     //Allow other modules to add more rules:
     jQuery.event.trigger('clientsideValidationAddCustomRules');
+
+    function strip_tags (input, allowed) {
+      allowed = (((allowed || "") + "").toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join(''); // making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
+      var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,
+          commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi;
+      return input.replace(commentsAndPhpTags, '').replace(tags, function ($0, $1) {
+        return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : '';
+      });
+    }
   }
 
 })(jQuery);

@@ -19,7 +19,7 @@ function clientside_validation_fapi_after_build_recurse($form_id, &$form, &$form
       if (isset($element['#type']) && in_array($element['#type'], $types)) {
         clientside_validation_fapi_regular($form_id, $element, $js_rules);
       }
-      clientside_validation_form_after_build_recurse($form_id, $element, $form_state, $js_rules);
+      clientside_validation_fapi_after_build_recurse($form_id, $element, $form_state, $js_rules);
     }
   }
 }

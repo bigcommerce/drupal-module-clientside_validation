@@ -140,6 +140,25 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
       });
     }
 
+    if ('daterequiredrules' in self.forms[f]) {
+      groupkey = "";
+      jQuery.each (self.forms[f]['daterequiredrules'], function(r) {
+        groupkey = r + '_group';
+        self.groups[f][groupkey] = "";
+        jQuery.each(this, function(){
+          i = 0;
+          $('#' + f + ' #' + self.forms[f]['daterequiredrules'][r]['required'][2] + ' :input').not('input[type=image]').each(function(){
+            if(i > 0){
+              self.groups[f][groupkey] += ' ';
+            }
+            self.groups[f][groupkey] += $(this).attr('name');
+            i++;
+          });
+        });
+      });
+    }
+    self.groups;
+
     // Add basic settings
     //@todo: find cleaner fix
     // ugly fix for nodes in colorbox
@@ -398,6 +417,15 @@ Drupal.clientsideValidation.prototype.bindRules = function(formid){
     jQuery.each (self.forms[formid]['datemaxrules'], function(r) {
       $('#' + formid + ' #' + r + ' :input').not('input[type=image]').each(function(){
         $(this).rules("add", self.forms[formid]['datemaxrules'][r]);
+        $(this).blur(hideErrordiv);
+      });
+    });
+  }
+
+  if ('daterequiredrules' in self.forms[formid]) {
+    jQuery.each (self.forms[formid]['daterequiredrules'], function(r) {
+      $('#' + formid + ' #' + self.forms[formid]['daterequiredrules'][r]['required'][2] + ' :input').not('input[type=image]').each(function(){
+        $(this).rules("add", self.forms[formid]['daterequiredrules'][r]);
         $(this).blur(hideErrordiv);
       });
     });

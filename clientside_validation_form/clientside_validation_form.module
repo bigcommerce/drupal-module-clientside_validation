@@ -228,6 +228,16 @@ function clientside_validation_cck($form_id, $element, &$js_rules) {
       case 'date':
         switch ($element['#type']) {
           case 'select':
+            if (empty($element['#title'])) {
+              // Is the case when the labels are inside the select box :/
+              $title = t(ucfirst(array_pop(explode('-', $element['#id']))));
+            }
+            $id = explode('-', $element['#id']);
+            unset($id[count($id) - 1]);
+            $id = implode('-', $id);
+            $id = '#' . $id . '-wrapper';
+            _clientside_validation_set_dategroup_required($element['#field_name'], $title, $id, $js_rules);
+            break;
           case 'textfield':
             if (empty($element['#title'])) {
               // Is the case when the labels are inside the select box :/

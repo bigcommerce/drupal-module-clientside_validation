@@ -62,7 +62,7 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
     // Remove any existing validation stuff
     if (self.validators[f]) {
       // Doesn't work :: $('#' + f).rules('remove');
-      var form = $('#' + f).get(0); 
+      var form = $('#' + f).get(0);
       if (typeof(form) != 'undefined') {
         jQuery.removeData(form, 'validator');
       }
@@ -160,7 +160,7 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
     self.groups;
 
     // Add basic settings
-    //@todo: find cleaner fix
+    // todo: find cleaner fix
     // ugly fix for nodes in colorbox
     if(typeof $('#' + f).validate == 'function') {
       var validate_options = {
@@ -349,14 +349,14 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
         validate_options.onkeyup = false;
       }
       self.validators[f] = $('#' + f).validate(validate_options);
-    
+
       //disable class and attribute rules
       jQuery.validator.disableAutoAddClassRules = true;
       jQuery.validator.disableAutoAddAttributeRules = true;
 
       // Bind all rules
       self.bindRules(f);
-    
+
     }
   });
 }
@@ -460,34 +460,34 @@ Drupal.clientsideValidation.prototype.bindRules = function(formid){
 
 Drupal.clientsideValidation.prototype.addExtraRules = function(){
 
-  jQuery.validator.addMethod("numberDE", function(value, element) { 
+  jQuery.validator.addMethod("numberDE", function(value, element) {
     return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d+)?$/.test(value);
   });
-  
+
   // Min a and maximum b checkboxes from a group
   jQuery.validator.addMethod("checkboxgroupminmax", function(value, element, param) {
     var validOrNot = $(param[2] + ' input:checked').length >= param[0] && $(param[2] + ' input:checked').length <= param[1];
-    
+
     /* This gives problems */
-    
+
     /*if(!$(element).data('being_validated')) {
       var fields = $(param[2] + ' input');
       fields.data('being_validated', true).valid();
       fields.data('being_validated', false);
     }*/
-    
-    
+
+
     return validOrNot;
-    
+
   }, jQuery.format('Minimum {0}, maximum {1}'));
 
   // Allow integers, same as digits but including a leading '-'
-  jQuery.validator.addMethod("digits_negative", function(value, element, param) { 
+  jQuery.validator.addMethod("digits_negative", function(value, element, param) {
     return this.optional(element) || /^-?\d+$/.test(value);
   }, jQuery.format('Please enter only digits.'));
 
   // One of the values
-  jQuery.validator.addMethod("oneOf", function(value, element, param) { 
+  jQuery.validator.addMethod("oneOf", function(value, element, param) {
     for (var p in param) {
       if (param[p] == value) {
         return true;
@@ -532,7 +532,7 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
   }, jQuery.format('The value does not match the expected format.'));
 
   // Unique values
-  jQuery.validator.addMethod("notEqualTo", function(value, element, param) { 
+  jQuery.validator.addMethod("notEqualTo", function(value, element, param) {
     var target = $(param).unbind(".validate-notEqualTo").bind("blur.validate-notEqualTo", function() {
       $(element).valid();
     });
@@ -694,7 +694,7 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
   });
 
   // EAN code
-  jQuery.validator.addMethod("validEAN", function(value, element, param) { 
+  jQuery.validator.addMethod("validEAN", function(value, element, param) {
     if (this.optional(element) && value == '') {
       return this.optional(element);
     }
@@ -724,9 +724,9 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
       if (rem != 0) {
         rem = 10 - rem;
       }
-      
+
       return rem == parseInt(value.substr(12, 1));
-      
+
     }
   }, jQuery.format('Not a valid EAN number.'));
 

@@ -28,7 +28,7 @@
     this.forms = this.data['forms'];
     this.validators = {};
     this.groups = {};
-    
+
     //disable class and attribute rules
     $.validator.classRules = function() {
       return {};
@@ -36,7 +36,7 @@
     $.validator.attributeRules = function() {
       return {};
     };
-    
+
     this.addExtraRules();
     this.bindForms();
   };
@@ -59,7 +59,7 @@
 
   Drupal.clientsideValidation.prototype.bindForms = function(){
     var self = this;
-    
+
     jQuery.each (self.forms, function(f) {
       var errorel = self.prefix + f + '-errors';
       self.groups[f] = {};
@@ -146,7 +146,7 @@
 
 
       // Add basic settings
-      //@todo: find cleaner fix
+      // todo: find cleaner fix
       // ugly fix for nodes in colorbox
       if(typeof $('#' + f).validate == 'function') {
         var validate_options = {
@@ -213,7 +213,7 @@
             }
           }
         };
-        
+
         //CLIENTSIDE_VALIDATION_JQUERY_SELECTOR: 0
         //CLIENTSIDE_VALIDATION_TOP_OF_FORM: 1
         //CLIENTSIDE_VALIDATION_BEFORE_LABEL: 2
@@ -547,7 +547,7 @@
     jQuery.validator.addMethod("minwords", function(value, element, param) {
       return this.optional(element) || param <= jQuery.trim(value).split(' ').length;
     }, jQuery.format('The value must be more than {0} words long'));
-    
+
     jQuery.validator.addMethod("maxwords", function(value, element, param) {
       return this.optional(element) || jQuery.trim(value).split(' ').length <= param;
     }, jQuery.format('The value must be less than {0} words long'));
@@ -717,7 +717,7 @@
       return true;
     });
 
-    
+
     // EAN code
     jQuery.validator.addMethod("validEAN", function(value, element, param) {
       if (this.optional(element) && value == '') {

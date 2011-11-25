@@ -783,9 +783,25 @@ function _clientside_validation_set_extensions($name, $extensions, &$js_rules) {
 function _clientside_validation_set_checkboxgroup_minmax($name, $title, $id, &$js_rules, $min = 1, $max = 99) {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   $js_rules[$name]['checkboxgroupminmax'] = array($min, $max, $id);
+  if ($min == 1 && $max == 99) {
+    $message = '!title field is required.';
+    $placeholders = array('!title' => $title);
+  }
+  if ($min == 1 && $max != 99) {
+    $message = 'You can select no more than !max values for !title.';
+    $placeholders = array('!title' => $title, '!max' => $max);
+  }
+  if ($min != 1 && $max == 99) {
+    $message = 'You must select at least !min values for !title.';
+    $placeholders = array('!title' => $title, '!min' => $min);
+  }
+  if ($min != 1 && $max != 99) {
+    $message = 'You must select between !min and !max values for !title.';
+    $placeholders = array('!title' => $title, '!min' => $min, '!max' => $max);
+  }
   $variables = array(
-    'message' => '!title field is required.',
-    'placeholders' => array('!title' => $title),
+    'message' => $message,
+    'placeholders' => $placeholders,
     'error_type' => 'required',
     'element_name' => $name
   );

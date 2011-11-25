@@ -7,3 +7,4 @@ package = Clientside Validation
 files[] = clientside_validation_fapi.module
 dependencies[] = clientside_validation
 dependencies[] = fapi_validation
+

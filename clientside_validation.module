@@ -787,7 +787,7 @@ function _clientside_validation_set_checkboxgroup_minmax($name, $title, $id, &$j
     $message = '!title field is required.';
     $placeholders = array('!title' => $title);
   }
-  if ($min == 1 && $max != 99) {
+  if ($min == 0 && $max != 99) {
     $message = 'You can select no more than !max values for !title.';
     $placeholders = array('!title' => $title, '!max' => $max);
   }
@@ -795,7 +795,7 @@ function _clientside_validation_set_checkboxgroup_minmax($name, $title, $id, &$j
     $message = 'You must select at least !min values for !title.';
     $placeholders = array('!title' => $title, '!min' => $min);
   }
-  if ($min != 1 && $max != 99) {
+  if ($min > 0 && $max != 99) {
     $message = 'You must select between !min and !max values for !title.';
     $placeholders = array('!title' => $title, '!min' => $min, '!max' => $max);
   }

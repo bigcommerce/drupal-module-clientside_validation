@@ -110,15 +110,7 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
     if (isset($form['actions']['delete'])) {
       $form['actions']['delete']['#attributes']['class'][] = 'cancel';
     }
-    switch ($form['#id']) {
-      case 'node-form':
-      case 'webform-component-edit-form':
-        $form['#after_build'][] = 'clientside_validation_form_after_build';
-        break;
-      default:
-        $form['#after_build'][] = 'clientside_validation_form_after_build';
-        break;
-    }
+    $form['#after_build'][] = 'clientside_validation_form_after_build';
   }
 }
 
@@ -148,6 +140,13 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
 }
 
 function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form) {
+  if (isset($js_rules['_groups'])) {
+    $settings['clientsideValidation']['groups'][$form['#clientside_validation_id']] = $js_rules['_groups'];
+    unset($js_rules['_groups']);
+  }
+  else {
+    $settings['clientsideValidation']['groups'][$form['#clientside_validation_id']] = array();
+  }
   foreach ($js_rules as $key => $rule) {
     if (isset($rule['checkboxgroupminmax'])) {
       $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(

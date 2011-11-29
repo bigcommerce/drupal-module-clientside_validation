@@ -101,6 +101,7 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
 
 function clientside_validation_webform_add_webform_validation($form_id, &$form, &$form_state, &$js_rules) {
   if ($webform_validation_rules = _clientside_validation_webform_webform_validation($form_state['values']['details']['nid'], $form)) {
+    $checkboxrules = array();
     foreach ($webform_validation_rules as $webform_validation_rule) {
       switch ($webform_validation_rule['validator']) {
         case 'min_length':
@@ -226,14 +227,16 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
           break;
       }
     }
-    foreach ($checkboxrules as $name => $args) {
-      if (!isset($args['min'])) {
-        $args['min'] = 1;
+    if (!empty($checkboxrules)) {
+      foreach ($checkboxrules as $name => $args) {
+        if (!isset($args['min'])) {
+          $args['min'] = 1;
+        }
+        if (!isset($args['max'])) {
+          $args['max'] = 99;
+        }
+        _clientside_validation_set_checkboxgroup_minmax($name, $args['title'], $args['id'], $js_rules, '', $args['min'], $args['max']);
       }
-      if (!isset($args['max'])) {
-        $args['max'] = 99;
-      }
-      _clientside_validation_set_checkboxgroup_minmax($name, $args['title'], $args['id'], $js_rules, '', $args['min'], $args['max']);
     }
   }
 }

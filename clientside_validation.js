@@ -15,6 +15,7 @@
         if (update) {
           Drupal.myClientsideValidation.data = Drupal.settings.clientsideValidation;
           Drupal.myClientsideValidation.forms = Drupal.myClientsideValidation.data['forms'];
+          Drupal.myClientsideValidation.groups = Drupal.myClientsideValidation.data.groups;
           Drupal.myClientsideValidation.bindForms();
         }
       }
@@ -27,7 +28,7 @@
     this.data = Drupal.settings.clientsideValidation;
     this.forms = this.data['forms'];
     this.validators = {};
-    this.groups = {};
+    this.groups = this.data['groups'];
 
     //disable class and attribute rules
     $.validator.classRules = function() {
@@ -62,7 +63,6 @@
 
     jQuery.each (self.forms, function(f) {
       var errorel = self.prefix + f + '-errors';
-      self.groups[f] = {};
       // Remove any existing validation stuff
       if (self.validators[f]) {
         // Doesn't work :: $('#' + f).rules('remove');

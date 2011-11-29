@@ -141,11 +141,11 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
 
 function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form) {
   if (isset($js_rules['_groups'])) {
-    $settings['clientsideValidation']['groups'][$form['#clientside_validation_id']] = $js_rules['_groups'];
+    $settings['clientsideValidation']['groups'][$form['#id']] = $js_rules['_groups'];
     unset($js_rules['_groups']);
   }
   else {
-    $settings['clientsideValidation']['groups'][$form['#clientside_validation_id']] = array();
+    $settings['clientseValidation']['groups'][$form['#id']] = array();
   }
   foreach ($js_rules as $key => $rule) {
     if (isset($rule['checkboxgroupminmax'])) {

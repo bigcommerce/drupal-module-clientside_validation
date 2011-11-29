@@ -145,7 +145,7 @@ function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form)
     unset($js_rules['_groups']);
   }
   else {
-    $settings['clientseValidation']['groups'][$form['#id']] = array();
+    $settings['clientsideValidation']['groups'][$form['#id']] = array();
   }
   foreach ($js_rules as $key => $rule) {
     if (isset($rule['checkboxgroupminmax'])) {

@@ -18,9 +18,9 @@ function clientside_validation_field_validation_clientside_validation_form_alter
   }*/
   //clientside_validation_field_validation_after_build_recurse($form['#id'], $form[$rule['field_name']], $form_state, $rule, $js_rules);
   $field_rules = array();
-  $element = &$form;
   clientside_validation_field_validation_find_rules($form, $field_rules);
   foreach ($field_rules as $rule) {
+    $element = &$form;
     foreach ($rule['field']['#parents'] as $parent) {
       $element = &$element[$parent];
     }

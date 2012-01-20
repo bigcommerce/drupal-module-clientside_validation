@@ -23,7 +23,7 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
     foreach ($children as $index => $item) {
       $element = $form[$item];
       if (isset($element['#title'])) {
-        if ($element['#required']) {
+        if ($element['#required'] && isset($element['#type'])) {
           if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'time' && isset($element['hour']['#name'])) {
             $message = t('Hour in !name field is required.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', '')));
             _clientside_validation_set_required($element['hour']['#name'], $element['#title'], TRUE, $js_rules, $message);
@@ -74,7 +74,7 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
             _clientside_validation_set_required($element['#name'], $element['#title'], TRUE, $js_rules);
           }
         }
-        if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'file' && $element['#webform_component']['mandatory'] == "1") {
+        if (isset($element['#name']) && isset($element['#webform_component']) && $element['#webform_component']['type'] == 'file' && $element['#webform_component']['mandatory'] == "1") {
           _clientside_validation_set_required($element['#name'], $element['#title'], TRUE, $js_rules);
           if (isset($element['#webform_component']['extra']['filtering']['types'])) {
             $extensions = $element['#webform_component']['extra']['filtering']['types'];

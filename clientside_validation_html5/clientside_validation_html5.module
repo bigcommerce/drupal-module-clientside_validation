@@ -20,7 +20,7 @@ function clientside_validation_html5_after_build_recurse($form_id, &$form, &$for
     foreach ($children as $index => $item) {
       $element = &$form[$item];
       $types = array(
-        'number', 'url', 'email', 'range', 'search', 'tel', 'color',
+        'number', 'numberfield', 'url', 'urlfield', 'email', 'emailfield', 'range', 'rangefield', 'search', 'tel', 'color',
       );
       if ((isset($element['#type']) && in_array($element['#type'], $types)) || isset($element['#pattern'])) {
         clientside_validation_html5($form_id, $element, $js_rules);
@@ -57,9 +57,11 @@ function clientside_validation_html5($form_id, $element, &$js_rules) {
     }
     switch ($element['#type']) {
       case 'range':
+      case 'rangefield':
         $default_min = 0;
         $default_max = 100;
       case 'number':
+      case 'numberfield':
         if (!isset($default_min)) {
           $default_min = '';
           $default_max = '';
@@ -67,7 +69,7 @@ function clientside_validation_html5($form_id, $element, &$js_rules) {
         $min = isset($element['#min']) ? $element['#min'] : $default_min;
         $max = isset($element['#max']) ? $element['#max'] : $default_max;
         $step = isset($element['#step']) ? $element['#step'] : 1;
-        $is_decimal = $step != 'any' && (floor($step) != $step || floor($min) != $step);
+        $is_decimal = $step != 'any' && (floor($step) != $step || floor($min) != $min);
         if ($is_decimal) {
           _clientside_validation_set_number_decimal($el_name, $el_title, '.', $js_rules);
         }
@@ -80,9 +82,11 @@ function clientside_validation_html5($form_id, $element, &$js_rules) {
 
         break;
       case 'url':
+      case 'urlfield':
         _clientside_validation_set_url($el_name, $el_title, $js_rules);
         break;
       case 'email':
+      case 'emailfield':
         _clientside_validation_set_email($el_name, $el_title, $js_rules);
         break;
       case 'color':

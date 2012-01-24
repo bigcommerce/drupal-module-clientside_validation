@@ -34,16 +34,18 @@ function clientside_validation_admin_settings() {
     '#description' => t('Set the validate options for Clientside Validation.'),
   );
 
-  $form['clientside_validation_validate_options']['clientside_validation_disable_html5'] = array(
-    '#type' => 'radios',
-    '#options' => array(
-      '1' => t('Yes'),
-      '0' => t('No'),
-    ),
-    '#title' => t('Replace HTML5 validation with Clientside Validation'),
-    '#default_value' => variable_get('clientside_validation_disable_html5', 1),
-    '#description' => t('Replace HTML5 validation with Clientside Validation on forms that have Clientside Validation enabled'),
-  );
+  if (module_exists('clientside_validation_html5')) {
+    $form['clientside_validation_validate_options']['clientside_validation_disable_html5'] = array(
+      '#type' => 'radios',
+      '#options' => array(
+        '1' => t('Yes'),
+        '0' => t('No'),
+      ),
+      '#title' => t('Replace HTML5 validation with Clientside Validation'),
+      '#default_value' => variable_get('clientside_validation_disable_html5', 1),
+      '#description' => t('Replace HTML5 validation with Clientside Validation on forms that have Clientside Validation enabled'),
+    );
+  }
 
   $form['clientside_validation_validate_options']['clientside_validation_validate_onsubmit'] = array(
     '#type' => 'radios',

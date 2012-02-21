@@ -442,18 +442,7 @@
     // Min a and maximum b checkboxes from a group
     jQuery.validator.addMethod("checkboxgroupminmax", function(value, element, param) {
       var validOrNot = $(param[2] + ' input:checked').length >= param[0] && $(param[2] + ' input:checked').length <= param[1];
-
-      /* This gives problems */
-
-      /*if(!$(element).data('being_validated')) {
-      var fields = $(param[2] + ' input');
-      fields.data('being_validated', true).valid();
-      fields.data('being_validated', false);
-    }*/
-
-
       return validOrNot;
-
     }, jQuery.format('Minimum {0}, maximum {1}'));
 
     // Allow integers, same as digits but including a leading '-'
@@ -716,6 +705,28 @@
       dayelem.removeClass('error');
       return true;
     });
+
+    // Require one of several
+    jQuery.validator.addMethod("requireOneOf", function(value, element, param) {
+      var ret = false;
+      if (value == "") {
+        jQuery.each(param, function(index, name) {
+          if ($("[name='" + name + "']").val().length && !ret) {
+            ret = true;
+          }
+        });
+      }
+      else {
+        $(element).removeClass("error");
+        ret = true;
+      }
+      $(element).blur(function () {
+        jQuery.each(param, function(index, name) {
+          $("[name='" + name + "']").valid();
+        });
+      });
+      return ret;
+    }, jQuery.format('Please fill in at least on of the fields'));
 
 
     // EAN code

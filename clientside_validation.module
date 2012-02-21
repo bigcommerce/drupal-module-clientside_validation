@@ -698,8 +698,8 @@ function _clientside_validation_set_specific_value($name, $title, $value, &$js_r
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   if (empty($message)) {
     $variables = array(
-      'message' => '!title field has to different from !firstone.',
-      'placeholders' => array('!title' => $title, '!firstone' => $value['name']),
+      'message' => '!title field has to be one of the following values: !values.',
+      'placeholders' => array('!title' => $title, '!values' => implode(', ', $value)),
       'error_type' => 'specific value',
       'element_name' => $name
     );
@@ -921,6 +921,28 @@ function _clientside_validation_set_url($name, $title, &$js_rules) {
     'element_name' => $name
   );
   $js_rules[$name]['messages']['url'] = theme('clientside_error', $variables);
+}
+
+/**
+ * Set validation rule for "require at least one of several".
+ */
+function _clientside_validation_set_require_oneof($names, $titles, $message = "", &$js_rules) {
+  $original_message = $message;
+  foreach ($names as $key => $name) {
+    $temp_titles = $titles;
+    unset($temp_titles[$key]);
+    if (empty ($original_message)) {
+      $string_titles = '<ul><li>' . implode('</li><li>', $temp_titles) . '</li></ul>';
+      $message = t('!name field is required unless you specify at least one of these items: !items', array('!name' => $titles[$key], '!items' => $string_titles));
+    }
+    $js_rules[$name]['requireOneOf'] = array_diff($names, array($name));
+    $variables = array(
+      'message' => $message,
+      'error_type' => 'requireOneOf',
+      'element_name' => $name,
+    );
+    $js_rules[$name]['messages']['requireOneOf'] = theme('clientside_error', $variables);
+  }
 }
 
 function clientside_validation_drupal_json_encode($var) {

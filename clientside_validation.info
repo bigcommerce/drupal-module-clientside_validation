@@ -1,6 +1,6 @@
 ; $Id: 
 name = Clientside Validation
-description = Add client side validation to forms and webforms
+description = Add client side validation to forms and Webforms
 core = 7.x
 package = Clientside Validation
 

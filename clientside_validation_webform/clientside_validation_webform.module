@@ -271,7 +271,7 @@ function clientside_validation_webform_webform_validation_add_names(&$webform_va
           $cid = $element['#webform_component']['cid'];
           foreach ($webform_validation_rules as $i => $webform_validation_rule) {
             foreach ($webform_validation_rule['components'] as $k => $component) {
-              if ($k == $cid) {
+              if ($k == $cid && isset($element['#name'])) {
                 $webform_validation_rules[$i]['components'][$k]['element_name'] = $element['#name'];
                 $webform_validation_rules[$i]['components'][$k]['element_title'] = $element['#title'];
               }

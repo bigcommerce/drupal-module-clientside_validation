@@ -75,14 +75,23 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
             _clientside_validation_set_required($element['#name'], $element['#title'], TRUE, $js_rules);
           }
         }
-        if ((isset($element['#name']) || isset($element['#webform_component']['form_key'])) && isset($element['#webform_component']) && $element['#webform_component']['type'] == 'file' && $element['#webform_component']['mandatory'] == "1") {
-          $name = isset($element['#name']) ? $element['#name'] : $element['#webform_component']['form_key'];
-          _clientside_validation_set_required($name, $element['#title'], TRUE, $js_rules);
-          if (isset($element['#webform_component']['extra']['filtering']['types'])) {
-            $extensions = $element['#webform_component']['extra']['filtering']['types'];
-            _clientside_validation_set_extensions($name, $extensions, $js_rules);
+        if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'file' && $element['#webform_component']['mandatory'] == "1") {
+          $file_children = element_children($element);
+          if (count($file_children) > 0) {
+            foreach ($file_children as $child) {
+              $file_child = $element[$child];
+              if (isset($file_child['#name']) && $file_child['#type'] == 'file') {
+                $name = $file_child['#name'];
+                _clientside_validation_set_required($name, $element['#title'], TRUE, $js_rules);
+                if (isset($element['#webform_component']['extra']['filtering']['types'])) {
+                  $extensions = $element['#webform_component']['extra']['filtering']['types'];
+                  _clientside_validation_set_extensions($name, $extensions, $js_rules);
+                }
+              }
+            }
           }
         }
+
         if ($element['#maxlength']) {
           $message = t('!title field has a max length of !maxl characters.', array('!title' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', ''), '!maxl' => $element['#maxlength']));
           _clientside_validation_set_minmaxlength($element['#name'], $element['#title'], '', $element['#maxlength'], $js_rules, $message);
@@ -118,6 +127,18 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
             _clientside_validation_set_minmaxlength($component['element_name'], $component['element_title'], '', $webform_validation_rule['data'], $js_rules, $message);
           }
           break;
+        case 'min_words':
+          foreach ($webform_validation_rule['components'] as $component) {
+            $message = t('!name field must have at least !min words.', array('!name' => variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', ''), '!min' => $webform_validation_rule['data']));
+            _clientside_validation_set_minmax_words($component['element_name'], $component['element_title'], $webform_validation_rule['data'], "", $js_rules);
+          }
+          break;
+        case 'max_words':
+          foreach ($webform_validation_rule['components'] as $component) {
+            $message = t('!name field can not have more than !max words.', array('!name' => variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', ''), '!max' => $webform_validation_rule['data']));
+            _clientside_validation_set_minmax_words($component['element_name'], $component['element_title'], "", $webform_validation_rule['data'], $js_rules);
+          }
+          break;
         case 'numeric':
           $data = $webform_validation_rule['data'];
           $range = array('min' => NULL, 'max' => NULL);
@@ -142,6 +163,27 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
             else {
               _clientside_validation_set_number($component['element_name'], $component['element_title'], $js_rules);
             }
+          }
+          break;
+        case 'oneofseveral':
+        case 'oneoftwo':
+          foreach ($webform_validation_rule['components'] as $component) {
+            $names[] = $component['element_name'];
+            $titles[] = variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', '');
+          }
+         _clientside_validation_set_require_oneof($names, $titles, "", $js_rules);
+          break;
+        case 'plain_text':
+          foreach ($webform_validation_rule['components'] as $component) {
+            _clientside_validation_set_plain_text($component['element_name'], $component['element_title'], "", $js_rules);
+          }
+          break;
+        case 'blacklist':
+          $message = (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) ? $webform_validation_rule['error_message'] : '';
+          $blacklist = explode(',', $webform_validation_rule['data']);
+          $blacklist = array_map('trim', $blacklist);
+          foreach ($webform_validation_rule['components'] as $component) {
+            _clientside_validation_set_blacklist($component['element_name'], $component['element_title'], $blacklist, $js_rules, $message);
           }
           break;
         case 'equal':
@@ -221,6 +263,12 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
             _clientside_validation_set_regex($component['element_name'], $component['element_title'], $js_rules, $expression, $message);
           }
           break;
+        case 'must_be_empty':
+          foreach ($webform_validation_rule['components'] as $component) {
+            $message = t('!name field must be empty.', array('!name' => variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', '')));
+            _clientside_validation_set_specific_value($component['element_name'], $component['element_title'], array(""), $js_rules, $message);
+          }
+          break;
         default:
           foreach ($webform_validation_rule['components'] as $component) {
             $message = (isset($webform_validation_rule['error_message']) && !empty($webform_validation_rule['error_message'])) ? $webform_validation_rule['error_message'] : t('Invalid value for !title', array('!title' => variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', '')));
@@ -249,17 +297,29 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
  */
 function _clientside_validation_webform_webform_validation($nid, $form) {
   static $webform_validation_rules;
-  if (!isset($webform_validation_rules[$nid])) {
+  $current_page = $form['details']['page_num']['#value'];
+  if (!isset($webform_validation_rules[$nid][$current_page])) {
     if (module_exists('webform_validation')) {
-      $webform_validation_rules[$nid] = webform_validation_get_node_rules($nid);
+      $node_rules = webform_validation_get_node_rules($nid);
+      foreach ($node_rules as $rid => $rule) {
+        foreach ($rule['components'] as $cid => $component) {
+          if ($form['#node']->webform['components'][$component['cid']]['page_num'] != $current_page) {
+            unset($node_rules[$rid]['components'][$cid]);
+            if (empty($node_rules[$rid]['components'])) {
+              unset($node_rules[$rid]);
+            }
+          }
+        }
+      }
+      $webform_validation_rules[$nid][$current_page] = $node_rules;
       // add element name to arrays
-      clientside_validation_webform_webform_validation_add_names($webform_validation_rules[$nid], $form);
+      clientside_validation_webform_webform_validation_add_names($webform_validation_rules[$nid][$current_page], $form);
     }
     else {
-      $webform_validation_rules[$nid] = NULL;
+      $webform_validation_rules[$nid][$current_page] = NULL;
     }
   }
-  return $webform_validation_rules[$nid];
+  return $webform_validation_rules[$nid][$current_page];
 }
 
 function clientside_validation_webform_webform_validation_add_names(&$webform_validation_rules, $form) {

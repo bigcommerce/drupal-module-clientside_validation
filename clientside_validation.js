@@ -545,28 +545,6 @@
       return this.optional(element) || (value == strip_tags(value, param));
     });
 
-    // Unique values
-    jQuery.validator.addMethod("notEqualTo", function(value, element, param) {
-      var target = $(param).unbind(".validate-notEqualTo").bind("blur.validate-notEqualTo", function() {
-        $(element).valid();
-      });
-      return value != target.val();
-    }, jQuery.format('Please don\'t enter the same value again.'));
-
-    jQuery.validator.addMethod("regexMatch", function(value, element, param) {
-      if (this.optional(element) && value == '') {
-        return this.optional(element);
-      }
-      else {
-        var regexp = new RegExp(param[0], param[1]);
-        if(regexp.test(value)){
-          return true;
-        }
-        return false;
-      }
-
-    }, jQuery.format('The value does not match the expected format.'));
-
     jQuery.validator.addMethod("datemin", function(value, element, param) {
       //Assume [month], [day], and [year] ??
       var dayelem, monthelem, yearelem, name;

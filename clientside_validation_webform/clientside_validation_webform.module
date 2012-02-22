@@ -133,7 +133,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
           }
           break;
         case 'max_words':
-          foreach ($werbform_validation_rule['components'] as $component) {
+          foreach ($webform_validation_rule['components'] as $component) {
             $message = t('!name field can not have more than !max words.', array('!name' => variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', ''), '!max' => $webform_validation_rule['data']));
             _clientside_validation_set_minmax_words($component['element_name'], $component['element_title'], "", $webform_validation_rule['data'], $js_rules);
           }

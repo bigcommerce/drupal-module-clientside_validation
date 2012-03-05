@@ -216,7 +216,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
             foreach ($parent_keys as $parent_key) {
               $form_element = $form_element[$parent_key];
             }
-            if (in_array($form_element['#type'], array('checkbox', 'checkboxes'))) {
+            if (isset($form_element['#type']) && in_array($form_element['#type'], array('checkbox', 'checkboxes'))) {
               $checkboxrules[$component['element_name']]['title'] = $component['element_title'];
               $checkboxrules[$component['element_name']]['id'] = '#' . $form_element['#id'];
               $checkboxrules[$component['element_name']]['min'] = $webform_validation_rule['data'];
@@ -233,7 +233,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
             foreach ($parent_keys as $parent_key) {
               $form_element = $form_element[$parent_key];
             }
-            if (in_array($form_element['#type'], array('checkbox', 'checkboxes'))) {
+            if (isset($form_element['#type']) && in_array($form_element['#type'], array('checkbox', 'checkboxes'))) {
               $checkboxrules[$component['element_name']]['title'] = $component['element_title'];
               $checkboxrules[$component['element_name']]['id'] = '#' . $form_element['#id'];
               $checkboxrules[$component['element_name']]['max'] = $webform_validation_rule['data'];

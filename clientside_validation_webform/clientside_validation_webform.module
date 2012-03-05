@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Adds clientside validation support for the webform module
@@ -8,7 +7,7 @@
 function clientside_validation_webform_clientside_validation_webform_alter(&$form, &$form_state, &$js_rules) {
   clientside_validation_webform_after_build_recurse($form['#id'], $form, $form_state, $js_rules);
   clientside_validation_webform_add_webform_validation($form['#id'], $form, $form_state, $js_rules);
-  
+
   // check for Save Draft button
   if (isset($form['actions']['draft'])) {
     if (!isset($form['actions']['draft']['#attributes']['class'])) {
@@ -90,7 +89,7 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
             }
           }
         }
-        
+
         if (isset($element['#maxlength']) && $element['#maxlength']) {
           $message = t('!name field has a max length of !maxl characters.', array('!name' => variable_get('clientside_validation_prefix', '') . $element['#title'] . variable_get('clientside_validation_suffix', ''), '!maxl' => $element['#maxlength']));
           _clientside_validation_set_minmaxlength($element['#name'], $element['#title'], '', $element['#maxlength'], $js_rules, $message);
@@ -117,7 +116,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
         case 'min_length':
           foreach ($webform_validation_rule['components'] as $component) {
             $message = t('!name field has a minimum length of !minl characters.', array('!name' => variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', ''), '!minl' => $webform_validation_rule['data']));
-             _clientside_validation_set_minmaxlength($component['element_name'], $component['element_title'], $webform_validation_rule['data'], '', $js_rules, $message);
+            _clientside_validation_set_minmaxlength($component['element_name'], $component['element_title'], $webform_validation_rule['data'], '', $js_rules, $message);
           }
           break;
         case 'max_length':
@@ -214,7 +213,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
           foreach ($webform_validation_rule['components'] as $component) {
             $parent_keys = webform_component_parent_keys($form['#node'], $component);
             $form_element = $form['submitted'];
-            foreach($parent_keys as $parent_key) {
+            foreach ($parent_keys as $parent_key) {
               $form_element = $form_element[$parent_key];
             }
             if (in_array($form_element['#type'], array('checkbox', 'checkboxes'))) {
@@ -231,7 +230,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
           foreach ($webform_validation_rule['components'] as $component) {
             $parent_keys = webform_component_parent_keys($form['#node'], $component);
             $form_element = $form['submitted'];
-            foreach($parent_keys as $parent_key) {
+            foreach ($parent_keys as $parent_key) {
               $form_element = $form_element[$parent_key];
             }
             if (in_array($form_element['#type'], array('checkbox', 'checkboxes'))) {

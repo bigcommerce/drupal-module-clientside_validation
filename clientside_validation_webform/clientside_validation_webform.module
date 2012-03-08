@@ -73,15 +73,18 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
             _clientside_validation_set_required($element['#name'], $element['#title'], TRUE, $js_rules);
           }
         }
-        if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'file' && $element['#webform_component']['mandatory'] == "1") {
+        if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'file') {
           $file_children = element_children($element);
           if (count($file_children) > 0) {
             foreach ($file_children as $child) {
               $file_child = $element[$child];
               if (isset($file_child['#name']) && $file_child['#type'] == 'file') {
-                $name = $file_child['#name'];
-                _clientside_validation_set_required($name, $element['#title'], TRUE, $js_rules);
+                if ($element['#webform_component']['mandatory'] == "1") {
+                  $name = $file_child['#name'];
+                  _clientside_validation_set_required($name, $element['#title'], TRUE, $js_rules);
+                }
                 if (isset($element['#webform_component']['extra']['filtering']['types'])) {
+                  $name = $file_child['#name'];
                   $extensions = $element['#webform_component']['extra']['filtering']['types'];
                   _clientside_validation_set_extensions($name, $extensions, $js_rules);
                 }

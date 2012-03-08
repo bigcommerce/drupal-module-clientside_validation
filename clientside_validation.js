@@ -28,7 +28,7 @@
     this.data = Drupal.settings.clientsideValidation;
     this.forms = this.data['forms'];
     this.validators = {};
-    this.groups = this.data['groups'];
+    this.groups = {}; //this.data['groups'];
 
     //disable class and attribute rules
     $.validator.classRules = function() {
@@ -62,6 +62,7 @@
     var self = this;
 
     jQuery.each (self.forms, function(f) {
+      self.groups[f] = {};
       var errorel = self.prefix + f + '-errors';
       // Remove any existing validation stuff
       if (self.validators[f]) {

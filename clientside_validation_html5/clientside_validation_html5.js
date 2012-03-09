@@ -50,7 +50,7 @@
           value = parseInt(parseFloat(value) * multiplier);
           var min = parseInt(parseFloat(param[0]) * multiplier);
           var max = parseInt(parseFloat(param[1]) * multiplier);
-          
+
           var mismatch = 0;
           if (param[2] != 'any') {
             var step = parseInt(parseFloat(param[2]) * multiplier);

@@ -117,12 +117,15 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
       case 'checkboxes':
         $is_multiple = (isset($element['#options']) && count($element['#options']>1));
         if ($is_multiple && $element['#required']) {
+          $id = '#' . $element['#id'];
           if (isset($element['#entity_type'])) {
-            $id = '#' . $element['#id'];
             $field = field_widget_field($element, $form_state);
             $max = ($field['cardinality'] > 1) ? $field['cardinality'] : 99;
-            _clientside_validation_set_checkboxgroup_minmax($element['#name'], $el_title, $id, $js_rules, $required_error, 1, $max);
           }
+          else {
+            $max = count($element['#options']);
+          }
+          _clientside_validation_set_checkboxgroup_minmax($element['#name'], $el_title, $id, $js_rules, $required_error, 1, $max);
         }
         elseif ($element['#required']) {
           _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules, $required_error);

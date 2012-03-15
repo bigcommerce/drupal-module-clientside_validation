@@ -2,19 +2,24 @@
   Drupal.behaviors.clientsideValidationHtml5 = {
     attach: function (context) {
       $(document).bind('clientsideValidationAddCustomRules', function(event){
-        function _getMultiplier(a, b) {
+        function _getMultiplier(a, b, c) {
           var inta = Number(parseInt(a));
           var mula = a.length - inta.toString().length - 1;
 
           var intb = parseInt(b);
           var mulb = b.toString().length - intb.toString().length - 1;
+          
+          var intc = parseInt(c);
+          var mulc = c.toString().length - intc.toString().length - 1;
 
-          return Math.pow(10, Math.max(mula, mulb));
+          var multiplier = Math.pow(10, Math.max(c, Math.max(mula, mulb)));
+          return (multiplier > 1) ? multiplier : 1;
         }
         jQuery.validator.addMethod("Html5Min", function(value, element, param) {
           //param[0] = min, param[1] = step;
           var min = param[0];
-          var multiplier = _getMultiplier(value, min);
+          var step = param[1];
+          var multiplier = _getMultiplier(value, min, step);
 
           value = parseInt(parseFloat(value) * multiplier);
           min = parseInt(parseFloat(min) * multiplier);
@@ -30,7 +35,8 @@
         jQuery.validator.addMethod("Html5Max", function(value, element, param) {
           //param[0] = max, param[1] = step;
           var max = param[0];
-          var multiplier = _getMultiplier(value, min);
+          var step = param[1];
+          var multiplier = _getMultiplier(value, max, step);
 
           value = parseInt(parseFloat(value) * multiplier);
           max = parseInt(parseFloat(max) * multiplier);
@@ -47,7 +53,8 @@
           //param[0] = min, param[1] = max, param[2] = step;
           var min = param[0];
           var max = param[1];
-          var multiplier = _getMultiplier(value, min);
+          var step = param[2]
+          var multiplier = _getMultiplier(value, min, step);
 
           value = parseInt(parseFloat(value) * multiplier);
           min = parseInt(parseFloat(min) * multiplier);

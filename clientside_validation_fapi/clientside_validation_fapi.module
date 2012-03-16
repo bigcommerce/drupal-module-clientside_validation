@@ -59,7 +59,7 @@ function clientside_validation_fapi_regular($form_id, $element, &$js_rules) {
       }
 
       // Parsing parameters.
-      if (isset($rs[3]) && $rs[1] != 'regex') {
+      if (isset($rs[3]) && $rs[1] != 'regexp') {
         $params[] = preg_split('/ *, */', $rs[3]);
       }
       else if (isset($rs[3])) {

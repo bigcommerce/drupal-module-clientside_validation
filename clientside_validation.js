@@ -514,7 +514,7 @@ Drupal.clientsideValidation.prototype.addExtraRules = function(){
       'type': "POST",
       'data': {
         'value': value,
-        'param': param
+        'param': JSON.stringify(param)
       },
       'dataType': 'json',
       'async': false,

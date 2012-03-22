@@ -1,22 +1,9 @@
 <?php
-
-// $Id$
 /**
  * @file
  * Add clientside validation support for Field Validation
  */
 function clientside_validation_field_validation_clientside_validation_form_alter(&$form, &$form_state, &$js_rules) {
-  /*if (isset($form['#entity_type']) && isset($form['#bundle'])) {
-    $rules = field_validation_get_bundle_rules($form['#entity_type'], $form['#bundle']);
-    if (!empty($rules)) {
-      foreach ($rules as $rule) {
-        if (isset($form[$rule['field_name']])) {
-          clientside_validation_field_validation_after_build_recurse($form['#id'], $form[$rule['field_name']], $form_state, $rule, $js_rules);
-        }
-      }
-    }
-  }*/
-  //clientside_validation_field_validation_after_build_recurse($form['#id'], $form[$rule['field_name']], $form_state, $rule, $js_rules);
   $field_rules = array();
   clientside_validation_field_validation_find_rules($form, $field_rules);
   foreach ($field_rules as $rule) {

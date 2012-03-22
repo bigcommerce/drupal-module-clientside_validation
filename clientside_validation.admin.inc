@@ -1,7 +1,7 @@
 <?php
-// $Id$
 /**
- * @file Admin settings for Clientside Validation
+ * @file
+ * Admin settings for Clientside Validation
  */
 
 function clientside_validation_admin_settings() {
@@ -134,7 +134,7 @@ function clientside_validation_admin_settings() {
   }
 
   //Error Placement
-   $form['clientside_validation_error_placement'] = array(
+  $form['clientside_validation_error_placement'] = array(
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
@@ -151,7 +151,7 @@ function clientside_validation_admin_settings() {
       This function will be given to !errorPlacement',
       array(
         '!errorPlacement' =>
-        l('the errorPlacement option of jQuery.validate()', 'http://docs.jquery.com/Plugins/Validation/validate#options')
+        l(t('the errorPlacement option of jQuery.validate()'), 'http://docs.jquery.com/Plugins/Validation/validate#options')
       )
     ),
     '#options' => array(
@@ -183,7 +183,7 @@ function clientside_validation_admin_settings() {
       This function will be given to !errorPlacement',
       array(
         '!errorPlacement' =>
-        l('the errorPlacement option of jQuery.validate()', 'http://docs.jquery.com/Plugins/Validation/validate#options')
+        l(t('the errorPlacement option of jQuery.validate()'), 'http://docs.jquery.com/Plugins/Validation/validate#options')
       )),
     '#default_value' => variable_get('clientside_validation_custom_error_function', ''),
   );

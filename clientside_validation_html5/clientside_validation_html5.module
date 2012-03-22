@@ -1,6 +1,4 @@
 <?php
-
-// $Id$
 /**
  * @file
  * Add clientside validation support for html5 elements

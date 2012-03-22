@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Add client side validation to forms.
@@ -68,7 +67,7 @@ function _clientside_validation_ajax_call() {
 }
 
 /**
- * Implementation of hook_form_alter().
+ * Implements hook_form_alter().
  */
 function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
   $page_match = TRUE;
@@ -124,8 +123,8 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
     $settings = array();
     _clientside_validation_add_general_settings($settings, $form['#id']);
     _clientside_validation_add_special_rules($js_rules, $settings, $form);
-    
-    
+
+
     if (variable_get('clientside_validation_use_minified', 0) == 0) {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js');
     }
@@ -145,7 +144,7 @@ function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form)
     unset($js_rules['_groups']);
   }
   else {
-    $settings['clientsideValidation']['groups'][$form['#id']] = new stdclass();
+    $settings['clientsideValidation']['groups'][$form['#id']] = new stdClass();
   }
   foreach ($js_rules as $key => $rule) {
     if (isset($rule['checkboxgroupminmax'])) {
@@ -207,7 +206,7 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
   if (isset($form_ids[$form['#id']])) {
     return $form;
   }
-  
+
   drupal_alter("clientside_validation_form", $form, $form_state, $js_rules);
   if (!empty($js_rules)) {
     $settings = array();
@@ -776,7 +775,7 @@ function _clientside_validation_set_ean($name, $title, &$js_rules, $message = ''
       'placeholders' => array('!title' => $title),
       'error_type' => 'ean',
       'element_name' => $name
-     );
+    );
   }
   else {
     $variables = array(
@@ -795,7 +794,7 @@ function _clientside_validation_set_ean($name, $title, &$js_rules, $message = ''
  */
 function _clientside_validation_set_regex($name, $title, &$js_rules, $expression, $message = '', $modifiers = "", $type = 'regex') {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
-   if (empty($message)) {
+  if (empty($message)) {
     $variables = array(
       'message' => '!title field does not match the required pattern.',
       'placeholders' => array('!title' => $title),
@@ -953,7 +952,7 @@ function clientside_validation_drupal_json_encode($var) {
  * Implements hook_theme().
  */
 function clientside_validation_theme($existing, $type, $theme, $path) {
-   return array(
+  return array(
     'clientside_error' => array(
       'variables' => array(
         'message' => '',

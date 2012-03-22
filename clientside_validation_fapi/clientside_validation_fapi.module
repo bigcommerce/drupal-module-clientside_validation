@@ -105,7 +105,7 @@ function _clientside_validation_set_fapi_validation($element, $rule, $params, &$
       $type = 'digit';
     case 'fapi_validation_rule_regexp':
       if ($callback == 'fapi_validation_rule_regexp') {
-        $expressions['fapi_validation_rule_regexp'] = $params[0];
+        $expressions['fapi_validation_rule_regexp'] = is_array($params) ? $params[0] : $params;
         $type = 'regexp';
       }
       if (strpos($message, '%field') !== FALSE) {

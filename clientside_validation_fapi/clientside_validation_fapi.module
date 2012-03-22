@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Add client side validation support for fapi validation
@@ -62,7 +61,7 @@ function clientside_validation_fapi_regular($form_id, $element, &$js_rules) {
       if (isset($rs[3]) && $rs[1] != 'regexp') {
         $params[] = preg_split('/ *, */', $rs[3]);
       }
-      else if (isset($rs[3])) {
+      elseif (isset($rs[3])) {
         $params[] = $rs[3];
       }
       if (count($params) > 1) {

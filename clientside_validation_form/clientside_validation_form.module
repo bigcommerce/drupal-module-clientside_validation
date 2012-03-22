@@ -1,6 +1,4 @@
 <?php
-
-// $Id$
 /**
  * @file
  * Add clientside validation to regular forms

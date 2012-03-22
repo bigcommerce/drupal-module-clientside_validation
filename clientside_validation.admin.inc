@@ -1,8 +1,7 @@
 <?php
-
-// $Id$
 /**
- * @file Admin settings for Clientside Validation
+ * @file
+ * Admin settings for Clientside Validation
  */
 function clientside_validation_admin_settings() {
 
@@ -116,7 +115,7 @@ function clientside_validation_admin_settings() {
   }
 
   //Error Placement
-   $form['clientside_validation_error_placement'] = array(
+  $form['clientside_validation_error_placement'] = array(
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
@@ -152,7 +151,7 @@ function clientside_validation_admin_settings() {
   $form['clientside_validation_error_placement']['clientside_validation_jquery_selector'] = array(
     '#type' => 'textfield',
     '#title' => t('jQuery selector'),
-    '#description' => t('Enter a jQuery selector here if you selected "jQuery selector" in the previous step. 
+    '#description' => t('Enter a jQuery selector here if you selected "jQuery selector" in the previous step.
                       The error messages will be shown in this div if it exists.
                       If it doesn\'t, error messages will be shown above the first form on the page.'),
     '#default_value' => variable_get('clientside_validation_jquery_selector', ''),

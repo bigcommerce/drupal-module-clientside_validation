@@ -60,7 +60,7 @@
  *  - specific characters for fapi_validation
  *  - regular expression for field_validation
  */
-function hook_clientside_validation_rule_alter (&$js_rules, $element, $context) {
+function hook_clientside_validation_rule_alter(&$js_rules, $element, $context) {
   switch ($context['type']) {
     case 'webform':
       if ($context['rule']['validator'] == 'min_length') {

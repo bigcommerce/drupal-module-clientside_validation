@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Add client side validation to a webform.
@@ -68,7 +67,7 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
       }
     }
     $form['#after_build'][] = 'clientside_validation_webform_after_build';
-  } 
+  }
   else {
     if (isset($form['buttons']['delete'])) {
       if (isset($form['buttons']['delete']['#attributes'])) {
@@ -301,7 +300,7 @@ function _clientside_validation_add_general_settings(&$settings, $form_id) {
     }
     $form_settings_added[] = str_replace('-', '_', $form_id);
   }
-  
+
   if (!$general_settings_added) {
     $settings['clientsideValidation']['general'] = array(
       "errorClass" => "error",
@@ -809,7 +808,7 @@ function _clientside_validation_set_ean($name, $title, &$js_rules, $message = ''
       'placeholders' => array('!title' => $title),
       'error_type' => 'ean',
       'element_name' => $name
-     );
+    );
   }
   else {
     $variables = array(
@@ -988,7 +987,7 @@ function clientside_validation_theme_registry_alter(&$theme_registry) {
  * Implements hook_theme().
  */
 function clientside_validation_theme($existing, $type, $theme, $path) {
-   return array(
+  return array(
     'clientside_validation_checkboxes' => array(
       'arguments' => array('element' => NULL),
     ),
@@ -1046,7 +1045,7 @@ function theme_clientside_error($variables) {
 
 /**
  * Theme callback
- * @see clientside_validation_theme().
+ * @see clientside_validation_theme()
  */
 function theme_clientside_validation_checkboxes($element) {
   $class = 'form-checkboxes';

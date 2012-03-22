@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Adds clientside validation support for the webform module
@@ -116,7 +115,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
         case 'min_length':
           foreach ($webform_validation_rule['components'] as $component) {
             $message = t('!title field has a minimum length of !minl characters.', array('!title' => variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', ''), '!minl' => $webform_validation_rule['data']));
-             _clientside_validation_set_minmaxlength($component['element_name'], $component['element_title'], $webform_validation_rule['data'], '', $js_rules, $message);
+            _clientside_validation_set_minmaxlength($component['element_name'], $component['element_title'], $webform_validation_rule['data'], '', $js_rules, $message);
           }
           break;
         case 'max_length':
@@ -169,7 +168,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
             $names[] = $component['element_name'];
             $titles[] = variable_get('clientside_validation_prefix', '') . $component['element_title'] . variable_get('clientside_validation_suffix', '');
           }
-         _clientside_validation_set_require_oneof($names, $titles, "", $js_rules);
+          _clientside_validation_set_require_oneof($names, $titles, "", $js_rules);
           break;
         case 'plain_text':
           foreach ($webform_validation_rule['components'] as $component) {
@@ -213,7 +212,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
           foreach ($webform_validation_rule['components'] as $component) {
             $parent_keys = webform_component_parent_keys($form['#node'], $component);
             $form_element = $form['submitted'];
-            foreach($parent_keys as $parent_key) {
+            foreach ($parent_keys as $parent_key) {
               $form_element = $form_element[$parent_key];
             }
             if (in_array($form_element['#type'], array('checkbox', 'checkboxes'))) {
@@ -230,7 +229,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
           foreach ($webform_validation_rule['components'] as $component) {
           $parent_keys = webform_component_parent_keys($form['#node'], $component);
             $form_element = $form['submitted'];
-            foreach($parent_keys as $parent_key) {
+            foreach ($parent_keys as $parent_key) {
               $form_element = $form_element[$parent_key];
             }
             if (in_array($form_element['#type'], array('checkbox', 'checkboxes'))) {
@@ -289,7 +288,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
     }
   }
 }
- 
+
 /**
  * Retreive webform validation rules
  */

@@ -148,7 +148,9 @@ function clientside_validation_admin_settings() {
     '#description' => t('Default location to show the error messages.
       If you choose "jQuery selector", provide a valid jQuery selector in the appropriate textfield.
       If you choose "Custom function", provide the name of the custom javascript function.
-      This function will be given to !errorPlacement',
+      The function needs to be declared on the Drupal.clientsideValidation object prototype. You can find
+      further details in the clientside_validation.api.js file.
+      This function will be given to !errorPlacement.',
       array(
         '!errorPlacement' =>
         l(t('the errorPlacement option of jQuery.validate()'), 'http://docs.jquery.com/Plugins/Validation/validate#options')

@@ -64,21 +64,24 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
           _clientside_validation_set_minmaxlength($el_name, $el_title, '', $element['#maxlength'], $js_rules);
         }
         if (isset($element['#number_type'])) {
+          $separator = ".";
           if (isset($element['#entity_type'])) {
             $field = field_widget_field($element, $form_state);
             $instance = field_widget_instance($element, $form_state);
             $min = '';
             $max = '';
-            $separator = ".";
             if (isset($instance['settings']['min'])) {
               $min = $instance['settings']['min'];
             }
             if (isset($instance['settings']['max'])) {
               $max = $instance['settings']['max'];
             }
-            $separator = $field['settings']['decimal_separator'];
             if ($min !== '' && $max != '') {
               _clientside_validation_set_minmax($el_name, $el_title, $min, $max, $js_rules);
+            }
+
+            if (isset($field['settings']['decimal_separator'])) {
+              $separator = $field['settings']['decimal_separator'];
             }
           }
           switch ($element['#number_type']) {

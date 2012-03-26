@@ -8,6 +8,9 @@
  * to support Clientside Validation you will have to code the javascript
  * equivalent of your custom php validation rule and make it available for
  * Clientside validation. Below is an example of how you would do this.
+ *
+ * The second block of code is an example of how to define a custom errorplacement function.
+ * You can set this option in admin/config/validation/clientside_validation
  */
 //Define a Drupal behaviour with a custom name
 Drupal.behaviors.myModuleBehavior = function (context) {
@@ -24,4 +27,11 @@ Drupal.behaviors.myModuleBehavior = function (context) {
     //param is a value and not an array.
     }, jQuery.format('Value must be equal to {0}'));
   });
+
+  // According to this example you would fill in 'mycustomerrorplacement' for the custom
+  // error placement function at admin/config/validation/clientside_validation
+  // The declaration of this function needs to be within the attach of a Drupal behavior.
+  Drupal.clientsideValidation.prototype.mycustomerrorplacement = function (error, element) {
+    // error placement code here.
+  }
 }

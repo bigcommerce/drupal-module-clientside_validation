@@ -161,6 +161,8 @@ function clientside_validation_admin_settings() {
     '#type' => 'textfield',
     '#title' => t('Custom function name'),
     '#description' => t('If you selected "Custom function" in the previous step, provide the name of the custom javascript function.
+      The function needs to be declared on the Drupal.clientsideValidation object prototype. You can find
+      further details in the clientside_validation.api.js file.
       This function will be given to !errorPlacement',
       array(
         '!errorPlacement' =>

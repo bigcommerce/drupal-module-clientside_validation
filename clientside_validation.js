@@ -320,7 +320,8 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
           break;
         case 7:
           validate_options.errorPlacement = function (error, element) {
-            window[self.forms[f].customErrorFunction](error, element);
+            var func = self.forms[f].customErrorFunction;
+            Drupal.myClientsideValidation[func](error, element);
           }
           break;
       }

@@ -67,7 +67,8 @@ function clientside_validation_html5($form_id, $element, &$js_rules) {
         $min = isset($element['#min']) ? $element['#min'] : $default_min;
         $max = isset($element['#max']) ? $element['#max'] : $default_max;
         $step = isset($element['#step']) ? $element['#step'] : 1;
-        $is_decimal = $step != 'any' && (floor($step) != $step || floor($min) != $min);
+        dpm(strtolower($step) != 'any', 'step');
+        $is_decimal = strtolower($step) == 'any' || (floor($step) != $step || floor($min) != $min);
         if ($is_decimal) {
           _clientside_validation_set_number_decimal($el_name, $el_title, '.', $js_rules);
         }

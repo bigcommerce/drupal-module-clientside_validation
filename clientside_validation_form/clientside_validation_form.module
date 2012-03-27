@@ -76,7 +76,7 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
             if (isset($instance['settings']['max'])) {
               $max = $instance['settings']['max'];
             }
-            if ($min !== '' && $max != '') {
+            if ($min !== '' || $max !== '') {
               _clientside_validation_set_minmax($el_name, $el_title, $min, $max, $js_rules);
             }
 

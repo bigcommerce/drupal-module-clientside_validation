@@ -64,12 +64,16 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
         }
         elseif ($element['#type'] == 'checkboxes') {
           $id = '#' . $element['#id'] . '-wrapper';
-          _clientside_validation_set_checkboxgroup_minmax($element['#name'], $element['#title'], $id, $js_rules, intval($element['#required']));
+          if ($element['#required']) {
+            _clientside_validation_set_checkboxgroup_minmax($element['#name'], $element['#title'], $id, $js_rules, intval($element['#required']));
+          }
         }
         elseif ($element['#type'] == 'select' && $element['#multiple']) {
-          _clientside_validation_set_required($element['#name'] . '[]', $element['#title'], TRUE, $js_rules);
+          if ($element['#required']) {
+            _clientside_validation_set_required($element['#name'] . '[]', $element['#title'], TRUE, $js_rules);
+          }
         }
-        elseif (isset($element['#type'])) {
+        elseif (isset($element['#type']) && $element['#required']) {
           _clientside_validation_set_required($element['#name'], $element['#title'], TRUE, $js_rules);
         }
         if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'file') {

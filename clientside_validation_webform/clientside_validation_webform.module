@@ -364,10 +364,16 @@ function clientside_validation_webform_webform_validation_add_names(&$webform_va
 
 function clientside_validation_webform_form_webform_component_edit_form_alter(&$form, &$form_state, $form_id) {
   $component = $form_state['build_info']['args'][1];
-  $form['extra']['exclude_cv'] = array(
+  $form['validation']['exclude_cv'] = array(
     '#type' => 'checkbox',
     '#title' => 'Exclude from clientside validation',
     '#description' => 'Check this option if you do not want to add clientside validation.',
     '#default_value' => isset($component['extra']['exclude_cv']) ? $component['extra']['exclude_cv'] : FALSE,
   );
+  array_unshift ($form['#submit'], 'clientside_validation_webform_webform_component_edit_form_submit');
+}
+
+function clientside_validation_webform_webform_component_edit_form_submit($form, &$form_state) {
+  // Move settiing to extra
+  $form_state['values']['extra']['exclude_cv'] = $form_state['values']['validation']['exclude_cv'];
 }

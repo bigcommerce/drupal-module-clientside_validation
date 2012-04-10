@@ -374,6 +374,6 @@ function clientside_validation_webform_form_webform_component_edit_form_alter(&$
 }
 
 function clientside_validation_webform_webform_component_edit_form_submit($form, &$form_state) {
-  // Move settiing to extra
+  // Move setting to extra so it gets saved.
   $form_state['values']['extra']['exclude_cv'] = $form_state['values']['validation']['exclude_cv'];
 }

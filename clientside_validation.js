@@ -19,6 +19,7 @@
           Drupal.myClientsideValidation.bindForms();
         }
       }
+      jQuery.event.trigger('clientsideValidationInitialized')
     }
   }
 

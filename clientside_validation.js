@@ -5,7 +5,7 @@ Drupal.behaviors.clientsideValidation = function (context) {
   else {
     var update = false;
     jQuery.each(Drupal.settings.clientsideValidation.forms, function (f) {
-      if ($(context).find('#' + f).length || $(context).attr('id') == f) {
+      if ($(context).find('#' + f).length || $(context).is('#' +  f)) {
         update = true;
       }
     });

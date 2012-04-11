@@ -331,6 +331,23 @@ function clientside_validation_admin_settings() {
       ),
     ),
   );
+  $form['#submit'] = array('clientside_validation_admin_settings_submit');
+  $form = system_settings_form($form);
+  return $form;
+}
 
-  return system_settings_form($form);
+function clientside_validation_admin_settings_submit($form, &$form_state){
+  $exceptions = array(
+    'clientside_validation_error_placement_jquery',
+    'clientside_validation_error_placement_top_of_form',
+    'clientside_validation_error_placement_before_label',
+    'clientside_validation_error_placement_after_label',
+    'clientside_validation_error_placement_before_input',
+    'clientside_validation_error_placement_after_input',
+    'clientside_validation_error_placement_custom_function',
+    'clientside_validation_include_hidden',
+  );
+  foreach ($exceptions as $exception) {
+    $form_state['values'][$exception] = str_replace('-', '_', $form_state['values'][$exception]);
+  }
 }

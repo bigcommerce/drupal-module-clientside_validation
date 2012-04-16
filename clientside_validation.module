@@ -345,13 +345,13 @@ function _clientside_validation_set_number($name, $title, &$js_rules, $message =
 /**
  * Set validation rule for decimal fields.
  */
-function _clientside_validation_set_number_decimal($name, $title, $decimalpoint, &$js_rules) {
+function _clientside_validation_set_number_decimal($name, $title, $decimalpoint, &$js_rules, $message = '') {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   if ($decimalpoint == '.') {
     $js_rules[$name]['number'] = TRUE;
     $variables = array(
-      'message' => '!title field accepts only numbers (use a \'.\' as decimal point).',
-      'placeholders' => array('!title' => $title),
+      'message' => empty($message) ? '!title field accepts only numbers (use a \'.\' as decimal point).' : $message,
+      'placeholders' => empty($message) ? array('!title' => $title) : array(),
       'error_type' => 'number',
       'element_name' => $name,
     );
@@ -360,8 +360,8 @@ function _clientside_validation_set_number_decimal($name, $title, $decimalpoint,
   else {
     $js_rules[$name]['numberDE'] = TRUE;
     $variables = array(
-      'message' => '!title field accepts only numbers (use a \',\' as decimal point).',
-      'placeholers' => array('!title' => $title),
+      'message' => empty($message) ? '!title field accepts only numbers (use a \',\' as decimal point).' : $message,
+      'placeholers' => empty($message) ? array('!title' => $title) : array(),
       'error_type' => 'number',
       'element_name' => $name,
     );
@@ -896,12 +896,12 @@ function _clientside_validation_set_checkboxgroup_minmax($name, $title, $id, &$j
 /**
  * Set validation rule for email fields.
  */
-function _clientside_validation_set_email($name, $title, &$js_rules) {
+function _clientside_validation_set_email($name, $title, &$js_rules, $message = '') {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   $js_rules[$name]['email'] = TRUE;
   $variables = array(
-    'message' => 'The value in !title is not a valid email address.',
-    'placeholders' => array('!title' => $title),
+    'message' => empty($message) ? 'The value in !title is not a valid email address.' : $message,
+    'placeholders' => empty($message) ? array('!title' => $title) : array(),
     'error_type' => 'email',
     'element_name' => $name
   );
@@ -911,11 +911,12 @@ function _clientside_validation_set_email($name, $title, &$js_rules) {
 /**
  * Set validation rule for url fields.
  */
-function _clientside_validation_set_url($name, $title, &$js_rules) {
+function _clientside_validation_set_url($name, $title, &$js_rules, $message = '') {
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   $js_rules[$name]['url'] = TRUE;
   $variables = array(
-    'message' => 'The value in !title is not a valid url.', 'placeholders' => array('!title' => $title),
+    'message' => empty($message) ? 'The value in !title is not a valid url.' : $message,
+    'placeholders' => empty($message) ? array('!title' => $title) : array(),
     'error_type' => 'url',
     'element_name' => $name
   );

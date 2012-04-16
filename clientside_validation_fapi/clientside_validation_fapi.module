@@ -110,24 +110,24 @@ function _clientside_validation_set_fapi_validation($element, $rule, $params, &$
 
       break;
     case 'fapi_validation_rule_numeric':
-      _clientside_validation_set_number_decimal($name, $title, '.', $js_rules);
+      _clientside_validation_set_number_decimal($name, $title, '.', $js_rules, $message);
       break;
     case 'fapi_validation_rule_email':
-      _clientside_validation_set_email($name, $title, $js_rules);
+      _clientside_validation_set_email($name, $title, $js_rules, $message);
       break;
     case 'fapi_validation_rule_length':
       if (count($params) == 1) {
-        _clientside_validation_set_minmaxlength($name, $title, '', $params[0], $js_rules);
+        _clientside_validation_set_minmaxlength($name, $title, '', $params[0], $js_rules, $message);
       }
       elseif (count($params) == 2) {
-        _clientside_validation_set_minmaxlength($name, $title, $params[0], $params[1], $js_rules);
+        _clientside_validation_set_minmaxlength($name, $title, $params[0], $params[1], $js_rules, $message);
       }
       break;
     case 'fapi_validation_rule_url':
-      _clientside_validation_set_url($name, $title, $js_rules);
+      _clientside_validation_set_url($name, $title, $js_rules, $message);
       break;
     case 'fapi_validation_rule_chars':
-      _clientside_validation_set_specific_values($name, $title, $params, $js_rules);
+      _clientside_validation_set_specific_values($name, $title, $params, $js_rules, $message);
       break;
     case 'fapi_validation_rule_decimal':
       if (count($params) == 2) {

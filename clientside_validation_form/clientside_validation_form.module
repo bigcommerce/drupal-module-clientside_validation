@@ -12,11 +12,15 @@ function clientside_validation_form_after_build_recurse($form_id, &$form, &$form
   if ($children = array_values(element_children($form))) {
     foreach ($children as $index => $item) {
       $element = &$form[$item];
-/*      $types = array(
+      $types = array(
         'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'managed_file', 'file', 'radios', 'checkboxes', 'link_field',
-      );*/
-      if (isset($element['#type']) /*&& in_array($element['#type'], $types)*/) {
+      );
+      if (isset($element['#type']) && in_array($element['#type'], $types)) {
         clientside_validation_regular($form_id, $element, $js_rules, $form_state);
+      }
+      if (isset($element['#element_validate']) && !empty($element['#element_validate'])) {
+        $context = array('type' => 'element_validate', 'functions' => $element['#element_validate']);
+        drupal_alter('clientside_validation_rule', $js_rules, $element, $context);
       }
       clientside_validation_form_after_build_recurse($form_id, $element, $form_state, $js_rules);
     }
@@ -155,10 +159,6 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
         _clientside_validation_set_url($element['url']['#name'], $el_title, $js_rules);
         break;
     }
-  }
-  if (isset($element['#element_validate']) && !empty($element['#element_validate'])) {
-    $context = array('type' => 'element_validate', 'functions' => $element['#element_validate']);
-    drupal_alter('clientside_validation_rule', $js_rules, $element, $context);
   }
 }
 

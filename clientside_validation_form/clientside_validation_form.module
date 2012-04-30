@@ -13,7 +13,7 @@ function clientside_validation_form_after_build_recurse($form_id, &$form, &$form
     foreach ($children as $index => $item) {
       $element = &$form[$item];
       $types = array(
-        'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'managed_file', 'file', 'radios', 'checkboxes',
+        'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'managed_file', 'file', 'radios', 'checkboxes', 'link_field',
       );
       if (isset($element['#type']) && in_array($element['#type'], $types)) {
         clientside_validation_regular($form_id, $element, $js_rules, $form_state);
@@ -101,6 +101,16 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
               break;
           }
         }
+        if (isset($element['#clientside_validation_type'])) {
+          switch ($element['#clientside_validation_type']) {
+            case 'email':
+              _clientside_validation_set_email($el_name, $el_title, $js_rules);
+              break;
+            case 'phone':
+              $info = field_info_field($element['#field_name']);
+              _clientside_validation_set_phone($el_name, $el_title, $info['settings']['country'], $js_rules);
+          }
+        }
         break;
       case 'select':
         if ($is_multiple) {
@@ -141,6 +151,9 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
           _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules, $required_error);
         }
         break;
+      case 'link_field':
+        _clientside_validation_set_url($element['url']['#name'], $el_title, $js_rules);
+        break;
     }
   }
 }
@@ -163,4 +176,18 @@ function clientside_validation_form_form_field_ui_field_edit_form_alter(&$form, 
     '#default_value' => isset($form['#instance']['exclude_cv']) ? $form['#instance']['exclude_cv'] : FALSE,
     '#weight' => -9,
   );
+}
+
+/**
+ * Implements hook_field_widget_form_alter().
+ */
+function clientside_validation_form_field_widget_form_alter(&$element, &$form_state, $context) {
+  switch ($context['field']['type']) {
+    case 'email':
+      $element['email']['#clientside_validation_type'] = 'email';
+      break;
+    case 'phone':
+      $element['value']['#clientside_validation_type'] = 'phone';
+      break;
+  }
 }

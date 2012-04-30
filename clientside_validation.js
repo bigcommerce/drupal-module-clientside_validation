@@ -708,6 +708,26 @@
       return ret;
     }, jQuery.format('Please fill in at least on of the fields'));
 
+    // Require one of several
+    jQuery.validator.addMethod("phone", function(value, element, param) {
+      var country_code = param;
+      var result = false;
+      jQuery.ajax({
+        'url': Drupal.settings.basePath + 'clientside_validation/phone',
+        'type': "POST",
+        'data': {
+          'value': value,
+          'country_code': country_code
+        },
+        'dataType': 'json',
+        'async': false,
+        'success': function(res){
+          result = res;
+        }
+      });
+      return result['result'];
+      
+    }, jQuery.format('Please fill in a valid phone number'));
 
     // EAN code
     jQuery.validator.addMethod("validEAN", function(value, element, param) {

@@ -47,6 +47,12 @@ function clientside_validation_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
+  $items['clientside_validation/phone'] = array(
+    'title' => 'Clientside validation ajax callback to validate phone numbers',
+    'page callback' => '_clientside_validation_ajax_phone',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
@@ -63,6 +69,13 @@ function _clientside_validation_ajax_call() {
   if (empty($result)) {
     $result = array('result' => TRUE);
   }
+  drupal_json_output($result);
+}
+
+function _clientside_validation_ajax_phone() {
+  $value = $_POST['value'];
+  $country_code = $_POST['country_code'];
+  $result['result'] = valid_phone_number($country_code, $value);
   drupal_json_output($result);
 }
 
@@ -943,6 +956,18 @@ function _clientside_validation_set_require_oneof($names, $titles, $message = ""
     );
     $js_rules[$name]['messages']['requireOneOf'] = theme('clientside_error', $variables);
   }
+}
+
+function _clientside_validation_set_phone($name, $title, $country_code, &$js_rules, $message = "") {
+  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $js_rules[$name]['phone'] = $country_code;
+  $variables = array(
+    'message' => empty($message) ? 'The value in !title is not a valid phone number.' : $message,
+    'placeholders' => empty($message) ? array('!title' => $title) : array(),
+    'error_type' => 'phone',
+    'element_name' => $name
+  );
+  $js_rules[$name]['messages']['phone'] = theme('clientside_error', $variables);
 }
 
 function clientside_validation_drupal_json_encode($var) {

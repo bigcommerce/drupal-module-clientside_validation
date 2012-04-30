@@ -69,6 +69,18 @@ function clientside_validation_admin_settings() {
     '#default_value' => variable_get('clientside_validation_validate_onblur', 1),
   );
 
+  $form['clientside_validation_validate_options']['clientside_validation_validate_onblur_always'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '1' => t('Yes'),
+      '0' => t('No'),
+    ),
+    '#title' => t('Always validate fields on blur'),
+    '#description' => t('Validate elements (except checkboxes/radio buttons) on blur, <strong>even nothing is entered before or if the fields hasn\'t been marked as invalid before.</strong>'),
+    '#default_value' => variable_get('clientside_validation_validate_onblur_always', 0),
+    '#states' => array('visible' => array(':input[name=\'clientside_validation_validate_onblur\']' => array('value' => 1))),
+  );
+
   $form['clientside_validation_validate_options']['clientside_validation_validate_onkeyup'] = array(
     '#type' => 'radios',
     '#options' => array(

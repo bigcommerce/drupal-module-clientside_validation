@@ -303,6 +303,7 @@ function _clientside_validation_add_general_settings(&$settings, $form_id) {
     "validateOnBlurAlways" => (int)(variable_get('clientside_validation_validate_onblur_always', 0) && variable_get('clientside_validation_validate_onblur', 1)),
     "validateOnKeyUp" => variable_get('clientside_validation_validate_onkeyup', 1),
     "validateOnSubmit" => variable_get('clientside_validation_validate_onsubmit', 1),
+    "errorElement" => variable_get('clientside_validation_error_element', 'label'),
   );
 }
 

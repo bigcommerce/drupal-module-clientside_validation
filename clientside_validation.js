@@ -153,6 +153,7 @@
         var validate_options = {
           errorClass: 'error',
           groups: self.groups[f],
+          errorElement: self.data.general.errorElement,
           unhighlight: function(element, errorClass, validClass) {
             // Default behavior
             $(element).removeClass(errorClass).addClass(validClass);

@@ -141,6 +141,14 @@ function clientside_validation_admin_settings() {
     ),
   );
 
+  $form['clientside_validation_error']['clientside_validation_error_element'] = array(
+    '#title' => t('Error Element'),
+    '#description' => t('The HTML element to wrap the errors in. Defaults to label.'),
+    '#type' => 'select',
+    '#options' => drupal_map_assoc(array('label', 'span', 'div')),
+    '#default_value' => variable_get('clientside_validation_error_element', 'label'),
+  );
+
   if (module_exists('fapi_validation') && module_exists('clientside_validation_fapi')) {
     $form['clientside_validation_error']['clientside_validation_scroll_speed'] += array('#rules' => array('numeric'));
   }

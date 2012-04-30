@@ -27,12 +27,16 @@
  *
  * The third parameter, named $context, is a structured array. It consists of
  * the following keys:
- *  'type':     The type of form validation we are dealing with. Can be either
- *              'webform', 'fapi' or 'field_validation'.
- *  'rule':     An array representing the webform validation, fapi validation or
- *              field validation rule.
- *  'message':  The default error message for when this rule does not pass
- *              validation.
+ *  'type':       The type of form validation we are dealing with. Can be either
+ *                'webform', 'fapi', 'field_validation' or 'element_validate'.
+ *  'rule':       An array representing the webform validation, fapi validation or
+ *                field validation rule. Only present when 'type' is 'webform', 'fapi'
+ *                or 'field_validation'.
+ *  'functions':  An array of functions found in the '#element_validate' of the element.
+ *                Only present if type is 'element_validate'.
+ *  'message':    The default error message for when this rule does not pass
+ *                validation.Only present when 'type' is 'webform', 'fapi'
+ *                or 'field_validation'.
  *
  * @param array $js_rules
  * An array structured like this:
@@ -46,12 +50,16 @@
  * Either a form element or a webform component.
  * @param array $context
  * A structured array consiting of the following keys:
- *  'type':     The type of form validation we are dealing with. Can be either
- *              'webform', 'fapi' or 'field_validation'.
- *  'rule':     An array representing the webform validation, fapi validation or
- *              field validation rule.
- *  'message':  The default error message for when this rule does not pass
- *              validation.
+ *  'type':       The type of form validation we are dealing with. Can be either
+ *                'webform', 'fapi', 'field_validation' or 'element_validate'.
+ *  'rule':       An array representing the webform validation, fapi validation or
+ *                field validation rule. Only present when 'type' is 'webform', 'fapi'
+ *                or 'field_validation'.
+ *  'functions':  An array of functions found in the '#element_validate' of the element.
+ *                Only present if type is 'element_validate'.
+ *  'message':    The default error message for when this rule does not pass
+ *                validation.Only present when 'type' is 'webform', 'fapi'
+ *                or 'field_validation'.
  *
  * In the example below we use validations that are already implemented as usage
  * examples. In the example the following rules are implemented for clientside

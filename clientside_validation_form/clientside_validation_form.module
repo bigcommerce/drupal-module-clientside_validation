@@ -23,6 +23,10 @@ function clientside_validation_form_after_build_recurse($form_id, &$form, &$form
           clientside_validation_regular($form_id, $element, $js_rules);
         }
       }
+      if (isset($element['#element_validate']) && !empty($element['#element_validate'])) {
+        $context = array('type' => 'element_validate', 'functions' => $element['#element_validate']);
+        drupal_alter('clientside_validation_rule', $js_rules, $element, $context);
+      }
       clientside_validation_form_after_build_recurse($form_id, $element, $form_state, $js_rules);
     }
   }

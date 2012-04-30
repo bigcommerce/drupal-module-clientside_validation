@@ -346,6 +346,13 @@ Drupal.clientsideValidation.prototype.bindForms = function(){
       if (!Boolean(parseInt(self.data.general.validateOnBlur))) {
         validate_options.onfocusout = false;
       }
+      if (Boolean(parseInt(self.data.general.validateOnBlurAlways))) {
+        validate_options.onfocusout = function(element) {
+          if ( !this.checkable(element) ) {
+            this.element(element);
+          }
+        }
+      }
       if (!Boolean(parseInt(self.data.general.validateOnKeyUp))) {
         validate_options.onkeyup = false;
       }

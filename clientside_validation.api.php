@@ -88,6 +88,21 @@ function hook_clientside_validation_rule_alter(&$js_rules, $element, $context) {
       }
       break;
 
+    case 'element_validate':
+      if (in_array('_container_validate', $context['functions'])) {
+        _clientside_validation_set_not_equal(
+          $element['textfield_one']['#name'],
+          $element['textfield_one']['#title'],
+          array(
+            'form_key' => $element['textfield_two']['#name'],
+            'name' => $element['textfield_two']['#title']
+          ),
+          $js_rules,
+          t("The two fields cannot have the same value")
+        );
+      }
+      break;
+
     default:
       break;
   }

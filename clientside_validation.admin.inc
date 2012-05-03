@@ -101,6 +101,7 @@ function clientside_validation_admin_settings() {
     ),
     '#title' => t('Show these error messages on validation'),
     '#default_value' => variable_get('clientside_validation_show_messages', 0),
+    '#description' => t('Warning: Showing only the first or last message only works if the error messages are displayed on top of the form. When they are displayed inline this setting has some bugs.')
   );
 
   //Error message settings

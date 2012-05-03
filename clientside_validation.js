@@ -345,10 +345,13 @@
         }
         if (parseInt(self.data.general.showMessages) > 0) {
           var showMessages = parseInt(self.data.general.showMessages);
-          // Show only first message
-          if (showMessages === 1) {
+          // Show only last message
+          if (showMessages === 2) {
             validate_options.showErrors = function() {
-              for ( var i = 0; this.errorList[i] && i<1; i++ ) {
+              var allErrors = this.errors();
+              this.toHide = allErrors;
+              $(':input.' + this.settings.errorClass).removeClass(this.settings.errorClass);
+              for ( var i = this.errorList.length -1; this.errorList[i]; i++ ) {
                 var error = this.errorList[i];
                 this.settings.highlight && this.settings.highlight.call( this, error.element, this.settings.errorClass, this.settings.validClass );
                 this.showLabel( error.element, error.message );
@@ -371,8 +374,49 @@
               this.addWrapper( this.toShow ).show();
             }
           }
-          else if(showMessages === 2) {
+          // Show only first message
+          else if(showMessages === 1) {
+            validate_options.showErrors = function() {
+              var allErrors = this.errors();
+              if (this.settings.unhighlight) {
+                var firstErrorElement = this.clean($(allErrors[0]).attr('for'));
+                //for attr points to name or id
+                if (typeof firstErrorElement === 'undefined') {
+                  firstErrorElement = this.clean('#' + $(allErrors[0]).attr('for'));
+                }
+                for (var i = 0, elements = this.elements().not($(firstErrorElement)); elements[i]; i++) {
+                  this.settings.unhighlight.call( this, elements[i], this.settings.errorClass, this.settings.validClass );
+                }
+              }
 
+              for ( var i = 0; this.errorList[i] && i<1; i++ ) {
+                var error = this.errorList[i];
+                this.settings.highlight && this.settings.highlight.call( this, error.element, this.settings.errorClass, this.settings.validClass );
+                this.showLabel( error.element, error.message );
+              }
+              if( this.errorList.length ) {
+                this.toShow = this.toShow.add( this.containers );
+              }
+              if (this.settings.success) {
+                for ( var i = 0; this.successList[i]; i++ ) {
+                  this.showLabel( this.successList[i] );
+                }
+              }
+              if (this.settings.unhighlight) {
+                for ( var i = 0, elements = this.validElements(); elements[i]; i++ ) {
+                  this.settings.unhighlight.call( this, elements[i], this.settings.errorClass, this.settings.validClass );
+                }
+              }
+              
+              this.toHide = this.toHide.not( this.toShow );
+              this.hideErrors();
+              this.addWrapper( this.toShow ).show();
+              allErrors = this.errors();
+              allErrors.splice(0,1);
+              this.toHide = allErrors;
+              this.hideErrors();
+
+            }
           }
         }
         self.validators[f] = $('#' + f).validate(validate_options);

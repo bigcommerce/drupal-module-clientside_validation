@@ -89,14 +89,13 @@ function clientside_validation_general_settings_form($form_id, $form_state) {
 }
 
 function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, $type = 'default') {
-  $default_settings = clientside_validation_settings_load(NULL, 'default');
   $settings = clientside_validation_settings_load($cvsid, $type);
   if (isset($settings['settings']) && is_array($settings['settings'])) {
     $settings = $settings['settings'];
   }
 
   if (!$settings) {
-    $settings = $default_settings;
+    $settings = clientside_validation_settings_load(NULL, 'default');
   }
   
   $form['#tree'] = TRUE;
@@ -345,6 +344,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
                       fields (e.g. conditional fields), those will be validated too.'),
   );
   if ($type != 'default') {
+    // @TODO: add user friendly names: array('validate_options' => 'Validate options', ... )
     foreach (array('validate_options', 'error', 'error_placement', 'include_hidden') as $fieldset) {
       $statefield = ':input[name="' . $fieldset . '_override_default"]';
       $form[$fieldset]['#states'] = array(

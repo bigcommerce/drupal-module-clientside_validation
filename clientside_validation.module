@@ -304,6 +304,7 @@ function _clientside_validation_add_general_settings(&$settings, $form_id) {
     "validateOnKeyUp" => variable_get('clientside_validation_validate_onkeyup', 1),
     "validateOnSubmit" => variable_get('clientside_validation_validate_onsubmit', 1),
     "errorElement" => variable_get('clientside_validation_error_element', 'label'),
+    "showMessages" => variable_get('clientside_validation_show_messages', 0),
   );
 }
 

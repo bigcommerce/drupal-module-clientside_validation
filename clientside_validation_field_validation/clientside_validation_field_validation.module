@@ -100,8 +100,8 @@ function clientside_validation_field_validation_regular($form_id, $element, $rul
     // Field Validation 2.x
     case 'field_validation_length_validator':
       $message = '';
-      $rule['settings']['min'] = isset($rule['settings']['min']) ? '' : $rule['settings']['min'];
-      $rule['settings']['max'] = isset($rule['settings']['max']) ? '' : $rule['settings']['max'];
+      $rule['settings']['min'] = isset($rule['settings']['min']) ? $rule['settings']['min'] : '';
+      $rule['settings']['max'] = isset($rule['settings']['max']) ? $rule['settings']['max'] : '';
       if (isset($rule['error_message'])) {
         $message = $rule['error_message'];
       }
@@ -128,8 +128,8 @@ function clientside_validation_field_validation_regular($form_id, $element, $rul
     // Field Validation 2.x
     case 'field_validation_words_validator':
       $message = '';
-      $rule['settings']['min'] = isset($rule['settings']['min']) ? '' : $rule['settings']['min'];
-      $rule['settings']['max'] = isset($rule['settings']['max']) ? '' : $rule['settings']['max'];
+      $rule['settings']['min'] = isset($rule['settings']['min']) ? $rule['settings']['min'] : '';
+      $rule['settings']['max'] = isset($rule['settings']['max']) ? $rule['settings']['max'] : '';
       if (isset($rule['error_message'])) {
         $message = $rule['error_message'];
       }
@@ -226,8 +226,8 @@ function clientside_validation_field_validation_regular($form_id, $element, $rul
       break;
     case 'field_validation_number_of_selections_validator':
       $message = '';
-      $rule['settings']['min'] = isset($rule['settings']['min']) ? '' : $rule['settings']['min'];
-      $rule['settings']['max'] = isset($rule['settings']['max']) ? '' : $rule['settings']['max'];
+      $rule['settings']['min'] = isset($rule['settings']['min']) ? $rule['settings']['min'] : '';
+      $rule['settings']['max'] = isset($rule['settings']['max']) ? $rule['settings']['max'] : '';
       if (isset($rule['error_message'])) {
         $message = $rule['error_message'];
       }

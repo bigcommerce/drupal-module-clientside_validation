@@ -92,6 +92,17 @@ function clientside_validation_admin_settings() {
     '#default_value' => variable_get('clientside_validation_validate_onkeyup', 1),
   );
 
+  $form['clientside_validation_validate_options']['clientside_validation_show_messages'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '0' => t('Show all error messages'),
+      '1' => t('Show only first error message'),
+      '2' => t('Show only last error message'),
+    ),
+    '#title' => t('Show these error messages on validation'),
+    '#default_value' => variable_get('clientside_validation_show_messages', 0),
+  );
+
   //Error message settings
   $form['clientside_validation_error'] = array(
     '#type' => 'fieldset',

@@ -343,6 +343,38 @@
         if (!Boolean(parseInt(self.data.general.validateOnKeyUp))) {
           validate_options.onkeyup = false;
         }
+        if (parseInt(self.data.general.showMessages) > 0) {
+          var showMessages = parseInt(self.data.general.showMessages);
+          // Show only first message
+          if (showMessages === 1) {
+            validate_options.showErrors = function() {
+              for ( var i = 0; this.errorList[i] && i<1; i++ ) {
+                var error = this.errorList[i];
+                this.settings.highlight && this.settings.highlight.call( this, error.element, this.settings.errorClass, this.settings.validClass );
+                this.showLabel( error.element, error.message );
+              }
+              if( this.errorList.length ) {
+                this.toShow = this.toShow.add( this.containers );
+              }
+              if (this.settings.success) {
+                for ( var i = 0; this.successList[i]; i++ ) {
+                  this.showLabel( this.successList[i] );
+                }
+              }
+              if (this.settings.unhighlight) {
+                for ( var i = 0, elements = this.validElements(); elements[i]; i++ ) {
+                  this.settings.unhighlight.call( this, elements[i], this.settings.errorClass, this.settings.validClass );
+                }
+              }
+              this.toHide = this.toHide.not( this.toShow );
+              this.hideErrors();
+              this.addWrapper( this.toShow ).show();
+            }
+          }
+          else if(showMessages === 2) {
+
+          }
+        }
         self.validators[f] = $('#' + f).validate(validate_options);
 
         //Disable HTML5 validation

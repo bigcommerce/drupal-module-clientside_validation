@@ -91,23 +91,22 @@ function clientside_validation_general_settings_form($form_id, $form_state) {
 function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, $type = 'default') {
   $default_settings = clientside_validation_settings_load(NULL, 'default');
   $settings = clientside_validation_settings_load($cvsid, $type);
-  $form['#tree'] = TRUE;
-  if ($settings && $settings['type'] != 'default') {
-    $form['cvsid'] = array(
-      '#type' => 'value',
-      '#value' => $settings['cvsid'],
-    );
+  if (isset($settings['settings']) && is_array($settings['settings'])) {
+    $settings = $settings['settings'];
+  }
 
-    $form['form_id'] = array(
-      '#type' => 'value',
-      '#value' => $settings['form_id'],
-    );
+  if (!$settings) {
+    $settings = $default_settings;
   }
   
-  $form['type'] = array(
+  $form['#tree'] = TRUE;
+  $form['cvsid'] = array(
+    '#type' => 'value',
+    '#value' => $cvsid, // is real id or a string for new types
+  );
+  $form['cvstype'] = array(
     '#type' => 'value',
     '#value' => $type,
-    '#weight' => 1,
   );
 
   //Validate options
@@ -127,7 +126,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
         '0' => t('No'),
       ),
       '#title' => t('Replace HTML5 validation with Clientside Validation'),
-      '#default_value' => variable_get('disable_html5', 1),
+      '#default_value' => $settings['validate_options']['disable_html5'],
       '#description' => t('Replace HTML5 validation with Clientside Validation on forms that have Clientside Validation enabled'),
     );
   }
@@ -140,7 +139,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     ),
     '#title' => t('Validate fields on submit'),
     '#description' => t('"No" disables onsubmit validation, allowing the user to submit whatever he wants, while still validating on keyup/blur/click events (if not specified otherwise).'),
-    '#default_value' => variable_get('validate_onsubmit', 1),
+    '#default_value' => $settings['validate_options']['validate_onsubmit'],
   );
 
   $form['validate_options']['validate_onblur'] = array(
@@ -151,7 +150,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     ),
     '#title' => t('Validate fields on blur'),
     '#description' => t('Validate elements (except checkboxes/radio buttons) on blur. <strong>If nothing is entered, all rules are skipped, except when the field was already marked as invalid.</strong>'),
-    '#default_value' => variable_get('validate_onblur', 1),
+    '#default_value' => $settings['validate_options']['validate_onblur'],
   );
 
   $form['validate_options']['validate_onblur_always'] = array(
@@ -162,7 +161,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     ),
     '#title' => t('Always validate fields on blur'),
     '#description' => t('Validate elements (except checkboxes/radio buttons) on blur, <strong>even nothing is entered before or if the fields hasn\'t been marked as invalid before.</strong>'),
-    '#default_value' => variable_get('validate_onblur_always', 0),
+    '#default_value' => $settings['validate_options']['validate_onblur_always'],
     '#states' => array(
       'visible' => array(
         ':input[name="validate_options[validate_onblur]"]' => array('value' => 1),
@@ -178,7 +177,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     ),
     '#title' => t('Validate fields on key up'),
     '#description' => t('Validate elements on keyup. <strong>As long as the field is not marked as invalid, nothing happens</strong>. Otherwise, all rules are checked on each key up event.'),
-    '#default_value' => variable_get('validate_onkeyup', 1),
+    '#default_value' => $settings['validate_options']['validate_onkeyup'],
   );
 
   $form['validate_options']['show_messages'] = array(
@@ -189,7 +188,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
       '2' => t('Show only last error message'),
     ),
     '#title' => t('Show these error messages on validation'),
-    '#default_value' => variable_get('show_messages', 0),
+    '#default_value' => $settings['validate_options']['show_messages'],
     '#description' => t('Warning: Showing only the first or last message only works if the error messages are displayed on top of the form. When they are displayed inline this setting has some bugs.'),
   );
 
@@ -206,14 +205,14 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     '#title' => t('Field name prefix'),
     '#description' => t('The prefix of the field name in the error messages.'),
     '#type' => 'textfield',
-    '#default_value' => variable_get('prefix', ''),
+    '#default_value' => $settings['error']['prefix'],
   );
 
   $form['error']['suffix'] = array(
     '#title' => t('Field name suffix'),
     '#description' => t('The suffix of the field name in the error messages.'),
     '#type' => 'textfield',
-    '#default_value' => variable_get('suffix', ''),
+    '#default_value' => $settings['error']['suffix'],
   );
 
   $form['error']['example_image'] = array(
@@ -227,14 +226,14 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     '#title' => t('Scroll to error message'),
     '#description' => t('If checked, the page will automatically scroll to the error messages when validation fails.'),
     '#type' => 'checkbox',
-    '#default_value' => variable_get('scrollto_errormessage', 1),
+    '#default_value' => $settings['error']['scrollto_errormessage'],
   );
 
   $form['error']['scroll_speed'] = array(
     '#title' => t('Scroll speed'),
     '#description' => t('The scroll speed in milliseconds'),
     '#type' => 'textfield',
-    '#default_value' => variable_get('scroll_speed', 1000),
+    '#default_value' => $settings['error']['scroll_speed'],
     '#states' => array(
       'visible' => array(
         ':input[name="error[scrollto_errormessage]"]' => array('checked' => TRUE),
@@ -247,7 +246,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     '#description' => t('The HTML element to wrap the errors in. Defaults to label.'),
     '#type' => 'select',
     '#options' => drupal_map_assoc(array('label', 'span', 'div')),
-    '#default_value' => variable_get('error_element', 'label'),
+    '#default_value' => $settings['error']['error_element'],
   );
 
   if (module_exists('fapi_validation') && module_exists('fapi')) {
@@ -287,7 +286,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
       CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM => t('Top of first form'),
       CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION => t('Custom function'),
     ),
-    '#default_value' => variable_get('error_placement_default', CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM),
+    '#default_value' => $settings['error_placement']['error_placement_default'],
   );
 
   $form['error_placement']['jquery_selector'] = array(
@@ -296,7 +295,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     '#description' => t('Enter a jQuery selector here if you selected "jQuery selector" in the previous step.
                       The error messages will be shown in this div if it exists.
                       If it doesn\'t, error messages will be shown above the first form on the page.'),
-    '#default_value' => variable_get('jquery_selector', ''),
+    '#default_value' => $settings['error_placement']['jquery_selector'],
     '#states' => array(
       'visible' => array(
         ':input[name="error_placement[error_placement_default]"]' => array('value' => CLIENTSIDE_VALIDATION_JQUERY_SELECTOR),
@@ -313,7 +312,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
         '!errorPlacement' =>
         l(t('the errorPlacement option of jQuery.validate()'), 'http://docs.jquery.com/Plugins/Validation/validate#options')
       )),
-    '#default_value' => variable_get('custom_error_function', ''),
+    '#default_value' => $settings['error_placement']['custom_error_function'],
     '#states' => array(
       'visible' => array(
         ':input[name="error_placement[error_placement_default]"]' => array('value' => CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION),
@@ -332,14 +331,14 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
 
   $form['include_hidden']['include_hidden'] = array(
     '#type' => 'textarea',
-    '#default_value' => variable_get('include_hidden', ''),
+    '#default_value' => $settings['include_hidden']['include_hidden'],
     '#title' => t("Don't ignore hidden fields on the following forms"),
     '#description' => t('You can specify form IDs (one per line) of forms that should have hidden elements validated.'),
   );
 
   $form['include_hidden']['validate_tabs'] = array(
     '#type' => 'checkbox',
-    '#default_value' => variable_get('validate_tabs', 1),
+    '#default_value' => $settings['include_hidden']['validate_tabs'],
     '#title' => t('Validate all vertical tabs'),
     '#description' => t('If you check this, all tabs will be validated on submit
                       (including the hidden ones). Warning: if there are other hidden
@@ -358,7 +357,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
         '#type' => 'checkbox',
         '#title' => t('Override default options for ') . $fieldset,
         '#description' => t('Check this to override the default validate options'),
-        '#default_value' => isset($settings['validate_options']),
+        '#default_value' => isset($settings[$fieldset . '_override_default']) && $settings[$fieldset . '_override_default'] ,
         '#weight' => $form[$fieldset]['#weight'] - 1,
       );
     }
@@ -375,30 +374,43 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
 
 function clientside_validation_settings_form_submit($form, &$form_state) {
   $values = $form_state['values'];
-  $type = $values['type'];
-  $form_id = $values['form_id'];
-  $cvsid = NULL;
-  if (isset($values['cvsid'])) {
-    $cvsid = $values['cvsid'];
-    unset($values['cvsid']);
-  }
-  unset($values['type']);
-  unset($values['id']);
+  $type = $values['cvstype'];
+  $cvsid = $values['cvsid'];
+
+  unset($values['submit']);
+  unset($values['form_build_id']);
+  unset($values['form_token']);
+  unset($values['form_id']);
+  unset($values['op']);
+  unset($values['cvstype']);
+  unset($values['cvsid']);
+  
   if ($type == 'default') {
     variable_set('clientside_validation_default_settings', $values);
   }
   else {
-    $values = array_filter($values, '_cv_filter_settings');
-    foreach($values as $key => $value) {
-      unset($values[$key . '_override_default']);
-    }
+    // serialize so we can store it
     $values = serialize($values);
-    db_merge('clientside_validation_settings')
-      ->key(array('form_id' => $form_id))
-      ->fields(array(
-        'type' => $type,
-        'status' => $status,
-      ));
+    // Numeric means PK from table, so update
+    if (is_numeric($cvsid) && $cvsid > 0) {
+      db_update('clientside_validation_settings')
+        ->fields(array(
+          'settings' => $values,
+        ))
+        ->condition('cvsid', $cvsid)
+        ->execute();
+    }
+    // Else insert using cvsid as identifier
+    else {
+      db_insert('clientside_validation_settings')
+        ->fields(array(
+          'type' => $type,
+          'status' => 0,
+          'form_id' => $cvsid,
+          'settings' => $values,
+        ))
+        ->execute();
+    }
   }
 }
 
@@ -417,8 +429,6 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
   $form = array();
   $content_types = node_type_get_types();
   $settings = clientside_validation_settings_load(NULL, $type);
-  dpm($content_types);
-  dpm($settings);
   
   $destination = array('destination' => 'admin/config/validation/clientside_validation/content-types');
   $settinguri = 'admin/config/validation/clientside_validation/content-types/';
@@ -474,7 +484,7 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
           $actions = array(
             'edit' => array(
               'title' => t('create'),
-              'href' => $settinguri . $content_type->type . '/edit',
+              'href' => $settinguri . check_plain($content_type->type) . '/edit',
               'query' => $destination,
             ),
           );

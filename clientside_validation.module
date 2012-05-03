@@ -53,6 +53,7 @@ function clientside_validation_menu() {
     'page arguments' => array('clientside_validation_settings_form'),
     'access arguments' => array('administer site configuration'),
     'file' => 'clientside_validation.admin.inc',
+    'weight' => 5,
   );
   $items['admin/config/validation/clientside_validation/content-types'] = array(
     'title' => 'Content types',
@@ -61,10 +62,11 @@ function clientside_validation_menu() {
     'page arguments' => array('clientside_validation_settings_overview', 'content-types'),
     'access arguments' => array('administer site configuration'),
     'file' => 'clientside_validation.admin.inc',
+    'weight' => 10,
   );
   $items['admin/config/validation/clientside_validation/%/%/edit'] = array(
     'title' => 'Edit settings',
-    'type' => MENU_LOCAL_TASK,
+    'type' => MENU_CALLBACK,
     'page callback' => 'drupal_get_form',
     'page arguments' => array('clientside_validation_settings_form', 5, 4),
     'access arguments' => array('administer site configuration'),
@@ -1146,11 +1148,15 @@ function clientside_validation_settings_load($cvsid = NULL, $type = NULL, $form_
   $result = $query->execute();
   // a single id was given -> one result, so only return one row
   if (is_numeric($cvsid)) {
-    return $result->fetchAssoc();
+    $res = $result->fetchAssoc();
+    $res['settings'] = unserialize($res['settings']);
+    return $res;
   }
   // a single form_id was given -> one result, so only return one row
   if (is_string($form_id)) {
-    return $result->fetchAssoc();
+    $res = $result->fetchAssoc();
+    $res['settings'] = unserialize($res['settings']);
+    return $res;
   }
   return $result->fetchAllAssoc('form_id');
 }

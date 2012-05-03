@@ -107,6 +107,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
   $form['type'] = array(
     '#type' => 'value',
     '#value' => $type,
+    '#weight' => 1,
   );
 
   //Validate options
@@ -115,6 +116,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
     '#title' => t('Validate options'),
+    '#weight' => 10,
   );
 
   if (module_exists('clientside_validation_html5')) {
@@ -197,6 +199,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
     '#title' => t('Error message settings'),
+    '#weight' => 20,
   );
 
   $form['error']['prefix'] = array(
@@ -257,6 +260,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
     '#title' => t('Error message placement'),
+    '#weight' => 30,
   );
 
   $form['error_placement']['error_placement_default'] = array(
@@ -323,6 +327,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     '#title' => t('Hidden fields and vertical tabs'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
+    '#weight' => 40,
   );
 
   $form['include_hidden']['include_hidden'] = array(
@@ -342,32 +347,27 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
   );
   if ($type != 'default') {
     foreach (array('validate_options', 'error', 'error_placement', 'include_hidden') as $fieldset) {
-      $statefield = ':input[name="' . $fieldset . '[override_default]"]';
-      foreach($form[$fieldset] as $fieldkey => $field) {
-        if (is_array($form[$fieldset][$fieldkey]) && isset($form[$fieldset][$fieldkey]['#type'])) {
-          if (!is_array($form[$fieldset][$fieldkey]['#states'])) {
-            $form[$fieldset][$fieldkey]['#states'] = array();
-          }
-          $form[$fieldset][$fieldkey]['#states'] += array(
-            'visible' => array(
-              $statefield => array('checked' => TRUE),
-            ),
-          );
-        }
-      }
-      $form[$fieldset]['override_default'] = array(
+      $statefield = ':input[name="' . $fieldset . '_override_default"]';
+      $form[$fieldset]['#states'] = array(
+        'visible' => array(
+          $statefield => array('checked' => TRUE),
+        ),
+      );
+
+      $form[$fieldset . '_override_default'] = array(
         '#type' => 'checkbox',
-        '#title' => t('Override default options'),
+        '#title' => t('Override default options for ') . $fieldset,
         '#description' => t('Check this to override the default validate options'),
         '#default_value' => isset($settings['validate_options']),
-        '#weight' => -30,
+        '#weight' => $form[$fieldset]['#weight'] - 1,
       );
     }
   }
-dpm($form);
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save configuration'),
+    '#weight' => 50,
   );
 
   return $form;
@@ -390,7 +390,7 @@ function clientside_validation_settings_form_submit($form, &$form_state) {
   else {
     $values = array_filter($values, '_cv_filter_settings');
     foreach($values as $key => $value) {
-      unset($values[$key]['override_default']);
+      unset($values[$key . '_override_default']);
     }
     $values = serialize($values);
     db_merge('clientside_validation_settings')
@@ -451,6 +451,7 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
       else {
         $row[] = _cv_setting_status(FALSE);
         if (isset($settings[$content_type->type])) {
+          $cvsid = $settings[$content_type->type]->cvsid;
           $actions = array(
             'edit' => array(
               'title' => t('edit'),
@@ -473,7 +474,7 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
           $actions = array(
             'edit' => array(
               'title' => t('create'),
-              'href' => $settinguri . $cvsid . '/edit',
+              'href' => $settinguri . $content_type->type . '/edit',
               'query' => $destination,
             ),
           );

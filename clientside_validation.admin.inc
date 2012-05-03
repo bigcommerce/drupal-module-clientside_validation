@@ -4,7 +4,7 @@
  * Admin settings for Clientside Validation
  */
 
-function clientside_validation_general_settings_form() {
+function clientside_validation_general_settings_form($form_id, $form_state) {
 
   //jquery.validate.js settings
   $form['clientside_validation_min'] = array(
@@ -293,6 +293,11 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
                       The error messages will be shown in this div if it exists.
                       If it doesn\'t, error messages will be shown above the first form on the page.'),
     '#default_value' => variable_get('jquery_selector', ''),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="error_placement[error_placement_default]"]' => array('value' => CLIENTSIDE_VALIDATION_JQUERY_SELECTOR),
+      ),
+    ),
   );
 
   $form['error_placement']['custom_error_function'] = array(
@@ -305,6 +310,11 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
         l(t('the errorPlacement option of jQuery.validate()'), 'http://docs.jquery.com/Plugins/Validation/validate#options')
       )),
     '#default_value' => variable_get('custom_error_function', ''),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="error_placement[error_placement_default]"]' => array('value' => CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION),
+      ),
+    ),
   );
 
   //Hidden fields and vertical tabs
@@ -331,19 +341,30 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
                       fields (e.g. conditional fields), those will be validated too.'),
   );
   if ($type != 'default') {
-    foreach ($form as $key => $fieldset) {
-      foreach($form[$key] as $fieldkey => $field) {
-        $form[$key][$fieldkey]['#states']['visible'][':input[name="' + $key + '[override_default]"]'] = array('checked' => TRUE);
+    foreach (array('validate_options', 'error', 'error_placement', 'include_hidden') as $fieldset) {
+      $statefield = ':input[name="' . $fieldset . '[override_default]"]';
+      foreach($form[$fieldset] as $fieldkey => $field) {
+        if (is_array($form[$fieldset][$fieldkey]) && isset($form[$fieldset][$fieldkey]['#type'])) {
+          if (!is_array($form[$fieldset][$fieldkey]['#states'])) {
+            $form[$fieldset][$fieldkey]['#states'] = array();
+          }
+          $form[$fieldset][$fieldkey]['#states'] += array(
+            'visible' => array(
+              $statefield => array('checked' => TRUE),
+            ),
+          );
+        }
       }
-      $form[$key]['override_default'] = array(
+      $form[$fieldset]['override_default'] = array(
         '#type' => 'checkbox',
         '#title' => t('Override default options'),
         '#description' => t('Check this to override the default validate options'),
         '#default_value' => isset($settings['validate_options']),
+        '#weight' => -30,
       );
     }
   }
-
+dpm($form);
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save configuration'),
@@ -383,4 +404,146 @@ function clientside_validation_settings_form_submit($form, &$form_state) {
 
 function _cv_filter_settings($val) {
   return isset($val['override_default']) && $val['overrride_default'];
+}
+
+function _cv_setting_status($status) {
+  if ($status) {
+    return t('Enabled');
+  }
+  return t('Disabled');
+}
+
+function clientside_validation_settings_overview($form, $form_state, $type) {
+  $form = array();
+  $content_types = node_type_get_types();
+  $settings = clientside_validation_settings_load(NULL, $type);
+  dpm($content_types);
+  dpm($settings);
+  
+  $destination = array('destination' => 'admin/config/validation/clientside_validation/content-types');
+  $settinguri = 'admin/config/validation/clientside_validation/content-types/';
+  $rows = array();
+  if ($content_types) {
+    foreach ($content_types as $content_type) {
+      $row = array();
+      $row[] = check_plain($content_type->name);
+      if (isset($settings[$content_type->type]) && $settings[$content_type->type]->status) {
+        $cvsid = $settings[$content_type->type]->cvsid;
+        $row[] = _cv_setting_status(TRUE);
+        $actions = array(
+          'edit' => array(
+            'title' => t('edit'),
+            'href' => $settinguri . $cvsid . '/edit',
+            'query' => $destination,
+          ),
+          'disable' => array(
+            'title' => t('disable'),
+            'href' => $settinguri . $cvsid . '/disable',
+            'query' => $destination,
+          ),
+          'delete' => array(
+            'title' => t('delete'),
+            'href' => $settinguri . $cvsid . '/delete',
+            'query' => $destination,
+          ),
+        );
+      }
+      else {
+        $row[] = _cv_setting_status(FALSE);
+        if (isset($settings[$content_type->type])) {
+          $actions = array(
+            'edit' => array(
+              'title' => t('edit'),
+              'href' => $settinguri . $cvsid . '/edit',
+              'query' => $destination,
+            ),
+            'enable' => array(
+              'title' => t('enable'),
+              'href' => $settinguri . $cvsid . '/enable',
+              'query' => $destination,
+            ),
+            'delete' => array(
+              'title' => t('delete'),
+              'href' => $settinguri . $cvsid . '/delete',
+              'query' => $destination,
+            ),
+          );
+        }
+        else {
+          $actions = array(
+            'edit' => array(
+              'title' => t('create'),
+              'href' => $settinguri . $cvsid . '/edit',
+              'query' => $destination,
+            ),
+          );
+        }
+      }
+      $row[] = array(
+        'data' => array(
+          '#theme' => 'links__node_operations',
+          '#links' => $actions,
+          '#attributes' => array('class' => array('links', 'inline')),
+        ),
+      );
+      $rows[] = $row;
+    }
+  }
+
+  $header = array(
+    t('Content type'),
+    t('Status'),
+    t('Actions'),
+  );
+  $form['contenttypes'] = array(
+    '#theme' => 'table',
+    '#header' => $header,
+    '#rows' => $rows,
+    '#empty' => t('No content types available.'),
+  );
+  
+  return $form;
+}
+
+function clientside_validation_settings_confirmation_form($form, &$form_state, $cvsid, $type, $action) {
+  $settings = clientside_validation_settings_load();
+  $form['#cvaction'] = $action;
+  $form['#cvtype'] = $type;
+  $form['#cvsid'] = $cvsid;
+
+  switch ($action) {
+    case 'delete':
+      $question = 'Are you sure you want to delete these settings';
+    case 'enable':
+      $question = 'Are you sure you want to enable these settings';
+    case 'disable':
+      $question = 'Are you sure you want to disable these settings';
+  }
+  
+  return confirm_form(
+    $form,
+    $question,
+    'admin/config/validation/clientside_validation', // destination is used
+    t('This action cannot be undone.'),
+    t(ucfirst($action)),
+    t('Cancel')
+  );
+}
+
+function clientside_validation_settings_confirmation_form_submit($form, &$form_state) {
+  if ($form_state['values']['confirm']) {
+    $action = $form['#cvaction'];
+    $type = $form['#cvtype'];
+    $cvsid = $form['#cvsid'];
+
+    switch ($action) {
+      case 'delete':
+        clientside_validation_settings_delete($cvsid);
+      case 'enable':
+        clientside_validation_settings_enable($cvsid);
+      case 'disable':
+        //clientside_validation_settings_disable($cvsid);
+    }
+    $form_state['redirect'] = 'admin/config/validation/clientside_validation/' . $type;
+  }
 }

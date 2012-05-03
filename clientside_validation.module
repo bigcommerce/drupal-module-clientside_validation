@@ -54,6 +54,47 @@ function clientside_validation_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'clientside_validation.admin.inc',
   );
+  $items['admin/config/validation/clientside_validation/content-types'] = array(
+    'title' => 'Content types',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('clientside_validation_settings_overview', 'content-types'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'clientside_validation.admin.inc',
+  );
+  $items['admin/config/validation/clientside_validation/%/%/edit'] = array(
+    'title' => 'Edit settings',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('clientside_validation_settings_form', 5, 4),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'clientside_validation.admin.inc',
+  );
+  $items['admin/config/validation/clientside_validation/%/%/disable'] = array(
+    'title' => 'Disable settings',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('clientside_validation_settings_confirmation_form', 5, 4, 'disable'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'clientside_validation.admin.inc',
+  );
+  $items['admin/config/validation/clientside_validation/%/%/enable'] = array(
+    'title' => 'Enable settings',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('clientside_validation_settings_confirmation_form', 5, 4, 'enable'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'clientside_validation.admin.inc',
+  );
+  $items['admin/config/validation/clientside_validation/%/%/delete'] = array(
+    'title' => 'Delete settings',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('clientside_validation_settings_confirmation_form', 5, 4, 'delete'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'clientside_validation.admin.inc',
+  );
+  
   $items['clientside_validation/ajax'] = array(
     'title' => 'Clientside validation ajax callback',
     'page callback' => '_clientside_validation_ajax_call',
@@ -1035,6 +1076,30 @@ function theme_clientside_error($variables) {
   return t($variables['message'], $variables['placeholders']);
 }
 
+function clientside_validation_settings_delete($cvsid) {
+  db_delete('clientside_validation_settings')
+    ->condition('cvsid', $cvsid)
+    ->execute();
+}
+
+function clientside_validation_settings_enable($cvsid) {
+  db_update('clientside_validation_settings')
+    ->fields(array(
+      'status' => 1,
+    ))
+    ->condition('cvsid', $cvsid)
+    ->execute();
+}
+
+function clientside_validation_settings_disable($cvsid) {
+  db_update('clientside_validation_settings')
+    ->fields(array(
+      'status' => 0, 
+    ))
+    ->condition('cvsid', $cvsid)
+    ->execute();
+}
+
 function clientside_validation_settings_load($cvsid = NULL, $type = NULL, $form_id = NULL) {
   if ($type == 'default') {
     $default_settings = array(
@@ -1066,7 +1131,8 @@ function clientside_validation_settings_load($cvsid = NULL, $type = NULL, $form_
     );
     return variable_get('clientside_validation_default_settings', $default_settings);
   }
-  $query = db_select('clientside_validation_settings');
+  $query = db_select('clientside_validation_settings')
+    ->fields('clientside_validation_settings');
   if (!empty($cvsid)) {
     $query->condition('cvsid', $cvsid);
   }
@@ -1086,5 +1152,5 @@ function clientside_validation_settings_load($cvsid = NULL, $type = NULL, $form_
   if (is_string($form_id)) {
     return $result->fetchAssoc();
   }
-  return $result->fetchAllAssoc('cvsid');
+  return $result->fetchAllAssoc('form_id');
 }

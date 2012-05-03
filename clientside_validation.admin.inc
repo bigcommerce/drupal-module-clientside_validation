@@ -4,7 +4,7 @@
  * Admin settings for Clientside Validation
  */
 
-function clientside_validation_admin_settings() {
+function clientside_validation_general_settings_form() {
 
   //jquery.validate.js settings
   $form['clientside_validation_min'] = array(
@@ -23,261 +23,6 @@ function clientside_validation_admin_settings() {
     ),
     '#default_value' => variable_get('clientside_validation_use_minified', 0),
     '#title' => t('Use minified version?'),
-  );
-
-   //Validate options
-  $form['clientside_validation_validate_options'] = array(
-    '#type' => 'fieldset',
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#title' => t('Validate options'),
-    '#description' => t('Set the validate options for Clientside Validation.'),
-  );
-
-  if (module_exists('clientside_validation_html5')) {
-    $form['clientside_validation_validate_options']['clientside_validation_disable_html5'] = array(
-      '#type' => 'radios',
-      '#options' => array(
-        '1' => t('Yes'),
-        '0' => t('No'),
-      ),
-      '#title' => t('Replace HTML5 validation with Clientside Validation'),
-      '#default_value' => variable_get('clientside_validation_disable_html5', 1),
-      '#description' => t('Replace HTML5 validation with Clientside Validation on forms that have Clientside Validation enabled'),
-    );
-  }
-
-  $form['clientside_validation_validate_options']['clientside_validation_validate_onsubmit'] = array(
-    '#type' => 'radios',
-    '#options' => array(
-      '1' => t('Yes'),
-      '0' => t('No'),
-    ),
-    '#title' => t('Validate fields on submit'),
-    '#description' => t('"No" disables onsubmit validation, allowing the user to submit whatever he wants, while still validating on keyup/blur/click events (if not specified otherwise).'),
-    '#default_value' => variable_get('clientside_validation_validate_onsubmit', 1),
-  );
-
-  $form['clientside_validation_validate_options']['clientside_validation_validate_onblur'] = array(
-    '#type' => 'radios',
-    '#options' => array(
-      '1' => t('Yes'),
-      '0' => t('No'),
-    ),
-    '#title' => t('Validate fields on blur'),
-    '#description' => t('Validate elements (except checkboxes/radio buttons) on blur. <strong>If nothing is entered, all rules are skipped, except when the field was already marked as invalid.</strong>'),
-    '#default_value' => variable_get('clientside_validation_validate_onblur', 1),
-  );
-
-  $form['clientside_validation_validate_options']['clientside_validation_validate_onblur_always'] = array(
-    '#type' => 'radios',
-    '#options' => array(
-      '1' => t('Yes'),
-      '0' => t('No'),
-    ),
-    '#title' => t('Always validate fields on blur'),
-    '#description' => t('Validate elements (except checkboxes/radio buttons) on blur, <strong>even nothing is entered before or if the fields hasn\'t been marked as invalid before.</strong>'),
-    '#default_value' => variable_get('clientside_validation_validate_onblur_always', 0),
-    '#states' => array('visible' => array(':input[name=\'clientside_validation_validate_onblur\']' => array('value' => 1))),
-  );
-
-  $form['clientside_validation_validate_options']['clientside_validation_validate_onkeyup'] = array(
-    '#type' => 'radios',
-    '#options' => array(
-      '1' => t('Yes'),
-      '0' => t('No'),
-    ),
-    '#title' => t('Validate fields on key up'),
-    '#description' => t('Validate elements on keyup. <strong>As long as the field is not marked as invalid, nothing happens</strong>. Otherwise, all rules are checked on each key up event.'),
-    '#default_value' => variable_get('clientside_validation_validate_onkeyup', 1),
-  );
-
-  $form['clientside_validation_validate_options']['clientside_validation_show_messages'] = array(
-    '#type' => 'radios',
-    '#options' => array(
-      '0' => t('Show all error messages'),
-      '1' => t('Show only first error message'),
-      '2' => t('Show only last error message'),
-    ),
-    '#title' => t('Show these error messages on validation'),
-    '#default_value' => variable_get('clientside_validation_show_messages', 0),
-    '#description' => t('Warning: Showing only the first or last message only works if the error messages are displayed on top of the form. When they are displayed inline this setting has some bugs.')
-  );
-
-  //Error message settings
-  $form['clientside_validation_error'] = array(
-    '#type' => 'fieldset',
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#title' => t('Error message settings'),
-    '#description' => t('Change error message related settings.'),
-  );
-
-  $form['clientside_validation_error']['clientside_validation_prefix'] = array(
-    '#title' => t('Field name prefix'),
-    '#description' => t('The prefix of the field name in the error messages.'),
-    '#type' => 'textfield',
-    '#default_value' => variable_get('clientside_validation_prefix', ''),
-  );
-
-  $form['clientside_validation_error']['clientside_validation_suffix'] = array(
-    '#title' => t('Field name suffix'),
-    '#description' => t('The suffix of the field name in the error messages.'),
-    '#type' => 'textfield',
-    '#default_value' => variable_get('clientside_validation_suffix', ''),
-  );
-
-  $form['clientside_validation_error']['example_image'] = array(
-    '#type' => 'item',
-    '#title' => t('Example'),
-    '#markup' => '<img id="clientside_validation_example_image" src="' . base_path() . drupal_get_path('module', 'clientside_validation') . '/errormsg.png" alt="' . t('Error message example') . '" />',
-    '#description' => t('Filling in double quotes in both the above fields will give this result.'),
-  );
-
-  $form['clientside_validation_error']['clientside_validation_scrollto_errormessage'] = array(
-    '#title' => t('Scroll to error message'),
-    '#description' => t('If checked, the page will automatically scroll to the error messages when validation fails.'),
-    '#type' => 'checkbox',
-    '#default_value' => variable_get('clientside_validation_scrollto_errormessage', 1),
-  );
-
-  $form['clientside_validation_error']['clientside_validation_scroll_speed'] = array(
-    '#title' => t('Scroll speed'),
-    '#description' => t('The scroll speed in milliseconds'),
-    '#type' => 'textfield',
-    '#default_value' => variable_get('clientside_validation_scroll_speed', 1000),
-    '#states' => array(
-      'visible' => array(
-        'input[name="clientside_validation_scrollto_errormessage"]' => array('checked' => TRUE),
-      ),
-    ),
-  );
-
-  $form['clientside_validation_error']['clientside_validation_error_element'] = array(
-    '#title' => t('Error Element'),
-    '#description' => t('The HTML element to wrap the errors in. Defaults to label.'),
-    '#type' => 'select',
-    '#options' => drupal_map_assoc(array('label', 'span', 'div')),
-    '#default_value' => variable_get('clientside_validation_error_element', 'label'),
-  );
-
-  if (module_exists('fapi_validation') && module_exists('clientside_validation_fapi')) {
-    $form['clientside_validation_error']['clientside_validation_scroll_speed'] += array('#rules' => array('numeric'));
-  }
-
-  //Error Placement
-  $form['clientside_validation_error_placement'] = array(
-    '#type' => 'fieldset',
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#title' => t('Error message placement'),
-    '#description' => t('Change error message placement settings.'),
-  );
-
-  $form['clientside_validation_error_placement']['clientside_validation_error_placement_default'] = array(
-    '#type' => 'select',
-    '#title' => t('Default location'),
-    '#description' => t('Default location to show the error messages.
-      If you choose "jQuery selector", provide a valid jQuery selector in the appropriate textfield.
-      If you choose "Custom function", provide the name of the custom javascript function.
-      The function needs to be declared on the Drupal.clientsideValidation object prototype. You can find
-      further details in the clientside_validation.api.js file.
-      This function will be given to !errorPlacement.',
-      array(
-        '!errorPlacement' =>
-        l(t('the errorPlacement option of jQuery.validate()'), 'http://docs.jquery.com/Plugins/Validation/validate#options')
-      )
-    ),
-    '#options' => array(
-      CLIENTSIDE_VALIDATION_JQUERY_SELECTOR => t('jQuery selector'),
-      CLIENTSIDE_VALIDATION_TOP_OF_FORM => t('Top of form'),
-      CLIENTSIDE_VALIDATION_BEFORE_LABEL => t('Before label'),
-      CLIENTSIDE_VALIDATION_AFTER_LABEL => t('After label'),
-      CLIENTSIDE_VALIDATION_BEFORE_INPUT => t('Before input'),
-      CLIENTSIDE_VALIDATION_AFTER_INPUT => t('After input'),
-      CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM => t('Top of first form'),
-      CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION => t('Custom function'),
-    ),
-    '#default_value' => variable_get('clientside_validation_error_placement_default', CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM),
-  );
-
-  $form['clientside_validation_error_placement']['clientside_validation_jquery_selector'] = array(
-    '#type' => 'textfield',
-    '#title' => t('jQuery selector'),
-    '#description' => t('Enter a jQuery selector here if you selected "jQuery selector" in the previous step.
-                      The error messages will be shown in this div if it exists.
-                      If it doesn\'t, error messages will be shown above the first form on the page.'),
-    '#default_value' => variable_get('clientside_validation_jquery_selector', ''),
-  );
-
-  $form['clientside_validation_error_placement']['clientside_validation_custom_error_function'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Custom function name'),
-    '#description' => t('If you selected "Custom function" in the previous step, provide the name of the custom javascript function.
-      This function will be given to !errorPlacement',
-      array(
-        '!errorPlacement' =>
-        l(t('the errorPlacement option of jQuery.validate()'), 'http://docs.jquery.com/Plugins/Validation/validate#options')
-      )),
-    '#default_value' => variable_get('clientside_validation_custom_error_function', ''),
-  );
-
-  //Error placement exceptions
-  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions'] = array(
-    '#type' => 'fieldset',
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-    '#title' => t('Error message placement exceptions'),
-    '#description' => t('Add exceptions to the default error message placement.'),
-  );
-
-  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions']['clientside_validation_error_placement_jquery'] = array(
-    '#type' => 'textarea',
-    '#title' => t('jQuery selector forms'),
-    '#description' => t('Enter form IDs of the forms of which the errors should appear in the div with the entered jQuery selector.'),
-    '#default_value' => variable_get('clientside_validation_error_placement_jquery', ''),
-  );
-
-  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions']['clientside_validation_error_placement_top_of_form'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Top of form'),
-    '#description' => t('Enter form IDs of the forms of which the errors should appear right above the form.'),
-    '#default_value' => variable_get('clientside_validation_error_placement_top_of_form', ''),
-  );
-
-  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions']['clientside_validation_error_placement_before_label'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Before label'),
-    '#description' => t('Enter form IDs of the forms of which the errors should appear before the label of the element.'),
-    '#default_value' => variable_get('clientside_validation_error_placement_before_label', ''),
-  );
-
-  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions']['clientside_validation_error_placement_after_label'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Before label'),
-    '#description' => t('Enter form IDs of the forms of which the errors should appear after the label of the element.'),
-    '#default_value' => variable_get('clientside_validation_error_placement_after_label', ''),
-  );
-
-  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions']['clientside_validation_error_placement_before_input'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Before input'),
-    '#description' => t('Enter form IDs of the forms of which the errors should appear before the input element.'),
-    '#default_value' => variable_get('clientside_validation_error_placement_before_input', ''),
-  );
-
-  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions']['clientside_validation_error_placement_after_input'] = array(
-    '#type' => 'textarea',
-    '#title' => t('After input'),
-    '#description' => t('Enter form IDs of the forms of which the errors should appear after the input element.'),
-    '#default_value' => variable_get('clientside_validation_error_placement_after_input', ''),
-  );
-
-  $form['clientside_validation_error_placement']['clientside_validation_error_placement_exceptions']['clientside_validation_error_placement_custom_function'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Custom function'),
-    '#description' => t('Enter form IDs of the forms of which the errors should appear according to the the custom function.'),
-    '#default_value' => variable_get('clientside_validation_error_placement_custom_function', ''),
   );
 
   //Page settings
@@ -307,30 +52,6 @@ function clientside_validation_admin_settings() {
       The '*' character is a wildcard. Example paths are %blog for the blog page and
       %blog-wildcard for every personal blog. %front is the front page.",
       array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
-  );
-
-  //Hidden fields and vertical tabs
-  $form['clientside_validation_include_hidden'] = array(
-    '#type' => 'fieldset',
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#title' => t('Hidden field and vertical tabs'),
-  );
-
-  $form['clientside_validation_include_hidden']['clientside_validation_include_hidden'] = array(
-    '#type' => 'textarea',
-    '#default_value' => variable_get('clientside_validation_include_hidden', ''),
-    '#title' => t("Don't ignore hidden fields on the following forms"),
-    '#description' => t('You can specify form IDs (one per line) of forms that should have hidden elements validated.'),
-  );
-
-  $form['clientside_validation_include_hidden']['clientside_validation_validate_tabs'] = array(
-    '#type' => 'checkbox',
-    '#default_value' => variable_get('clientside_validation_validate_tabs', 1),
-    '#title' => t('Validate all vertical tabs'),
-    '#description' => t('If you check this, all tabs will be validated on submit
-                      (including the hidden ones). Warning: if there are other hidden
-                      fields (e.g. conditional fields), those will be validated too.'),
   );
 
   //Form settings
@@ -363,23 +84,303 @@ function clientside_validation_admin_settings() {
       ),
     ),
   );
-  $form['#submit'] = array('clientside_validation_admin_settings_submit');
   $form = system_settings_form($form);
   return $form;
 }
 
-function clientside_validation_admin_settings_submit($form, &$form_state){
-  $exceptions = array(
-    'clientside_validation_error_placement_jquery',
-    'clientside_validation_error_placement_top_of_form',
-    'clientside_validation_error_placement_before_label',
-    'clientside_validation_error_placement_after_label',
-    'clientside_validation_error_placement_before_input',
-    'clientside_validation_error_placement_after_input',
-    'clientside_validation_error_placement_custom_function',
-    'clientside_validation_include_hidden',
-  );
-  foreach ($exceptions as $exception) {
-    $form_state['values'][$exception] = str_replace('-', '_', $form_state['values'][$exception]);
+function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, $type = 'default') {
+  $default_settings = clientside_validation_settings_load(NULL, 'default');
+  $settings = clientside_validation_settings_load($cvsid, $type);
+  $form['#tree'] = TRUE;
+  if ($settings && $settings['type'] != 'default') {
+    $form['cvsid'] = array(
+      '#type' => 'value',
+      '#value' => $settings['cvsid'],
+    );
+
+    $form['form_id'] = array(
+      '#type' => 'value',
+      '#value' => $settings['form_id'],
+    );
   }
+  
+  $form['type'] = array(
+    '#type' => 'value',
+    '#value' => $type,
+  );
+
+  //Validate options
+  $form['validate_options'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#title' => t('Validate options'),
+  );
+
+  if (module_exists('clientside_validation_html5')) {
+    $form['validate_options']['disable_html5'] = array(
+      '#type' => 'radios',
+      '#options' => array(
+        '1' => t('Yes'),
+        '0' => t('No'),
+      ),
+      '#title' => t('Replace HTML5 validation with Clientside Validation'),
+      '#default_value' => variable_get('disable_html5', 1),
+      '#description' => t('Replace HTML5 validation with Clientside Validation on forms that have Clientside Validation enabled'),
+    );
+  }
+
+  $form['validate_options']['validate_onsubmit'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '1' => t('Yes'),
+      '0' => t('No'),
+    ),
+    '#title' => t('Validate fields on submit'),
+    '#description' => t('"No" disables onsubmit validation, allowing the user to submit whatever he wants, while still validating on keyup/blur/click events (if not specified otherwise).'),
+    '#default_value' => variable_get('validate_onsubmit', 1),
+  );
+
+  $form['validate_options']['validate_onblur'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '1' => t('Yes'),
+      '0' => t('No'),
+    ),
+    '#title' => t('Validate fields on blur'),
+    '#description' => t('Validate elements (except checkboxes/radio buttons) on blur. <strong>If nothing is entered, all rules are skipped, except when the field was already marked as invalid.</strong>'),
+    '#default_value' => variable_get('validate_onblur', 1),
+  );
+
+  $form['validate_options']['validate_onblur_always'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '1' => t('Yes'),
+      '0' => t('No'),
+    ),
+    '#title' => t('Always validate fields on blur'),
+    '#description' => t('Validate elements (except checkboxes/radio buttons) on blur, <strong>even nothing is entered before or if the fields hasn\'t been marked as invalid before.</strong>'),
+    '#default_value' => variable_get('validate_onblur_always', 0),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="validate_options[validate_onblur]"]' => array('value' => 1),
+      ),
+    ),
+  );
+
+  $form['validate_options']['validate_onkeyup'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '1' => t('Yes'),
+      '0' => t('No'),
+    ),
+    '#title' => t('Validate fields on key up'),
+    '#description' => t('Validate elements on keyup. <strong>As long as the field is not marked as invalid, nothing happens</strong>. Otherwise, all rules are checked on each key up event.'),
+    '#default_value' => variable_get('validate_onkeyup', 1),
+  );
+
+  $form['validate_options']['show_messages'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '0' => t('Show all error messages'),
+      '1' => t('Show only first error message'),
+      '2' => t('Show only last error message'),
+    ),
+    '#title' => t('Show these error messages on validation'),
+    '#default_value' => variable_get('show_messages', 0),
+    '#description' => t('Warning: Showing only the first or last message only works if the error messages are displayed on top of the form. When they are displayed inline this setting has some bugs.'),
+  );
+
+  //Error message settings
+  $form['error'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#title' => t('Error message settings'),
+  );
+
+  $form['error']['prefix'] = array(
+    '#title' => t('Field name prefix'),
+    '#description' => t('The prefix of the field name in the error messages.'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('prefix', ''),
+  );
+
+  $form['error']['suffix'] = array(
+    '#title' => t('Field name suffix'),
+    '#description' => t('The suffix of the field name in the error messages.'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('suffix', ''),
+  );
+
+  $form['error']['example_image'] = array(
+    '#type' => 'item',
+    '#title' => t('Example'),
+    '#markup' => '<img id="example_image" src="' . base_path() . drupal_get_path('module', 'clientside_validation') . '/errormsg.png" alt="' . t('Error message example') . '" />',
+    '#description' => t('Filling in double quotes in both the above fields will give this result.'),
+  );
+
+  $form['error']['scrollto_errormessage'] = array(
+    '#title' => t('Scroll to error message'),
+    '#description' => t('If checked, the page will automatically scroll to the error messages when validation fails.'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('scrollto_errormessage', 1),
+  );
+
+  $form['error']['scroll_speed'] = array(
+    '#title' => t('Scroll speed'),
+    '#description' => t('The scroll speed in milliseconds'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('scroll_speed', 1000),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="error[scrollto_errormessage]"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
+  $form['error']['error_element'] = array(
+    '#title' => t('Error Element'),
+    '#description' => t('The HTML element to wrap the errors in. Defaults to label.'),
+    '#type' => 'select',
+    '#options' => drupal_map_assoc(array('label', 'span', 'div')),
+    '#default_value' => variable_get('error_element', 'label'),
+  );
+
+  if (module_exists('fapi_validation') && module_exists('fapi')) {
+    $form['error']['scroll_speed'] += array('#rules' => array('numeric'));
+  }
+
+  //Error Placement
+  $form['error_placement'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#title' => t('Error message placement'),
+  );
+
+  $form['error_placement']['error_placement_default'] = array(
+    '#type' => 'select',
+    '#title' => t('Default location'),
+    '#description' => t('Default location to show the error messages.
+      If you choose "jQuery selector", provide a valid jQuery selector in the appropriate textfield.
+      If you choose "Custom function", provide the name of the custom javascript function.
+      The function needs to be declared on the Drupal.clientsideValidation object prototype. You can find
+      further details in the clientside_validation.api.js file.
+      This function will be given to !errorPlacement.',
+      array(
+        '!errorPlacement' =>
+        l(t('the errorPlacement option of jQuery.validate()'), 'http://docs.jquery.com/Plugins/Validation/validate#options')
+      )
+    ),
+    '#options' => array(
+      CLIENTSIDE_VALIDATION_JQUERY_SELECTOR => t('jQuery selector'),
+      CLIENTSIDE_VALIDATION_TOP_OF_FORM => t('Top of form'),
+      CLIENTSIDE_VALIDATION_BEFORE_LABEL => t('Before label'),
+      CLIENTSIDE_VALIDATION_AFTER_LABEL => t('After label'),
+      CLIENTSIDE_VALIDATION_BEFORE_INPUT => t('Before input'),
+      CLIENTSIDE_VALIDATION_AFTER_INPUT => t('After input'),
+      CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM => t('Top of first form'),
+      CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION => t('Custom function'),
+    ),
+    '#default_value' => variable_get('error_placement_default', CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM),
+  );
+
+  $form['error_placement']['jquery_selector'] = array(
+    '#type' => 'textfield',
+    '#title' => t('jQuery selector'),
+    '#description' => t('Enter a jQuery selector here if you selected "jQuery selector" in the previous step.
+                      The error messages will be shown in this div if it exists.
+                      If it doesn\'t, error messages will be shown above the first form on the page.'),
+    '#default_value' => variable_get('jquery_selector', ''),
+  );
+
+  $form['error_placement']['custom_error_function'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom function name'),
+    '#description' => t('If you selected "Custom function" in the previous step, provide the name of the custom javascript function.
+      This function will be given to !errorPlacement',
+      array(
+        '!errorPlacement' =>
+        l(t('the errorPlacement option of jQuery.validate()'), 'http://docs.jquery.com/Plugins/Validation/validate#options')
+      )),
+    '#default_value' => variable_get('custom_error_function', ''),
+  );
+
+  //Hidden fields and vertical tabs
+  $form['include_hidden'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Hidden fields and vertical tabs'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['include_hidden']['include_hidden'] = array(
+    '#type' => 'textarea',
+    '#default_value' => variable_get('include_hidden', ''),
+    '#title' => t("Don't ignore hidden fields on the following forms"),
+    '#description' => t('You can specify form IDs (one per line) of forms that should have hidden elements validated.'),
+  );
+
+  $form['include_hidden']['validate_tabs'] = array(
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('validate_tabs', 1),
+    '#title' => t('Validate all vertical tabs'),
+    '#description' => t('If you check this, all tabs will be validated on submit
+                      (including the hidden ones). Warning: if there are other hidden
+                      fields (e.g. conditional fields), those will be validated too.'),
+  );
+  if ($type != 'default') {
+    foreach ($form as $key => $fieldset) {
+      foreach($form[$key] as $fieldkey => $field) {
+        $form[$key][$fieldkey]['#states']['visible'][':input[name="' + $key + '[override_default]"]'] = array('checked' => TRUE);
+      }
+      $form[$key]['override_default'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Override default options'),
+        '#description' => t('Check this to override the default validate options'),
+        '#default_value' => isset($settings['validate_options']),
+      );
+    }
+  }
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
+
+  return $form;
+}
+
+function clientside_validation_settings_form_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  $type = $values['type'];
+  $form_id = $values['form_id'];
+  $cvsid = NULL;
+  if (isset($values['cvsid'])) {
+    $cvsid = $values['cvsid'];
+    unset($values['cvsid']);
+  }
+  unset($values['type']);
+  unset($values['id']);
+  if ($type == 'default') {
+    variable_set('clientside_validation_default_settings', $values);
+  }
+  else {
+    $values = array_filter($values, '_cv_filter_settings');
+    foreach($values as $key => $value) {
+      unset($values[$key]['override_default']);
+    }
+    $values = serialize($values);
+    db_merge('clientside_validation_settings')
+      ->key(array('form_id' => $form_id))
+      ->fields(array(
+        'type' => $type,
+        'status' => $status,
+      ));
+  }
+}
+
+function _cv_filter_settings($val) {
+  return isset($val['override_default']) && $val['overrride_default'];
 }

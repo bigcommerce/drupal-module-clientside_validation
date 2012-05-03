@@ -29,7 +29,7 @@ function clientside_validation_menu() {
     'position' => 'right',
     'weight' => -10,
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('clientside_validation_admin_settings'),
+    'page arguments' => array('clientside_validation_general_settings_form'),
     'access arguments' => array('access administration pages'),
     'file' => 'clientside_validation.admin.inc',
   );
@@ -37,7 +37,20 @@ function clientside_validation_menu() {
     'title' => 'Clientside Validation',
     'description' => 'Administer clientside validation.',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('clientside_validation_admin_settings'),
+    'page arguments' => array('clientside_validation_general_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'clientside_validation.admin.inc',
+  );
+  $items['admin/config/validation/clientside_validation/general'] = array(
+    'title' => 'General',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -1,
+  );
+  $items['admin/config/validation/clientside_validation/default'] = array(
+    'title' => 'Default',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('clientside_validation_settings_form'),
     'access arguments' => array('administer site configuration'),
     'file' => 'clientside_validation.admin.inc',
   );
@@ -1020,4 +1033,58 @@ function clientside_validation_theme($existing, $type, $theme, $path) {
  */
 function theme_clientside_error($variables) {
   return t($variables['message'], $variables['placeholders']);
+}
+
+function clientside_validation_settings_load($cvsid = NULL, $type = NULL, $form_id = NULL) {
+  if ($type == 'default') {
+    $default_settings = array(
+      'type' => 'default',
+      'validate_options' => array(
+        'disable_html5' => 1,
+        'validate_onsubmit' => 1,
+        'validate_onblur' => 1,
+        'validate_onblur_always' => 0,
+        'validate_onkeyup' => 1,
+        'show_messages' => 0,
+      ),
+      'error' => array(
+        'prefix' => '',
+        'suffix' => '',
+        'scrollto_errormessage' => 1,
+        'scroll_speed' => 1000,
+        'error_element' => 'label',
+      ),
+      'error_placement' => array(
+        'error_placement_default' => CLIENTSIDE_VALIDATION_TOP_OF_FORM,
+        'jquery_selector' => '',
+        'custom_error_function' => '',
+      ),
+      'include_hidden' => array(
+        'include_hidden' => '',
+        'validate_tabs' => '',
+      ),
+    );
+    return variable_get('clientside_validation_default_settings', $default_settings);
+  }
+  $query = db_select('clientside_validation_settings');
+  if (!empty($cvsid)) {
+    $query->condition('cvsid', $cvsid);
+  }
+  if (!empty($type)){
+    $query->condition('type', $type);
+  }
+  if (!empty($form_id)) {
+    $query->condition('form_id', $form_id);
+  }
+
+  $result = $query->execute();
+  // a single id was given -> one result, so only return one row
+  if (is_numeric($cvsid)) {
+    return $result->fetchAssoc();
+  }
+  // a single form_id was given -> one result, so only return one row
+  if (is_string($form_id)) {
+    return $result->fetchAssoc();
+  }
+  return $result->fetchAllAssoc('cvsid');
 }

@@ -92,16 +92,26 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
   $settings = clientside_validation_settings_load($cvsid, $type);
   if (isset($settings['settings']) && is_array($settings['settings'])) {
     $settings = $settings['settings'];
+    // merge default settings
+    $settings += clientside_validation_settings_load(NULL, 'default');
   }
 
-  if (!$settings) {
+  $form['new'] = array(
+    '#type' => 'value',
+    '#value' => FALSE,
+  );
+  if (!$settings || $settings['settings'] === FALSE) {
     $settings = clientside_validation_settings_load(NULL, 'default');
+    $form['new'] = array(
+      '#type' => 'value',
+      '#value' => TRUE,
+    );
   }
   
   $form['#tree'] = TRUE;
   $form['cvsid'] = array(
     '#type' => 'value',
-    '#value' => $cvsid, // is real id or a string for new types
+    '#value' => $cvsid,
   );
   $form['cvstype'] = array(
     '#type' => 'value',
@@ -344,21 +354,26 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
                       fields (e.g. conditional fields), those will be validated too.'),
   );
   if ($type != 'default') {
-    // @TODO: add user friendly names: array('validate_options' => 'Validate options', ... )
-    foreach (array('validate_options', 'error', 'error_placement', 'include_hidden') as $fieldset) {
-      $statefield = ':input[name="' . $fieldset . '_override_default"]';
-      $form[$fieldset]['#states'] = array(
+    $fieldsets = array(
+      'validate_options' => 'Validate options',
+      'error' => 'Error message settings',
+      'error_placement' => 'Error message placement',
+      'include_hidden' => 'Hidden fields and vertical tabs',
+    );
+    foreach ($fieldsets as $key => $fieldset) {
+      $statefield = ':input[name="' . $key . '_override_default"]';
+      $form[$key]['#states'] = array(
         'visible' => array(
           $statefield => array('checked' => TRUE),
         ),
       );
 
-      $form[$fieldset . '_override_default'] = array(
+      $form[$key . '_override_default'] = array(
         '#type' => 'checkbox',
-        '#title' => t('Override default options for ') . $fieldset,
+        '#title' => t('Override default options for %fieldset', array('%fieldset' => $fieldset)),
         '#description' => t('Check this to override the default validate options'),
-        '#default_value' => isset($settings[$fieldset . '_override_default']) && $settings[$fieldset . '_override_default'] ,
-        '#weight' => $form[$fieldset]['#weight'] - 1,
+        '#default_value' => isset($settings[$key . '_override_default']) && $settings[$key . '_override_default'] ,
+        '#weight' => $form[$key]['#weight'] - 1,
       );
     }
   }
@@ -374,8 +389,10 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
 
 function clientside_validation_settings_form_submit($form, &$form_state) {
   $values = $form_state['values'];
+
   $type = $values['cvstype'];
   $cvsid = $values['cvsid'];
+  $new = $values['new'];
 
   unset($values['submit']);
   unset($values['form_build_id']);
@@ -384,38 +401,25 @@ function clientside_validation_settings_form_submit($form, &$form_state) {
   unset($values['op']);
   unset($values['cvstype']);
   unset($values['cvsid']);
+  unset($values['new']);
   
   if ($type == 'default') {
     variable_set('clientside_validation_default_settings', $values);
   }
   else {
-    // serialize so we can store it
-    $values = serialize($values);
-    // Numeric means PK from table, so update
-    if (is_numeric($cvsid) && $cvsid > 0) {
-      db_update('clientside_validation_settings')
-        ->fields(array(
-          'settings' => $values,
-        ))
-        ->condition('cvsid', $cvsid)
-        ->execute();
+    // Remove not overloaded settings
+    foreach (array('validate_options', 'error', 'error_placement', 'include_hidden') as $set) {
+      if (isset($values[$set . '_override_default']) && $values[$set . '_override_default'] === 0) {
+        unset($values[$set]);
+      }
     }
-    // Else insert using cvsid as identifier
+    if (!$new) {
+      clientside_validation_settings_update($cvsid, $values);
+    }
     else {
-      db_insert('clientside_validation_settings')
-        ->fields(array(
-          'type' => $type,
-          'status' => 0,
-          'form_id' => $cvsid,
-          'settings' => $values,
-        ))
-        ->execute();
+      clientside_validation_settings_add($type, $cvsid, $values);
     }
   }
-}
-
-function _cv_filter_settings($val) {
-  return isset($val['override_default']) && $val['overrride_default'];
 }
 
 function _cv_setting_status($status) {
@@ -427,18 +431,87 @@ function _cv_setting_status($status) {
 
 function clientside_validation_settings_overview($form, $form_state, $type) {
   $form = array();
-  $content_types = node_type_get_types();
   $settings = clientside_validation_settings_load(NULL, $type);
+
+  switch ($type) {
+    case 'content-types':
+      $destination = array('destination' => 'admin/config/validation/clientside_validation/content-types');
+      $settinguri = 'admin/config/validation/clientside_validation/content-types/';
+      $headerlabel = t('Content type');
+      
+      $content_types = node_type_get_types();
+      foreach ($content_types as $content_type) {
+        $definedforms[] = array(
+          'id' => $content_type->type,
+          'label' => t($content_type->name),
+        );
+      }
+      break;
+      
+    case 'webforms':
+      $destination = array('destination' => 'admin/config/validation/clientside_validation/webforms');
+      $settinguri = 'admin/config/validation/clientside_validation/webforms/';
+      $headerlabel = t('Webforms');
+      
+      $webform_types = webform_variable_get('webform_node_types');
+      $nodes = array();
+      if ($webform_types) {
+        $nodes = db_select('node', 'n')
+          ->fields('n')
+          ->condition('n.type', $webform_types, 'IN')
+          ->execute()
+          ->fetchAllAssoc('nid');
+          
+        foreach ($nodes as $node) {
+          $definedforms[] = array(
+            'id' => $node->nid,
+            'label' => l($node->title, 'node/' . $node->nid),
+          );
+        }
+      }
+      break;
+      
+    case 'custom-forms':
+      $destination = array('destination' => 'admin/config/validation/clientside_validation/custom-forms');
+      $settinguri = 'admin/config/validation/clientside_validation/custom-forms/';
+      $headerlabel = t('Form Id');
+      
+      foreach ($settings as $customform) {
+        $definedforms[] = array(
+          'id' => $customform->form_id,
+          'label' => $customform->form_id,
+        );
+      }
+      $form['cvstype'] = array(
+        '#type' => 'value',
+        '#value' => $type,
+      );
+      $form['add_formid'] = array(
+        '#type' => 'fieldset',
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+        '#title' => t('Add a new custom form'),
+        '#description' => t('Enter the formid of the form you want to override.'),
+      );
+      $form['add_formid']['cvsid'] = array(
+        '#title' => t('Form Id'),
+        '#type' => 'textfield',
+      );
+      $form['add_formid']['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Add Form Id'),
+        '#weight' => 50,
+      );
+      break;
+  }
   
-  $destination = array('destination' => 'admin/config/validation/clientside_validation/content-types');
-  $settinguri = 'admin/config/validation/clientside_validation/content-types/';
   $rows = array();
-  if ($content_types) {
-    foreach ($content_types as $content_type) {
+  if ($definedforms) {
+    foreach ($definedforms as $definedform) {
       $row = array();
-      $row[] = check_plain($content_type->name);
-      if (isset($settings[$content_type->type]) && $settings[$content_type->type]->status) {
-        $cvsid = $settings[$content_type->type]->cvsid;
+      $row[] = $definedform['label'];
+      if (isset($settings[$definedform['id']]) && $settings[$definedform['id']]->status) {
+        $cvsid = $settings[$definedform['id']]->cvsid;
         $row[] = _cv_setting_status(TRUE);
         $actions = array(
           'edit' => array(
@@ -460,8 +533,8 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
       }
       else {
         $row[] = _cv_setting_status(FALSE);
-        if (isset($settings[$content_type->type])) {
-          $cvsid = $settings[$content_type->type]->cvsid;
+        if (isset($settings[$definedform['id']])) {
+          $cvsid = $settings[$definedform['id']]->cvsid;
           $actions = array(
             'edit' => array(
               'title' => t('edit'),
@@ -484,7 +557,7 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
           $actions = array(
             'edit' => array(
               'title' => t('create'),
-              'href' => $settinguri . check_plain($content_type->type) . '/edit',
+              'href' => $settinguri . check_plain($definedform['id']) . '/edit',
               'query' => $destination,
             ),
           );
@@ -502,7 +575,7 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
   }
 
   $header = array(
-    t('Content type'),
+    $headerlabel,
     t('Status'),
     t('Actions'),
   );
@@ -516,6 +589,14 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
   return $form;
 }
 
+function clientside_validation_settings_overview_submit($form, &$form_state) {
+  $values = $form_state['values'];
+
+  $type = $values['cvstype'];
+  $cvsid = $values['cvsid'];
+  clientside_validation_settings_add($type, $cvsid);
+}
+
 function clientside_validation_settings_confirmation_form($form, &$form_state, $cvsid, $type, $action) {
   $settings = clientside_validation_settings_load();
   $form['#cvaction'] = $action;
@@ -525,17 +606,23 @@ function clientside_validation_settings_confirmation_form($form, &$form_state, $
   switch ($action) {
     case 'delete':
       $question = 'Are you sure you want to delete these settings';
+      $info = 'This action cannot be undone.';
+      break;
     case 'enable':
       $question = 'Are you sure you want to enable these settings';
+      $info = 'You can always disable it later.';
+      break;
     case 'disable':
       $question = 'Are you sure you want to disable these settings';
+      $info = 'You can always enable it later.';
+      break;
   }
   
   return confirm_form(
     $form,
-    $question,
+    t($question),
     'admin/config/validation/clientside_validation', // destination is used
-    t('This action cannot be undone.'),
+    t($info),
     t(ucfirst($action)),
     t('Cancel')
   );

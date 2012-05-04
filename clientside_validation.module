@@ -64,6 +64,24 @@ function clientside_validation_menu() {
     'file' => 'clientside_validation.admin.inc',
     'weight' => 10,
   );
+  $items['admin/config/validation/clientside_validation/webforms'] = array(
+    'title' => 'Webforms',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('clientside_validation_settings_overview', 'webforms'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'clientside_validation.admin.inc',
+    'weight' => 11,
+  );
+  $items['admin/config/validation/clientside_validation/custom-forms'] = array(
+    'title' => 'Custom forms',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('clientside_validation_settings_overview', 'custom-forms'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'clientside_validation.admin.inc',
+    'weight' => 12,
+  );
   $items['admin/config/validation/clientside_validation/%/%/edit'] = array(
     'title' => 'Edit settings',
     'type' => MENU_CALLBACK,
@@ -1097,6 +1115,26 @@ function clientside_validation_settings_disable($cvsid) {
   db_update('clientside_validation_settings')
     ->fields(array(
       'status' => 0, 
+    ))
+    ->condition('cvsid', $cvsid)
+    ->execute();
+}
+
+function clientside_validation_settings_add($type, $cvsid, $settings = array()) {
+  db_insert('clientside_validation_settings')
+    ->fields(array(
+      'type' => $type,
+      'status' => 0,
+      'form_id' => $cvsid,
+      'settings' => serialize($settings),
+    ))
+    ->execute();
+}
+
+function clientside_validation_settings_update($cvsid, $settings) {
+  db_update('clientside_validation_settings')
+    ->fields(array(
+      'settings' => serialize($settings),
     ))
     ->condition('cvsid', $cvsid)
     ->execute();

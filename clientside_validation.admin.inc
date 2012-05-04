@@ -77,7 +77,7 @@ function clientside_validation_general_settings_form($form_id, $form_state) {
     '#type' => 'textarea',
     '#default_value' => variable_get('clientside_validation_validate_specific', ''),
     '#title' => t("Enter form IDs below"),
-    '#description' => t('You can specify form IDs (one per line) of forms that should or should not be validated.'),
+    '#description' => t('You can specify form IDs (one per line, use _) of forms that should or should not be validated.'),
     '#states' => array(
       'invisible' => array(
        'input[name="clientside_validation_validate_all"]' => array('value' => (string)CLIENTSIDE_VALIDATION_VALIDATE_ALL),
@@ -92,8 +92,6 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
   $settings = clientside_validation_settings_load($cvsid, $type);
   if (isset($settings['settings']) && is_array($settings['settings'])) {
     $settings = $settings['settings'];
-    // merge default settings
-    $settings += clientside_validation_settings_load(NULL, 'default');
   }
 
   $form['new'] = array(
@@ -101,7 +99,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     '#value' => FALSE,
   );
   if (!$settings || $settings['settings'] === FALSE) {
-    $settings = clientside_validation_settings_load(NULL, 'default');
+    $settings = clientside_validation_settings_load_defaults();
     $form['new'] = array(
       '#type' => 'value',
       '#value' => TRUE,
@@ -338,13 +336,14 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     '#weight' => 40,
   );
 
-  $form['include_hidden']['include_hidden'] = array(
-    '#type' => 'textarea',
-    '#default_value' => $settings['include_hidden']['include_hidden'],
-    '#title' => t("Don't ignore hidden fields on the following forms"),
-    '#description' => t('You can specify form IDs (one per line) of forms that should have hidden elements validated.'),
+  $form['include_hidden']['include_hidden_fields'] = array(
+    '#type' => 'checkbox',
+    '#default_value' => $settings['include_hidden']['include_hidden_fields'],
+    '#title' => t('Validate hidden fields'),
+    '#description' => t('Validate hidden fields as well.'),
+    '#weight' => 2,
   );
-
+  
   $form['include_hidden']['validate_tabs'] = array(
     '#type' => 'checkbox',
     '#default_value' => $settings['include_hidden']['validate_tabs'],
@@ -352,8 +351,18 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     '#description' => t('If you check this, all tabs will be validated on submit
                       (including the hidden ones). Warning: if there are other hidden
                       fields (e.g. conditional fields), those will be validated too.'),
+    '#weight' => 3,
   );
-  if ($type != 'default') {
+  if ($type == 'default') {
+    $form['include_hidden']['include_hidden'] = array(
+      '#type' => 'textarea',
+      '#default_value' => $settings['include_hidden']['include_hidden'],
+      '#title' => t("Don't ignore hidden fields on the following forms"),
+      '#description' => t('You can specify form IDs (one per line) of forms that should have hidden elements validated.'),
+      '#weight' => 1,
+    );
+  }
+  else {
     $fieldsets = array(
       'validate_options' => 'Validate options',
       'error' => 'Error message settings',

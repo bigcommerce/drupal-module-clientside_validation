@@ -186,13 +186,23 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
     && in_array($form_id, $validate_specific)) {
     return;
   }
+  
   if (strpos($form_id, 'webform_client_form') !== FALSE) {
+    $definedsettings = clientside_validation_settings_load(NULL, 'webforms', $form['#node']->nid);
+    clientside_validation_settings_current_form($definedsettings);
     if (isset($form['actions']['previous'])) {
       $form['actions']['previous']['#attributes']['class'][] = 'cancel';
     }
     $form['#after_build'][] = 'clientside_validation_webform_after_build';
   }
   else {
+    if (isset($form['#node_edit_form']) && $form['#node_edit_form']) {
+      $definedsettings = clientside_validation_settings_load(NULL, 'content-types', $form['#node']->type);
+    }
+    else {
+      $definedsettings = clientside_validation_settings_load(NULL, 'content-types', $form_id);
+    }
+    clientside_validation_settings_current_form($definedsettings);
     if (isset($form['actions']['delete'])) {
       $form['actions']['delete']['#attributes']['class'][] = 'cancel';
     }
@@ -210,7 +220,6 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
     $settings = array();
     _clientside_validation_add_general_settings($settings, $form['#id']);
     _clientside_validation_add_special_rules($js_rules, $settings, $form);
-
 
     if (variable_get('clientside_validation_use_minified', 0) == 0) {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js');
@@ -290,6 +299,7 @@ function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form)
 function clientside_validation_form_after_build(&$form, &$form_state) {
   static $js_rules = array();
   static $form_ids = array();
+
   if (isset($form_ids[$form['#id']])) {
     return $form;
   }
@@ -315,70 +325,53 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
 }
 
 function _clientside_validation_add_general_settings(&$settings, $form_id) {
+  $definedsettings = clientside_validation_settings_current_form();
+
   // Add a setting for this form if the hidden elements should still be validated
-  $include_hidden_setting = variable_get('clientside_validation_include_hidden', '');
+  $include_hidden_setting = $definedsettings['include_hidden']['include_hidden'];
   $include_hidden = preg_split('/(\r\n?|\n)/', $include_hidden_setting, -1, PREG_SPLIT_NO_EMPTY);
   if (in_array(str_replace('-', '_', $form_id), $include_hidden)) {
     $setting['clientsideValidation']['forms'][$form_id]['includeHidden'] = TRUE;
   }
+  elseif ($definedsettings['include_hidden']['include_hidden']) {
+    $setting['clientsideValidation']['forms'][$form_id]['includeHidden'] = TRUE;
+  }
 
-  $jquery = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_jquery', ''), -1, PREG_SPLIT_NO_EMPTY);
-  $top_of_form = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_top_of_form', ''), -1, PREG_SPLIT_NO_EMPTY);
-  $before_label = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_before_label', ''), -1, PREG_SPLIT_NO_EMPTY);
-  $after_label = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_after_label', ''), -1, PREG_SPLIT_NO_EMPTY);
-  $before_input = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_before_input', ''), -1, PREG_SPLIT_NO_EMPTY);
-  $custom_function = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_custom_function', ''), -1, PREG_SPLIT_NO_EMPTY);
-  $after_input = preg_split('/(\r\n?|\n)/', variable_get('clientside_validation_error_placement_after_input', ''), -1, PREG_SPLIT_NO_EMPTY);
-  $jquery_selector = variable_get('clientside_validation_jquery_selector', '');
+  $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = $definedsettings['error_placement']['error_placement_default'];
+  switch ($definedsettings['error_placement']['error_placement_default']) {
+    case CLIENTSIDE_VALIDATION_JQUERY_SELECTOR:
+      if (!empty($definedsettings['error_placement']['jquery_selector'])) {
+        $settings['clientsideValidation']['forms'][$form_id]['errorJquerySelector'] = $definedsettings['error_placement']['jquery_selector'];
+      }
+      else {
+        $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM;
+      }
+      break;
+    case CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION:
+      if (!empty($definedsettings['error_placement']['custom_error_function'])) {
+        $settings['clientsideValidation']['forms'][$form_id]['customErrorFunction'] = $definedsettings['error_placement']['custom_error_function'];
+      }
+      else {
+        $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM;
+      }
+      break;
+  }
 
-  if (in_array(str_replace('-', '_', $form_id), $jquery) && !empty($jquery_selector)) {
-    $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_JQUERY_SELECTOR;
-    $settings['clientsideValidation']['forms'][$form_id]['errorJquerySelector'] = $jquery_selector;
-  }
-  elseif (in_array(str_replace('-', '_', $form_id), $top_of_form)) {
-    $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_TOP_OF_FORM;
-  }
-  elseif (in_array(str_replace('-', '_', $form_id), $before_label)) {
-    $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_BEFORE_LABEL;
-  }
-  elseif (in_array(str_replace('-', '_', $form_id), $after_label)) {
-    $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_AFTER_LABEL;
-  }
-  elseif (in_array(str_replace('-', '_', $form_id), $before_input)) {
-    $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_BEFORE_INPUT;
-  }
-  elseif (in_array(str_replace('-', '_', $form_id), $after_input)) {
-    $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_AFTER_INPUT;
-  }
-  elseif (in_array(str_replace('-', '_', $form_id), $custom_function)) {
-    $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION;
-    $settings['clientsideValidation']['forms'][$form_id]['customErrorFunction'] = variable_get('clientside_validation_custom_error_function', '');
-  }
-  else {
-    if (variable_get('clientside_validation_error_placement_default', CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM) == CLIENTSIDE_VALIDATION_JQUERY_SELECTOR
-        && empty($jquery_selector)) {
-      $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM;
-    }
-    else {
-      $settings['clientsideValidation']['forms'][$form_id]['errorPlacement'] = variable_get('clientside_validation_error_placement_default', CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM);
-      $settings['clientsideValidation']['forms'][$form_id]['errorJquerySelector'] = $jquery_selector;
-      $settings['clientsideValidation']['forms'][$form_id]['customErrorFunction'] = variable_get('clientside_validation_custom_error_function', '');
-    }
-  }
   $form_settings_added[] = str_replace('-', '_', $form_id);
-  $settings['clientsideValidation']['general'] = array(
-    "errorClass" => "error",
-    "wrapper" => "li",
-    "validateTabs" =>  variable_get('clientside_validation_validate_tabs', 1),
-    "scrollTo" => variable_get('clientside_validation_scrollto_errormessage', 1),
-    "scrollSpeed" => (int)variable_get('clientside_validation_scroll_speed', 1000),
-    "disableHtml5Validation" => variable_get('clientside_validation_disable_html5', 1),
-    "validateOnBlur" => variable_get('clientside_validation_validate_onblur', 1),
-    "validateOnBlurAlways" => (int)(variable_get('clientside_validation_validate_onblur_always', 0) && variable_get('clientside_validation_validate_onblur', 1)),
-    "validateOnKeyUp" => variable_get('clientside_validation_validate_onkeyup', 1),
-    "validateOnSubmit" => variable_get('clientside_validation_validate_onsubmit', 1),
-    "errorElement" => variable_get('clientside_validation_error_element', 'label'),
-    "showMessages" => variable_get('clientside_validation_show_messages', 0),
+  
+  $settings['clientsideValidation']['forms'][$form_id]['general'] = array(
+    "errorClass" => "error", // @TODO: option?
+    "wrapper" => "li", // @TODO: option?
+    "validateTabs" => $definedsettings['include_hidden']['validate_tabs'],
+    "scrollTo" => $definedsettings['error']['scrollto_errormessage'],
+    "scrollSpeed" => $definedsettings['error']['scroll_speed'],
+    "disableHtml5Validation" => $definedsettings['validate_options']['disable_html5'],
+    "validateOnBlur" => $definedsettings['validate_options']['validate_onblur'],
+    "validateOnBlurAlways" => $definedsettings['validate_options']['validate_onblur_always'],
+    "validateOnKeyUp" => $definedsettings['validate_options']['validate_onkeyup'],
+    "validateOnSubmit" => $definedsettings['validate_options']['validate_onsubmit'],
+    "showMessages" => $definedsettings['validate_options']['show_messages'],
+    "errorElement" => $definedsettings['error']['error_element'],
   );
 }
 
@@ -386,7 +379,7 @@ function _clientside_validation_add_general_settings(&$settings, $form_id) {
  * Set validation rule for required fields.
  */
 function _clientside_validation_set_required($name, $title, $required, &$js_rules, $message = '') {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   if ($required) {
     $js_rules[$name]['required'] = TRUE;
     if (empty($message)) {
@@ -411,8 +404,16 @@ function _clientside_validation_set_required($name, $title, $required, &$js_rule
 /**
  * Set validation rule for number fields.
  */
+function _clientside_validation_set_title($title) {
+  $settings = clientside_validation_settings_current_form();
+  return $settings['error']['prefix'] . $title . $settings['error']['suffix'];
+}
+
+/**
+ * Set validation rule for number fields.
+ */
 function _clientside_validation_set_number($name, $title, &$js_rules, $message = '') {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   $js_rules[$name]['digits_negative'] = TRUE;
   if (empty($message)) {
     $variables = array(
@@ -436,7 +437,7 @@ function _clientside_validation_set_number($name, $title, &$js_rules, $message =
  * Set validation rule for decimal fields.
  */
 function _clientside_validation_set_number_decimal($name, $title, $decimalpoint, &$js_rules, $message = '') {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   if ($decimalpoint == '.') {
     $js_rules[$name]['number'] = TRUE;
     $variables = array(
@@ -463,7 +464,7 @@ function _clientside_validation_set_number_decimal($name, $title, $decimalpoint,
  * Set validation rule for fields with a minimum and/or a maximum value.
  */
 function _clientside_validation_set_minmax($name, $title, $min, $max, &$js_rules, $message = '') {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   if (isset($min) && $min !== '' && isset($max) && $max !== '') {
     $js_rules[$name]['range'] = array($min, $max);
     if (empty($message)) {
@@ -524,7 +525,7 @@ function _clientside_validation_set_minmax($name, $title, $min, $max, &$js_rules
 }
 
 function _clientside_validation_set_minmax_date($name, $title, $start_date, $end_date, &$js_rules, $message = '') {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   if (isset($start_date) && $start_date !== '' && isset($end_date) && $end_date !== '') {
     $js_rules[$name]['daterange'] = array($start_date, $end_date);
     if (empty($message)) {
@@ -588,7 +589,7 @@ function _clientside_validation_set_minmax_date($name, $title, $start_date, $end
  * Set validation rule for fields with a minimum and/or maximum length.
  */
 function _clientside_validation_set_minmaxlength($name, $title, $min, $max, &$js_rules, $message = '') {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   if ($max == 1) {
     $max = '';
   }
@@ -655,7 +656,7 @@ function _clientside_validation_set_minmaxlength($name, $title, $min, $max, &$js
  * Set validation rule for fields with a minimum and/or maximum amount of words.
  */
 function _clientside_validation_set_minmax_words($name, $title, $min, $max, &$js_rules, $message = '') {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   if (isset($min) && $min !== '' && isset($max) && $max !== '') {
     $js_rules[$name]['rangewords'] = array($min, $max);
     if (empty($message)) {
@@ -719,7 +720,7 @@ function _clientside_validation_set_minmax_words($name, $title, $min, $max, &$js
  * Set validation rule for plain text fields
  */
 function _clientside_validation_set_plain_text($name, $title, $allowed_tags, &$js_rules, $message = '') {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   $js_rules[$name]['plaintext'] = empty($allowed_tags) ? '' : $allowed_tags;
   if (empty($message)) {
       $variables = array(
@@ -743,7 +744,7 @@ function _clientside_validation_set_plain_text($name, $title, $allowed_tags, &$j
  * Set validation rule for required fields that must equal a value from an other field.
  */
 function _clientside_validation_set_equal($name, $title, $value, &$js_rules) {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   $js_rules[$name]['equalTo'] = ':input[name=\'submitted[' . $value['form_key'] . ']\']';
   $variables = array(
     'message' => '!title field has to be equal to !firstone.',
@@ -758,13 +759,13 @@ function _clientside_validation_set_equal($name, $title, $value, &$js_rules) {
  * Set validation rule for fields that can not be equal to a value from an other field.
  */
 function _clientside_validation_set_not_equal($name, $title, $element, &$js_rules, $message = '', $webform = FALSE) {
+  $title = _clientside_validation_set_title($title);
   if ($webform) {
     $js_rules[$name]['notEqualTo'] = ':input[name=\'submitted[' . $element['form_key'] . ']\']';
   }
   else {
     $js_rules[$name]['notEqualTo'] = ':input[name=\'' . $element['form_key'] . '\']';
   }
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   if (empty($message)) {
     $variables = array(
       'message' => '!title field has to different from !firstone.',
@@ -789,7 +790,7 @@ function _clientside_validation_set_not_equal($name, $title, $element, &$js_rule
  */
 function _clientside_validation_set_specific_value($name, $title, $value, &$js_rules, $message = '') {
   $js_rules[$name]['oneOf'] = $value;
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   if (empty($message)) {
     $variables = array(
       'message' => '!title field has to be one of the following values: !values.',
@@ -814,7 +815,7 @@ function _clientside_validation_set_specific_value($name, $title, $value, &$js_r
  */
 function _clientside_validation_set_specific_values($name, $title, $values, &$js_rules, $message = '') {
   $js_rules[$name]['specificVals'] = $values;
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   if (empty($message)) {
     $variables = array(
       'message' => '!title field must consist of following elements only: !elements.',
@@ -839,7 +840,7 @@ function _clientside_validation_set_specific_values($name, $title, $values, &$js
  */
 function _clientside_validation_set_blacklist($name, $title, $values, &$js_rules, $message='') {
   $js_rules[$name]['blacklist'] = $values;
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   if (empty($message)) {
     $variables = array(
       'message' => '!title field can not consist of following elements: !elements.',
@@ -863,7 +864,7 @@ function _clientside_validation_set_blacklist($name, $title, $values, &$js_rules
  * Set validation rule for ean number fields.
  */
 function _clientside_validation_set_ean($name, $title, &$js_rules, $message = '') {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   if (empty($message)) {
     $variables = array(
       'message' => '!title field is not a valid EAN number.',
@@ -888,7 +889,7 @@ function _clientside_validation_set_ean($name, $title, &$js_rules, $message = ''
  * Set validation rule for fields with regex validation from webform_validation
  */
 function _clientside_validation_set_regex($name, $title, &$js_rules, $expression, $message = '', $modifiers = "", $type = 'regex') {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   if (empty($message)) {
     $variables = array(
       'message' => '!title field does not match the required pattern.',
@@ -916,7 +917,7 @@ function _clientside_validation_set_regex($name, $title, &$js_rules, $expression
  * Set validation rule for fields with regex validation from webform_validation
  */
 function _clientside_validation_set_regex_pcre($name, $title, &$js_rules, $expression, $message = '', $type = 'regex pcre') {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   if (empty($message)) {
     $variables = array(
       'message' => '!title field does not match the required pattern.',
@@ -956,7 +957,7 @@ function _clientside_validation_set_extensions($name, $extensions, &$js_rules) {
  * Set validation rule for checkboxes.
  */
 function _clientside_validation_set_checkboxgroup_minmax($name, $title, $id, &$js_rules, $message = '', $min = 1, $max = 99) {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   $js_rules[$name]['checkboxgroupminmax'] = array($min, $max, $id);
   if ($message == '') {
     if ($min == 1 && $max == 99) {
@@ -992,7 +993,7 @@ function _clientside_validation_set_checkboxgroup_minmax($name, $title, $id, &$j
  * Set validation rule for email fields.
  */
 function _clientside_validation_set_email($name, $title, &$js_rules, $message = '') {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   $js_rules[$name]['email'] = TRUE;
   $variables = array(
     'message' => empty($message) ? 'The value in !title is not a valid email address.' : $message,
@@ -1007,7 +1008,7 @@ function _clientside_validation_set_email($name, $title, &$js_rules, $message = 
  * Set validation rule for url fields.
  */
 function _clientside_validation_set_url($name, $title, &$js_rules, $message = '') {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   $js_rules[$name]['url'] = TRUE;
   $variables = array(
     'message' => empty($message) ? 'The value in !title is not a valid url.' : $message,
@@ -1041,7 +1042,7 @@ function _clientside_validation_set_require_oneof($names, $titles, $message = ""
 }
 
 function _clientside_validation_set_phone($name, $title, $country_code, &$js_rules, $message = "") {
-  $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
+  $title = _clientside_validation_set_title($title);
   $js_rules[$name]['phone'] = $country_code;
   $variables = array(
     'message' => empty($message) ? 'The value in !title is not a valid phone number.' : $message,
@@ -1140,6 +1141,25 @@ function clientside_validation_settings_update($cvsid, $settings) {
     ->execute();
 }
 
+function clientside_validation_settings_current_form($settings = NULL) {
+  $current = &drupal_static(__FUNCTION__, array());
+  if (isset($settings)) {
+    $current = $settings;
+    if (isset($current['settings']) && is_array($current['settings'])) {
+      $current = $current['settings'];
+    }
+  }
+  return $current;
+}
+
+function clientside_validation_settings_load_defaults() {
+  static $defaults;
+  if (!$defaults) {
+    $defaults = clientside_validation_settings_load(NULL, 'default');
+  }
+  return $defaults;
+}
+
 function clientside_validation_settings_load($cvsid = NULL, $type = NULL, $form_id = NULL) {
   if ($type == 'default') {
     $default_settings = array(
@@ -1166,6 +1186,7 @@ function clientside_validation_settings_load($cvsid = NULL, $type = NULL, $form_
       ),
       'include_hidden' => array(
         'include_hidden' => '',
+        'include_hidden_fields' => FALSE,
         'validate_tabs' => '',
       ),
     );
@@ -1184,17 +1205,25 @@ function clientside_validation_settings_load($cvsid = NULL, $type = NULL, $form_
   }
 
   $result = $query->execute();
+  
   // a single id was given -> one result, so only return one row
-  if (is_numeric($cvsid)) {
+  if (is_numeric($cvsid) || isset($form_id)) {
     $res = $result->fetchAssoc();
-    $res['settings'] = unserialize($res['settings']);
+    if ($res) {
+      $res['settings'] = unserialize($res['settings']);
+      $res['settings'] = drupal_array_merge_deep(clientside_validation_settings_load_defaults(), $res['settings']);
+    }
+    else {
+      $res['settings'] = clientside_validation_settings_load_defaults();
+    }
     return $res;
   }
-  // a single form_id was given -> one result, so only return one row
-  if (is_string($form_id)) {
-    $res = $result->fetchAssoc();
-    $res['settings'] = unserialize($res['settings']);
-    return $res;
+  $res = $result->fetchAllAssoc('form_id');
+  if ($res) {
+    foreach ($res as &$setting) {
+      $setting->settings = unserialize($setting->settings);
+      $setting->settings = drupal_array_merge_deep(clientside_validation_settings_load_defaults(), $setting->settings);
+    }
   }
-  return $result->fetchAllAssoc('form_id');
+  return $res;
 }

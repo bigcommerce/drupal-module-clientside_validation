@@ -90,4 +90,13 @@ function clientside_validation_update_7101() {
   if(!db_table_exists('clientside_validation_settings')) {
     db_create_table('clientside_validation_settings', drupal_get_schema('clientside_validation_settings', TRUE));
   }
+  // @TODO: Convert old settings to new
+  // 1. fill in clientside_validation_default_settings
+  // 2. check clientside_validation_error_placement_after_input
+  // 3. check clientside_validation_error_placement_after_label
+  // 4. check clientside_validation_error_placement_before_input
+  // 5. check clientside_validation_error_placement_before_label
+  // 6. check clientside_validation_error_placement_custom_function
+  // 7. check clientside_validation_error_placement_jquery
+  // 8. check clientside_validation_error_placement_top_of_form
 }

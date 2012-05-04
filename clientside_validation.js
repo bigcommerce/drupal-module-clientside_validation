@@ -153,7 +153,7 @@
         var validate_options = {
           errorClass: 'error',
           groups: self.groups[f],
-          errorElement: self.data.general.errorElement,
+          errorElement: self.forms[f].general.errorElement,
           unhighlight: function(element, errorClass, validClass) {
             // Default behavior
             $(element).removeClass(errorClass).addClass(validClass);
@@ -198,7 +198,7 @@
                   tab.click();
                 }
               }
-              if (self.data.general.scrollTo) {
+              if (self.forms[f].general.scrollTo) {
                 if ($("#" + errorel).length) {
                   $("#" + errorel).show();
                   var x = $("#" + errorel).offset().top - $("#" + errorel).height() - 100; // provides buffer in viewport
@@ -206,7 +206,7 @@
                 else {
                   var x = $(validator.errorList[0].element).offset().top - $(validator.errorList[0].element).height() - 100;
                 }
-                $('html, body').animate({scrollTop: x}, self.data.general.scrollSpeed);
+                $('html, body').animate({scrollTop: x}, self.forms[f].general.scrollSpeed);
                 $('.wysiwyg-toggle-wrapper a').each(function() {
                   $(this).click();
                   $(this).click();
@@ -216,16 +216,8 @@
           }
         };
 
-        //CLIENTSIDE_VALIDATION_JQUERY_SELECTOR: 0
-        //CLIENTSIDE_VALIDATION_TOP_OF_FORM: 1
-        //CLIENTSIDE_VALIDATION_BEFORE_LABEL: 2
-        //CLIENTSIDE_VALIDATION_AFTER_LABEL: 3
-        //CLIENTSIDE_VALIDATION_BEFORE_INPUT: 4
-        //CLIENTSIDE_VALIDATION_AFTER_INPUT: 5
-        //CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM: 6
-        //CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION: 7
         switch (parseInt(self.forms[f].errorPlacement)) {
-          case 0:
+          case 0: // CLIENTSIDE_VALIDATION_JQUERY_SELECTOR
             if ($(self.forms[f].errorJquerySelector).length) {
               if (!$(self.forms[f].errorJquerySelector + ' #' + errorel).length) {
                 $('<div id="' + errorel + '" class="messages error clientside-error"><ul></ul></div>').prependTo(self.forms[f].errorJquerySelector).hide();
@@ -238,7 +230,7 @@
             validate_options.errorLabelContainer = '#' + errorel + ' ul';
             validate_options.wrapper = 'li';
             break;
-          case 1:
+          case 1: // CLIENTSIDE_VALIDATION_TOP_OF_FORM
             if (!$('#' + errorel).length) {
               $('<div id="' + errorel + '" class="messages error clientside-error"><ul></ul></div>').insertBefore('#' + f).hide();
             }
@@ -246,7 +238,7 @@
             validate_options.errorLabelContainer = '#' + errorel + ' ul';
             validate_options.wrapper = 'li';
             break;
-          case 2:
+          case 2: // CLIENTSIDE_VALIDATION_BEFORE_LABEL
             validate_options.errorPlacement = function(error, element) {
               if (element.is(":radio")) {
                 error.insertBefore(element.parents('.form-radios').prev('label'));
@@ -259,7 +251,7 @@
               }
             }
             break;
-          case 3:
+          case 3: // CLIENTSIDE_VALIDATION_AFTER_LABEL
             validate_options.errorPlacement = function(error, element) {
               if (element.is(":radio")) {
                 error.insertAfter(element.parents('.form-radios').prev('label'));
@@ -272,12 +264,12 @@
               }
             }
             break;
-          case 4:
+          case 4: // CLIENTSIDE_VALIDATION_BEFORE_INPUT
             validate_options.errorPlacement = function(error, element) {
               error.insertBefore(element);
             }
             break;
-          case 5:
+          case 5: // CLIENTSIDE_VALIDATION_AFTER_INPUT
             validate_options.errorPlacement = function(error, element) {
               if (element.is(":radio")) {
                 error.insertAfter(element.parents('.form-radios'));
@@ -290,7 +282,7 @@
               }
             }
             break;
-          case 6:
+          case 6: // CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM
             if ($('div.messages.error').length) {
               if ($('div.messages.error').attr('id').length) {
                 errorel = $('div.messages.error').attr('id');
@@ -306,7 +298,7 @@
             validate_options.errorLabelContainer = '#' + errorel + ' ul';
             validate_options.wrapper = 'li';
             break;
-          case 7:
+          case 7: // CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION
             validate_options.errorPlacement = function (error, element) {
               var func = self.forms[f].customErrorFunction;
               Drupal.myClientsideValidation[func](error, element);
@@ -320,31 +312,31 @@
         else {
           validate_options.ignore = '';
         }
-        if(self.data.general.validateTabs) {
+        if(self.forms[f].general.validateTabs) {
           if($('.vertical-tabs-pane input').length) {
             validate_options.ignore += ' :not(.vertical-tabs-pane:input)';
           }
         }
         //Since we can only give boolean false to onsubmit, onfocusout and onkeyup, we need
         //a lot of if's (boolean true can not be passed to these properties).
-        if (!Boolean(parseInt(self.data.general.validateOnSubmit))) {
+        if (!Boolean(parseInt(self.forms[f].general.validateOnSubmit))) {
           validate_options.onsubmit = false;
         }
-        if (!Boolean(parseInt(self.data.general.validateOnBlur))) {
+        if (!Boolean(parseInt(self.forms[f].general.validateOnBlur))) {
           validate_options.onfocusout = false;
         }
-        if (Boolean(parseInt(self.data.general.validateOnBlurAlways))) {
+        if (Boolean(parseInt(self.forms[f].general.validateOnBlurAlways))) {
           validate_options.onfocusout = function(element) {
             if ( !this.checkable(element) ) {
               this.element(element);
             }
           }
         }
-        if (!Boolean(parseInt(self.data.general.validateOnKeyUp))) {
+        if (!Boolean(parseInt(self.forms[f].general.validateOnKeyUp))) {
           validate_options.onkeyup = false;
         }
-        if (parseInt(self.data.general.showMessages) > 0) {
-          var showMessages = parseInt(self.data.general.showMessages);
+        if (parseInt(self.forms[f].general.showMessages) > 0) {
+          var showMessages = parseInt(self.forms[f].general.showMessages);
           // Show only last message
           if (showMessages === 2) {
             validate_options.showErrors = function() {
@@ -422,7 +414,7 @@
         self.validators[f] = $('#' + f).validate(validate_options);
 
         //Disable HTML5 validation
-        if (!Boolean(parseInt(self.data.general.disableHtml5Validation))) {
+        if (!Boolean(parseInt(self.forms[f].general.disableHtml5Validation))) {
           $('#' + f).removeAttr('novalidate');
         }
         // Bind all rules

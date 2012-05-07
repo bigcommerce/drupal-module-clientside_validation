@@ -188,7 +188,7 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
   }
 
   if (strpos($form_id, 'webform_client_form') !== FALSE) {
-    $definedsettings = clientside_validation_settings_load(NULL, 'webforms', $form['#node']->nid);
+    $definedsettings = clientside_validation_settings_load('webforms', $form['#node']->nid);
     clientside_validation_settings_current_form($definedsettings);
     if (isset($form['actions']['previous'])) {
       $form['actions']['previous']['#attributes']['class'][] = 'cancel';
@@ -197,10 +197,10 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
   }
   else {
     if (isset($form['#node_edit_form']) && $form['#node_edit_form']) {
-      $definedsettings = clientside_validation_settings_load(NULL, 'content-types', $form['#node']->type);
+      $definedsettings = clientside_validation_settings_load('content-types', $form['#node']->type);
     }
     else {
-      $definedsettings = clientside_validation_settings_load(NULL, 'content-types', $form_id);
+      $definedsettings = clientside_validation_settings_load('content-types', $form_id);
     }
     clientside_validation_settings_current_form($definedsettings);
     if (isset($form['actions']['delete'])) {
@@ -1097,35 +1097,38 @@ function theme_clientside_error($variables) {
   return t($variables['message'], $variables['placeholders']);
 }
 
-function clientside_validation_settings_delete($cvsid) {
+function clientside_validation_settings_delete($cvs_type, $cvs_formid) {
   db_delete('clientside_validation_settings')
-    ->condition('cvsid', $cvsid)
+    ->condition('type', $cvs_type)
+    ->condition('form_id', $cvs_formid)
     ->execute();
 }
 
-function clientside_validation_settings_enable($cvsid) {
+function clientside_validation_settings_enable($cvs_type, $cvs_formid) {
   db_update('clientside_validation_settings')
     ->fields(array(
-      'status' => 1,
+      'status' => 7,
     ))
-    ->condition('cvsid', $cvsid)
+    ->condition('type', $cvs_type)
+    ->condition('form_id', $cvs_formid)
     ->execute();
 }
 
-function clientside_validation_settings_disable($cvsid) {
+function clientside_validation_settings_disable($cvs_type, $cvs_formid) {
   db_update('clientside_validation_settings')
     ->fields(array(
       'status' => 0,
     ))
-    ->condition('cvsid', $cvsid)
+    ->condition('type', $cvs_type)
+    ->condition('form_id', $cvs_formid)
     ->execute();
 }
 
-function clientside_validation_settings_add($type, $cvsid, $settings = array(), $enable = FALSE) {
-  return db_merge('clientside_validation_settings')
+function clientside_validation_settings_add($cvs_type, $cvs_formid, $settings = array(), $enable = FALSE) {
+  db_merge('clientside_validation_settings')
     ->key(array(
-      'type' => $type,
-      'form_id' => $cvsid,
+      'type' => $cvs_type,
+      'form_id' => $cvs_formid,
     ))
     ->fields(array(
       'status' => $enable ? 1 : 0,
@@ -1134,40 +1137,40 @@ function clientside_validation_settings_add($type, $cvsid, $settings = array(), 
     ->execute();
 }
 
-function clientside_validation_settings_update($cvsid, $settings) {
+function clientside_validation_settings_update($cvs_type, $cvs_formid, $settings) {
   db_update('clientside_validation_settings')
     ->fields(array(
       'settings' => serialize($settings),
     ))
-    ->condition('cvsid', $cvsid)
+    ->condition('type', $cvs_type)
+    ->condition('form_id', $cvs_formid)
     ->execute();
 }
 
-function clientside_validation_settings_title($type, $form_id, $edit = TRUE) {
+function clientside_validation_settings_title($cvs_type, $cvs_formid, $edit = TRUE) {
   $title = 'Edit settings of %formid';
   if (!$edit) {
     $title = 'Create settings for %formid';
   }
   
-  switch ($type) {
+  switch ($cvs_type) {
     case 'content-types':
       $content_types = node_type_get_types();
-      if (isset($content_types[$form_id])) {
-        return t($title, array('%formid' => t($content_types[$form_id]->name)));
+      if (isset($content_types[$cvs_formid])) {
+        return t($title, array('%formid' => t($content_types[$cvs_formid]->name)));
       }
       break;
     case 'webforms':
-    dpm($form_id, $type);
-      $node = node_load($form_id);
+      $node = node_load($cvs_formid);
       if ($node) {
         return t($title, array('%formid' => $node->title));
       }
       break;
     case 'custom-forms':
-      return t($title, array('%formid' => $form_id));
+      return t($title, array('%formid' => $cvs_formid));
       break;
   }
-  return t($title, array('%formid' => $type));
+  return t($title, array('%formid' => $cvs_type));
 }
 
 function clientside_validation_settings_current_form($settings = NULL) {
@@ -1184,13 +1187,13 @@ function clientside_validation_settings_current_form($settings = NULL) {
 function clientside_validation_settings_load_defaults() {
   static $defaults;
   if (!$defaults) {
-    $defaults = clientside_validation_settings_load(NULL, 'default');
+    $defaults = clientside_validation_settings_load('default');
   }
   return $defaults;
 }
 
-function clientside_validation_settings_load($cvsid = NULL, $type = NULL, $form_id = NULL) {
-  if ($type == 'default') {
+function clientside_validation_settings_load($cvs_type = NULL, $cvs_formid = NULL) {
+  if ($cvs_type == 'default') {
     $default_settings = array(
       'validate_options' => array(
         'disable_html5' => 1,
@@ -1222,20 +1225,17 @@ function clientside_validation_settings_load($cvsid = NULL, $type = NULL, $form_
   }
   $query = db_select('clientside_validation_settings')
     ->fields('clientside_validation_settings');
-  if (!empty($cvsid)) {
-    $query->condition('cvsid', $cvsid);
+  if (!empty($cvs_type)) {
+    $query->condition('type', $cvs_type);
   }
-  if (!empty($type)) {
-    $query->condition('type', $type);
-  }
-  if (!empty($form_id)) {
-    $query->condition('form_id', $form_id);
+  if (!empty($cvs_formid)) {
+    $query->condition('form_id', $cvs_formid);
   }
 
   $result = $query->execute();
 
   // a single id was given -> one result, so only return one row
-  if (is_numeric($cvsid) || isset($form_id)) {
+  if (isset($cvs_formid)) {
     $res = $result->fetchAssoc();
     if ($res) {
       $res['settings'] = unserialize($res['settings']);

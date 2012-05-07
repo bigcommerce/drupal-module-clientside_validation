@@ -88,23 +88,23 @@ function clientside_validation_general_settings_form($form_id, $form_state) {
   return $form;
 }
 
-function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, $type = 'default') {
-  $settings = clientside_validation_settings_load($cvsid, $type);
+function clientside_validation_settings_form($form, $form_state, $cvs_formid = NULL, $cvs_type = 'default') {
+  $settings = clientside_validation_settings_load($cvs_type, $cvs_formid);
 
   $form['new'] = array(
     '#type' => 'value',
     '#value' => FALSE,
   );
-  if (!$settings || $settings['settings'] === FALSE || ($type != 'default' && empty($settings['form_id']))) {
+  if (!$settings || $settings['settings'] === FALSE || ($cvs_type != 'default' && empty($settings['form_id']))) {
     $settings = clientside_validation_settings_load_defaults();
-    drupal_set_title(clientside_validation_settings_title($type, $cvsid, FALSE), PASS_THROUGH);
+    drupal_set_title(clientside_validation_settings_title($cvs_type, $cvs_formid, FALSE), PASS_THROUGH);
     $form['new'] = array(
       '#type' => 'value',
       '#value' => TRUE,
     );
   }
   else {
-    drupal_set_title(clientside_validation_settings_title($type, $settings['form_id'], TRUE), PASS_THROUGH);
+    drupal_set_title(clientside_validation_settings_title($cvs_type, $cvs_formid, TRUE), PASS_THROUGH);
   }
 
   // Make sure settings aren't nested.
@@ -113,13 +113,13 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
   }
 
   $form['#tree'] = TRUE;
-  $form['cvsid'] = array(
+  $form['cvs_formid'] = array(
     '#type' => 'value',
-    '#value' => $cvsid,
+    '#value' => $cvs_formid,
   );
-  $form['cvstype'] = array(
+  $form['cvs_type'] = array(
     '#type' => 'value',
-    '#value' => $type,
+    '#value' => $cvs_type,
   );
 
   //Validate options
@@ -359,7 +359,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
                       fields (e.g. conditional fields), those will be validated too.'),
     '#weight' => 3,
   );
-  if ($type == 'default') {
+  if ($cvs_type == 'default') {
     $form['include_hidden']['include_hidden'] = array(
       '#type' => 'textarea',
       '#default_value' => $settings['include_hidden']['include_hidden'],
@@ -405,8 +405,8 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
 function clientside_validation_settings_form_submit($form, &$form_state) {
   $values = $form_state['values'];
 
-  $type = $values['cvstype'];
-  $cvsid = $values['cvsid'];
+  $cvs_type = $values['cvs_type'];
+  $cvs_formid = $values['cvs_formid'];
   $new = $values['new'];
 
   unset($values['submit']);
@@ -414,11 +414,11 @@ function clientside_validation_settings_form_submit($form, &$form_state) {
   unset($values['form_token']);
   unset($values['form_id']);
   unset($values['op']);
-  unset($values['cvstype']);
-  unset($values['cvsid']);
+  unset($values['cvs_type']);
+  unset($values['cvs_formid']);
   unset($values['new']);
 
-  if ($type == 'default') {
+  if ($cvs_type == 'default') {
     variable_set('clientside_validation_default_settings', $values);
   }
   else {
@@ -429,10 +429,10 @@ function clientside_validation_settings_form_submit($form, &$form_state) {
       }
     }
     if (!$new) {
-      clientside_validation_settings_update($cvsid, $values);
+      clientside_validation_settings_update($cvs_type, $cvs_formid, $values);
     }
     else {
-      clientside_validation_settings_add($type, $cvsid, $values);
+      clientside_validation_settings_add($cvs_type, $cvs_formid, $values);
     }
   }
 }
@@ -444,11 +444,11 @@ function _cv_setting_status($status) {
   return t('Disabled');
 }
 
-function clientside_validation_settings_overview($form, $form_state, $type) {
+function clientside_validation_settings_overview($form, $form_state, $cvs_type) {
   $form = array();
-  $settings = clientside_validation_settings_load(NULL, $type);
+  $settings = clientside_validation_settings_load($cvs_type);
 
-  switch ($type) {
+  switch ($cvs_type) {
     case 'content-types':
       $destination = array('destination' => 'admin/config/validation/clientside_validation/content-types');
       $settinguri = 'admin/config/validation/clientside_validation/content-types/';
@@ -497,9 +497,9 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
           'label' => $customform->form_id,
         );
       }
-      $form['cvstype'] = array(
+      $form['cvs_type'] = array(
         '#type' => 'value',
-        '#value' => $type,
+        '#value' => $cvs_type,
       );
       $form['add_formid'] = array(
         '#type' => 'fieldset',
@@ -508,7 +508,7 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
         '#title' => t('Add a new custom form'),
         '#description' => t('Enter the formid of the form you want to override.'),
       );
-      $form['add_formid']['cvsid'] = array(
+      $form['add_formid']['cvs_formid'] = array(
         '#title' => t('Form Id'),
         '#type' => 'textfield',
       );
@@ -526,22 +526,22 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
       $row = array();
       $row[] = $definedform['label'];
       if (isset($settings[$definedform['id']]) && $settings[$definedform['id']]->status) {
-        $cvsid = $settings[$definedform['id']]->cvsid;
+        $cvs_formid = check_plain($definedform['id']);
         $row[] = _cv_setting_status(TRUE);
         $actions = array(
           'edit' => array(
             'title' => t('edit'),
-            'href' => $settinguri . $cvsid . '/edit',
+            'href' => $settinguri . $cvs_formid . '/edit',
             'query' => $destination,
           ),
           'disable' => array(
             'title' => t('disable'),
-            'href' => $settinguri . $cvsid . '/disable',
+            'href' => $settinguri . $cvs_formid . '/disable',
             'query' => $destination,
           ),
           'delete' => array(
             'title' => t('delete'),
-            'href' => $settinguri . $cvsid . '/delete',
+            'href' => $settinguri . $cvs_formid . '/delete',
             'query' => $destination,
           ),
         );
@@ -549,21 +549,21 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
       else {
         $row[] = _cv_setting_status(FALSE);
         if (isset($settings[$definedform['id']])) {
-          $cvsid = $settings[$definedform['id']]->cvsid;
+          $cvs_formid = check_plain($definedform['id']);
           $actions = array(
             'edit' => array(
               'title' => t('edit'),
-              'href' => $settinguri . $cvsid . '/edit',
+              'href' => $settinguri . $cvs_formid . '/edit',
               'query' => $destination,
             ),
             'enable' => array(
               'title' => t('enable'),
-              'href' => $settinguri . $cvsid . '/enable',
+              'href' => $settinguri . $cvs_formid . '/enable',
               'query' => $destination,
             ),
             'delete' => array(
               'title' => t('delete'),
-              'href' => $settinguri . $cvsid . '/delete',
+              'href' => $settinguri . $cvs_formid . '/delete',
               'query' => $destination,
             ),
           );
@@ -607,16 +607,15 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
 function clientside_validation_settings_overview_submit($form, &$form_state) {
   $values = $form_state['values'];
 
-  $type = $values['cvstype'];
-  $cvsid = $values['cvsid'];
-  clientside_validation_settings_add($type, $cvsid);
+  $cvs_type = $values['cvs_type'];
+  $cvs_formid = $values['cvs_formid'];
+  clientside_validation_settings_add($cvs_type, $cvs_formid);
 }
 
-function clientside_validation_settings_confirmation_form($form, &$form_state, $cvsid, $type, $action) {
-  $settings = clientside_validation_settings_load();
-  $form['#cvaction'] = $action;
-  $form['#cvtype'] = $type;
-  $form['#cvsid'] = $cvsid;
+function clientside_validation_settings_confirmation_form($form, &$form_state, $cvs_formid, $cvs_type, $action) {
+  $form['#cvs_action'] = $action;
+  $form['#cvs_type'] = $cvs_type;
+  $form['#cvs_formid'] = $cvs_formid;
 
   switch ($action) {
     case 'delete':
@@ -645,18 +644,21 @@ function clientside_validation_settings_confirmation_form($form, &$form_state, $
 
 function clientside_validation_settings_confirmation_form_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
-    $action = $form['#cvaction'];
-    $type = $form['#cvtype'];
-    $cvsid = $form['#cvsid'];
+    $action = $form['#cvs_action'];
+    $cvs_type = $form['#cvs_type'];
+    $cvs_formid = $form['#cvs_formid'];
 
     switch ($action) {
       case 'delete':
-        clientside_validation_settings_delete($cvsid);
+        clientside_validation_settings_delete($cvs_type, $cvs_formid);
+        break;
       case 'enable':
-        clientside_validation_settings_enable($cvsid);
+        clientside_validation_settings_enable($cvs_type, $cvs_formid);
+        break;
       case 'disable':
-        //clientside_validation_settings_disable($cvsid);
+        clientside_validation_settings_disable($cvs_type, $cvs_formid);
+        break;
     }
-    $form_state['redirect'] = 'admin/config/validation/clientside_validation/' . $type;
+    $form_state['redirect'] = 'admin/config/validation/clientside_validation/' . $cvs_type;
   }
 }

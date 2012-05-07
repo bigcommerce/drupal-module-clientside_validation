@@ -96,16 +96,21 @@ function clientside_validation_settings_form($form, $form_state, $cvs_formid = N
     '#type' => 'value',
     '#value' => FALSE,
   );
-  if (!$settings || $settings['settings'] === FALSE || ($cvs_type != 'default' && empty($settings['form_id']))) {
-    $settings = clientside_validation_settings_load_defaults();
-    drupal_set_title(clientside_validation_settings_title($cvs_type, $cvs_formid, FALSE), PASS_THROUGH);
-    $form['new'] = array(
-      '#type' => 'value',
-      '#value' => TRUE,
-    );
+  if ($cvs_type == 'default') {
+    drupal_set_title(clientside_validation_settings_title($cvs_type, $cvs_formid, TRUE), PASS_THROUGH);
   }
   else {
-    drupal_set_title(clientside_validation_settings_title($cvs_type, $cvs_formid, TRUE), PASS_THROUGH);
+    if (!$settings || $settings['settings'] === FALSE || empty($settings['form_id'])) {
+      $settings = clientside_validation_settings_load_defaults();
+      drupal_set_title(clientside_validation_settings_title($cvs_type, $cvs_formid, FALSE), PASS_THROUGH);
+      $form['new'] = array(
+        '#type' => 'value',
+        '#value' => TRUE,
+      );
+    }
+    else {
+      drupal_set_title(clientside_validation_settings_title($cvs_type, $cvs_formid, TRUE), PASS_THROUGH);
+    }
   }
 
   // Make sure settings aren't nested.

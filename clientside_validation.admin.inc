@@ -453,7 +453,7 @@ function _cv_setting_status($status) {
 function clientside_validation_settings_overview($form, $form_state, $cvs_type) {
   $form = array();
   $settings = clientside_validation_settings_load($cvs_type);
-
+  $definedforms = array();
   switch ($cvs_type) {
     case 'content-types':
       $destination = array('destination' => 'admin/config/validation/clientside_validation/content-types');

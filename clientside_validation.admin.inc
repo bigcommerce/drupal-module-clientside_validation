@@ -5,6 +5,7 @@
  */
 
 function clientside_validation_general_settings_form($form_id, $form_state) {
+  drupal_set_title('Edit general settings');
 
   //jquery.validate.js settings
   $form['clientside_validation_min'] = array(

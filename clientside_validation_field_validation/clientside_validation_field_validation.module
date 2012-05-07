@@ -21,7 +21,7 @@ function clientside_validation_field_validation_clientside_validation_form_alter
       $field = field_info_field($rule['rule']['field_name']);
       $languages = field_available_languages($rule['rule']['entity_type'], $field);
       foreach ($languages as $langcode) {
-        if(isset($element[$langcode])) {
+        if (isset($element[$langcode])) {
           $element = &$element[$langcode];
         }
         foreach (element_children($element) as $delta) {
@@ -67,7 +67,7 @@ function clientside_validation_field_validation_after_build_recurse($form_id, &$
       $types = array(
         'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'file', 'radios', 'checkboxes',
       );
-      if (isset($element['#type']) && in_array($element['#type'], $types) && isset($element['#name']) /*&& strpos($element['#name'], '[value]') !== FALSE*/) {
+      if (isset($element['#type']) && in_array($element['#type'], $types) && isset($element['#name']) /* && strpos($element['#name'], '[value]') !== FALSE */) {
         clientside_validation_field_validation_regular($form_id, $element, $rule, $js_rules);
       }
       clientside_validation_field_validation_after_build_recurse($form_id, $element, $form_state, $rule, $js_rules);

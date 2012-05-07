@@ -370,7 +370,7 @@ function clientside_validation_webform_form_webform_component_edit_form_alter(&$
     '#description' => 'Check this option if you do not want to add clientside validation.',
     '#default_value' => isset($component['extra']['exclude_cv']) ? $component['extra']['exclude_cv'] : FALSE,
   );
-  array_unshift ($form['#submit'], 'clientside_validation_webform_webform_component_edit_form_submit');
+  array_unshift($form['#submit'], 'clientside_validation_webform_webform_component_edit_form_submit');
 }
 
 function clientside_validation_webform_webform_component_edit_form_submit($form, &$form_state) {

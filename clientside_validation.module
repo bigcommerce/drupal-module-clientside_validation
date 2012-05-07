@@ -114,7 +114,7 @@ function clientside_validation_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'clientside_validation.admin.inc',
   );
-  
+
   $items['clientside_validation/ajax'] = array(
     'title' => 'Clientside validation ajax callback',
     'page callback' => '_clientside_validation_ajax_call',
@@ -131,12 +131,12 @@ function clientside_validation_menu() {
 }
 
 function _clientside_validation_ajax_call() {
-  $param = $_POST['param'];
-  $value = $_POST['value'];
+  $param = check_plain($_POST['param']);
+  $value = check_plain($_POST['value']);
   $result = array();
   foreach ($param['expressions'] as $key => $regex) {
     if (!(bool) preg_match($regex, (string) $value)) {
-      $result =  array('result' => FALSE, 'message' => $param['messages'][$key]);
+      $result = array('result' => FALSE, 'message' => $param['messages'][$key]);
       break;
     }
   }
@@ -147,8 +147,8 @@ function _clientside_validation_ajax_call() {
 }
 
 function _clientside_validation_ajax_phone() {
-  $value = $_POST['value'];
-  $country_code = $_POST['country_code'];
+  $value = check_plain($_POST['value']);
+  $country_code = check_plain($_POST['country_code']);
   $result['result'] = valid_phone_number($country_code, $value);
   drupal_json_output($result);
 }
@@ -186,7 +186,7 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
     && in_array($form_id, $validate_specific)) {
     return;
   }
-  
+
   if (strpos($form_id, 'webform_client_form') !== FALSE) {
     $definedsettings = clientside_validation_settings_load(NULL, 'webforms', $form['#node']->nid);
     clientside_validation_settings_current_form($definedsettings);
@@ -358,7 +358,7 @@ function _clientside_validation_add_general_settings(&$settings, $form_id) {
   }
 
   $form_settings_added[] = str_replace('-', '_', $form_id);
-  
+
   $settings['clientsideValidation']['forms'][$form_id]['general'] = array(
     "errorClass" => "error", // @TODO: option?
     "wrapper" => "li", // @TODO: option?
@@ -1115,18 +1115,20 @@ function clientside_validation_settings_enable($cvsid) {
 function clientside_validation_settings_disable($cvsid) {
   db_update('clientside_validation_settings')
     ->fields(array(
-      'status' => 0, 
+      'status' => 0,
     ))
     ->condition('cvsid', $cvsid)
     ->execute();
 }
 
-function clientside_validation_settings_add($type, $cvsid, $settings = array()) {
-  db_insert('clientside_validation_settings')
-    ->fields(array(
+function clientside_validation_settings_add($type, $cvsid, $settings = array(), $enable = FALSE) {
+  return db_merge('clientside_validation_settings')
+    ->key(array(
       'type' => $type,
-      'status' => 0,
       'form_id' => $cvsid,
+    ))
+    ->fields(array(
+      'status' => $enable ? 1 : 0,
       'settings' => serialize($settings),
     ))
     ->execute();
@@ -1139,6 +1141,33 @@ function clientside_validation_settings_update($cvsid, $settings) {
     ))
     ->condition('cvsid', $cvsid)
     ->execute();
+}
+
+function clientside_validation_settings_title($type, $form_id, $edit = TRUE) {
+  $title = 'Edit settings of %formid';
+  if (!$edit) {
+    $title = 'Create settings for %formid';
+  }
+  
+  switch ($type) {
+    case 'content-types':
+      $content_types = node_type_get_types();
+      if (isset($content_types[$form_id])) {
+        return t($title, array('%formid' => t($content_types[$form_id]->name)));
+      }
+      break;
+    case 'webforms':
+    dpm($form_id, $type);
+      $node = node_load($form_id);
+      if ($node) {
+        return t($title, array('%formid' => $node->title));
+      }
+      break;
+    case 'custom-forms':
+      return t($title, array('%formid' => $form_id));
+      break;
+  }
+  return t($title, array('%formid' => $type));
 }
 
 function clientside_validation_settings_current_form($settings = NULL) {
@@ -1163,7 +1192,6 @@ function clientside_validation_settings_load_defaults() {
 function clientside_validation_settings_load($cvsid = NULL, $type = NULL, $form_id = NULL) {
   if ($type == 'default') {
     $default_settings = array(
-      'type' => 'default',
       'validate_options' => array(
         'disable_html5' => 1,
         'validate_onsubmit' => 1,
@@ -1197,7 +1225,7 @@ function clientside_validation_settings_load($cvsid = NULL, $type = NULL, $form_
   if (!empty($cvsid)) {
     $query->condition('cvsid', $cvsid);
   }
-  if (!empty($type)){
+  if (!empty($type)) {
     $query->condition('type', $type);
   }
   if (!empty($form_id)) {
@@ -1205,7 +1233,7 @@ function clientside_validation_settings_load($cvsid = NULL, $type = NULL, $form_
   }
 
   $result = $query->execute();
-  
+
   // a single id was given -> one result, so only return one row
   if (is_numeric($cvsid) || isset($form_id)) {
     $res = $result->fetchAssoc();

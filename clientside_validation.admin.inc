@@ -90,22 +90,28 @@ function clientside_validation_general_settings_form($form_id, $form_state) {
 
 function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, $type = 'default') {
   $settings = clientside_validation_settings_load($cvsid, $type);
-  if (isset($settings['settings']) && is_array($settings['settings'])) {
-    $settings = $settings['settings'];
-  }
 
   $form['new'] = array(
     '#type' => 'value',
     '#value' => FALSE,
   );
-  if (!$settings || $settings['settings'] === FALSE) {
+  if (!$settings || $settings['settings'] === FALSE || ($type != 'default' && empty($settings['form_id']))) {
     $settings = clientside_validation_settings_load_defaults();
+    drupal_set_title(clientside_validation_settings_title($type, $cvsid, FALSE), PASS_THROUGH);
     $form['new'] = array(
       '#type' => 'value',
       '#value' => TRUE,
     );
   }
-  
+  else {
+    drupal_set_title(clientside_validation_settings_title($type, $settings['form_id'], TRUE), PASS_THROUGH);
+  }
+
+  // Make sure settings aren't nested.
+  if (isset($settings['settings']) && is_array($settings['settings'])) {
+    $settings = $settings['settings'];
+  }
+
   $form['#tree'] = TRUE;
   $form['cvsid'] = array(
     '#type' => 'value',
@@ -343,7 +349,7 @@ function clientside_validation_settings_form($form, $form_state, $cvsid = NULL, 
     '#description' => t('Validate hidden fields as well.'),
     '#weight' => 2,
   );
-  
+
   $form['include_hidden']['validate_tabs'] = array(
     '#type' => 'checkbox',
     '#default_value' => $settings['include_hidden']['validate_tabs'],
@@ -411,7 +417,7 @@ function clientside_validation_settings_form_submit($form, &$form_state) {
   unset($values['cvstype']);
   unset($values['cvsid']);
   unset($values['new']);
-  
+
   if ($type == 'default') {
     variable_set('clientside_validation_default_settings', $values);
   }
@@ -447,7 +453,7 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
       $destination = array('destination' => 'admin/config/validation/clientside_validation/content-types');
       $settinguri = 'admin/config/validation/clientside_validation/content-types/';
       $headerlabel = t('Content type');
-      
+
       $content_types = node_type_get_types();
       foreach ($content_types as $content_type) {
         $definedforms[] = array(
@@ -456,12 +462,12 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
         );
       }
       break;
-      
+
     case 'webforms':
       $destination = array('destination' => 'admin/config/validation/clientside_validation/webforms');
       $settinguri = 'admin/config/validation/clientside_validation/webforms/';
       $headerlabel = t('Webforms');
-      
+
       $webform_types = webform_variable_get('webform_node_types');
       $nodes = array();
       if ($webform_types) {
@@ -470,7 +476,7 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
           ->condition('n.type', $webform_types, 'IN')
           ->execute()
           ->fetchAllAssoc('nid');
-          
+
         foreach ($nodes as $node) {
           $definedforms[] = array(
             'id' => $node->nid,
@@ -479,12 +485,12 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
         }
       }
       break;
-      
+
     case 'custom-forms':
       $destination = array('destination' => 'admin/config/validation/clientside_validation/custom-forms');
       $settinguri = 'admin/config/validation/clientside_validation/custom-forms/';
       $headerlabel = t('Form Id');
-      
+
       foreach ($settings as $customform) {
         $definedforms[] = array(
           'id' => $customform->form_id,
@@ -513,7 +519,7 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
       );
       break;
   }
-  
+
   $rows = array();
   if ($definedforms) {
     foreach ($definedforms as $definedform) {
@@ -594,7 +600,7 @@ function clientside_validation_settings_overview($form, $form_state, $type) {
     '#rows' => $rows,
     '#empty' => t('No content types available.'),
   );
-  
+
   return $form;
 }
 
@@ -626,13 +632,13 @@ function clientside_validation_settings_confirmation_form($form, &$form_state, $
       $info = 'You can always enable it later.';
       break;
   }
-  
+
   return confirm_form(
     $form,
     t($question),
     'admin/config/validation/clientside_validation', // destination is used
     t($info),
-    t(ucfirst($action)),
+    t(drupal_ucfirst($action)),
     t('Cancel')
   );
 }

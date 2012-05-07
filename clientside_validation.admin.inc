@@ -90,7 +90,7 @@ function clientside_validation_general_settings_form($form_id, $form_state) {
 }
 
 function clientside_validation_settings_form($form, $form_state, $cvs_formid = NULL, $cvs_type = 'default') {
-  $settings = clientside_validation_settings_load($cvs_type, $cvs_formid);
+  $settings = clientside_validation_settings_load($cvs_type, $cvs_formid, TRUE);
 
   $form['new'] = array(
     '#type' => 'value',
@@ -452,13 +452,15 @@ function _cv_setting_status($status) {
 
 function clientside_validation_settings_overview($form, $form_state, $cvs_type) {
   $form = array();
-  $settings = clientside_validation_settings_load($cvs_type);
+  $settings = clientside_validation_settings_load($cvs_type, NULL, TRUE);
   $definedforms = array();
+  $empty_text = "";
   switch ($cvs_type) {
     case 'content-types':
       $destination = array('destination' => 'admin/config/validation/clientside_validation/content-types');
       $settinguri = 'admin/config/validation/clientside_validation/content-types/';
       $headerlabel = t('Content type');
+      $empty_text = t('No content types available');
 
       $content_types = node_type_get_types();
       foreach ($content_types as $content_type) {
@@ -473,6 +475,7 @@ function clientside_validation_settings_overview($form, $form_state, $cvs_type) 
       $destination = array('destination' => 'admin/config/validation/clientside_validation/webforms');
       $settinguri = 'admin/config/validation/clientside_validation/webforms/';
       $headerlabel = t('Webforms');
+      $empty_text = t('No webforms available');
 
       $webform_types = webform_variable_get('webform_node_types');
       $nodes = array();
@@ -496,6 +499,7 @@ function clientside_validation_settings_overview($form, $form_state, $cvs_type) 
       $destination = array('destination' => 'admin/config/validation/clientside_validation/custom-forms');
       $settinguri = 'admin/config/validation/clientside_validation/custom-forms/';
       $headerlabel = t('Form Id');
+      $empty_text = t('No custom forms added yet');
 
       foreach ($settings as $customform) {
         $definedforms[] = array(
@@ -600,11 +604,11 @@ function clientside_validation_settings_overview($form, $form_state, $cvs_type) 
     t('Status'),
     t('Actions'),
   );
-  $form['contenttypes'] = array(
+  $form[str_replace('-', '', $cvs_type)] = array(
     '#theme' => 'table',
     '#header' => $header,
     '#rows' => $rows,
-    '#empty' => t('No content types available.'),
+    '#empty' => $empty_text,
   );
 
   return $form;

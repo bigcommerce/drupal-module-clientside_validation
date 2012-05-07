@@ -1199,7 +1199,7 @@ function clientside_validation_settings_load_defaults() {
   return $defaults;
 }
 
-function clientside_validation_settings_load($cvs_type = NULL, $cvs_formid = NULL) {
+function clientside_validation_settings_load($cvs_type = NULL, $cvs_formid = NULL, $include_disabled = FALSE) {
   if ($cvs_type == 'default') {
     $default_settings = array(
       'validate_options' => array(
@@ -1237,6 +1237,9 @@ function clientside_validation_settings_load($cvs_type = NULL, $cvs_formid = NUL
   }
   if (!empty($cvs_formid)) {
     $query->condition('form_id', $cvs_formid);
+  }
+  if (!$include_disabled) {
+    $query->condition('status', 1);
   }
 
   $result = $query->execute();

@@ -68,15 +68,17 @@ function clientside_validation_menu() {
     'file' => 'clientside_validation.admin.inc',
     'weight' => 10,
   );
-  $items['admin/config/validation/clientside_validation/webforms'] = array(
-    'title' => 'Webforms',
-    'description' => 'Override settings for webforms.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('clientside_validation_settings_overview', 'webforms'),
-    'access arguments' => array('administer site configuration'),
-    'file' => 'clientside_validation.admin.inc',
-    'weight' => 11,
-  );
+  if (module_exists('clientside_validation_webform')) {
+    $items['admin/config/validation/clientside_validation/webforms'] = array(
+      'title' => 'Webforms',
+      'description' => 'Override settings for webforms.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('clientside_validation_settings_overview', 'webforms'),
+      'access arguments' => array('administer site configuration'),
+      'file' => 'clientside_validation.admin.inc',
+      'weight' => 11,
+    );
+  }
   $items['admin/config/validation/clientside_validation/custom-forms'] = array(
     'title' => 'Custom forms',
     'description' => 'Override settings for custom forms.',
@@ -224,7 +226,6 @@ function clientside_validation_webform_after_build(&$form, &$form_state) {
     $settings = array();
     _clientside_validation_add_general_settings($settings, $form['#id']);
     _clientside_validation_add_special_rules($js_rules, $settings, $form);
-
     if (variable_get('clientside_validation_use_minified', 0) == 0) {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js');
     }
@@ -330,7 +331,6 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
 
 function _clientside_validation_add_general_settings(&$settings, $form_id) {
   $definedsettings = clientside_validation_settings_current_form();
-
   // Add a setting for this form if the hidden elements should still be validated
   $include_hidden_setting = $definedsettings['include_hidden']['include_hidden'];
   $include_hidden = preg_split('/(\r\n?|\n)/', $include_hidden_setting, -1, PREG_SPLIT_NO_EMPTY);

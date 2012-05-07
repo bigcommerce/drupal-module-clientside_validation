@@ -438,7 +438,7 @@ function clientside_validation_settings_form_submit($form, &$form_state) {
       clientside_validation_settings_update($cvs_type, $cvs_formid, $values);
     }
     else {
-      clientside_validation_settings_add($cvs_type, $cvs_formid, $values);
+      clientside_validation_settings_add($cvs_type, $cvs_formid, $values, TRUE);
     }
   }
 }

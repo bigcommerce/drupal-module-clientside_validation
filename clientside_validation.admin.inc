@@ -149,6 +149,12 @@ function clientside_validation_settings_form($form, $form_state, $cvs_formid = N
       '#description' => t('Replace HTML5 validation with Clientside Validation on forms that have Clientside Validation enabled'),
     );
   }
+  else {
+    $form['validate_options']['disable_html5'] = array(
+      '#type' => 'value',
+      '#value' => $settings['validate_options']['disable_html5'],
+    );
+  }
 
   $form['validate_options']['validate_onsubmit'] = array(
     '#type' => 'radios',

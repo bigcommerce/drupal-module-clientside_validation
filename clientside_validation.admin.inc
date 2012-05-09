@@ -208,7 +208,12 @@ function clientside_validation_settings_form($form, $form_state, $cvs_formid = N
     ),
     '#title' => t('Show these error messages on validation'),
     '#default_value' => $settings['validate_options']['show_messages'],
-    '#description' => t('Warning: Showing only the first or last message only works if the error messages are displayed on top of the form. When they are displayed inline this setting has some bugs.'),
+    '#description' => t('Warning: Showing only the first or last message only works if the error messages are displayed on top of the form. When they are displayed inline this setting will not be applied.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="error_placement[error_placement_default]"]' => array('value' => CLIENTSIDE_VALIDATION_TOP_OF_FORM),
+      ),
+    ),
   );
 
   //Error message settings

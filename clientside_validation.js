@@ -335,7 +335,8 @@
         if (!Boolean(parseInt(self.forms[f].general.validateOnKeyUp))) {
           validate_options.onkeyup = false;
         }
-        if (parseInt(self.forms[f].general.showMessages) > 0) {
+        // Only apply this setting if errorplacement is set to the top of the form
+        if (parseInt(self.forms[f].general.showMessages) > 0 && parseInt(self.forms[f].errorPlacement) == 1) {
           var showMessages = parseInt(self.forms[f].general.showMessages);
           // Show only last message
           if (showMessages === 2) {

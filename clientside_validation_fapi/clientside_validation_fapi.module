@@ -13,7 +13,7 @@ function clientside_validation_fapi_after_build_recurse($form_id, &$form, &$form
     foreach ($children as $index => $item) {
       $element = &$form[$item];
       $types = array(
-        'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'file', 'radios', 'checkboxes',
+        'emailfield', 'phonefield', 'link_field', 'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'file', 'radios', 'checkboxes',
       );
       if (isset($element['#type']) && in_array($element['#type'], $types)) {
         clientside_validation_fapi_regular($form_id, $element, $js_rules);

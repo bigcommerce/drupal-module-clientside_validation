@@ -414,9 +414,12 @@
         }
         self.validators[f] = $('#' + f).validate(validate_options);
 
-        //Disable HTML5 validation
+        // Disable HTML5 validation
         if (!Boolean(parseInt(self.forms[f].general.disableHtml5Validation))) {
           $('#' + f).removeAttr('novalidate');
+        }
+        else {
+          $('#' + f).attr('novalidate', 'novalidate');
         }
         // Bind all rules
         self.bindRules(f);

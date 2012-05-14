@@ -80,7 +80,7 @@
           self.groups[f][groupkey] = "";
           jQuery.each(this, function(){
             i = 0;
-            $(this[2] + ' input[type=checkbox]').each(function(){
+            $(this[2]).find('input[type=checkbox]').each(function(){
               if(i > 0){
                 self.groups[f][groupkey] += ' ';
               }
@@ -450,7 +450,7 @@
     };
     if('checkboxrules' in self.forms[formid]){
       jQuery.each (self.forms[formid]['checkboxrules'], function(r) {
-        $form.find(this['checkboxgroupminmax'][2]).find(':input[type="checkbox"]').addClass('require-one');
+        $form.find(this['checkboxgroupminmax'][2]).find('input[type="checkbox"]').addClass('require-one');
       });
       jQuery.each (self.forms[formid]['checkboxrules'], function(r) {
         // Check if element exist in DOM before adding the rule
@@ -465,7 +465,7 @@
     }
     if('daterangerules' in self.forms[formid]){
       jQuery.each (self.forms[formid]['daterangerules'], function(r) {
-        $form.find('#' + r).find(':input').not('input[type=image]').each(function(){
+        $form.find('#' + r).find('input, textarea, select').not('input[type=image]').each(function(){
           $(this).rules("add", self.forms[formid]['daterangerules'][r]);
           $(this).blur(hideErrordiv);
         });
@@ -474,7 +474,7 @@
 
     if('dateminrules' in self.forms[formid]){
       jQuery.each (self.forms[formid]['dateminrules'], function(r) {
-        $form.find('#' + r).find(':input').not('input[type=image]').each(function(){
+        $form.find('#' + r).find('input, textarea, select').not('input[type=image]').each(function(){
           $(this).rules("add", self.forms[formid]['dateminrules'][r]);
           $(this).blur(hideErrordiv);
         });
@@ -483,7 +483,7 @@
 
     if('datemaxrules' in self.forms[formid]){
       jQuery.each (self.forms[formid]['datemaxrules'], function(r) {
-        $form.find('#' + r).find(':input').not('input[type=image]').each(function(){
+        $form.find('#' + r).find('input, textarea, select').not('input[type=image]').each(function(){
           $(this).rules("add", self.forms[formid]['datemaxrules'][r]);
           $(this).blur(hideErrordiv);
         });
@@ -491,9 +491,10 @@
     }
 
     if('rules' in self.forms[formid]){
+      var $form_els = $form.find('input, textarea, select');
       jQuery.each (self.forms[formid]['rules'], function(r) {
         // Check if element exist in DOM before adding the rule
-        $element = $("#" + formid + " :input[name='" + r + "']");
+        $element = $form_els.filter("[name='" + r + "']");
         if ($element.length) {
           $element.rules("add", self.forms[formid]['rules'][r]);
           $element.change(function(){

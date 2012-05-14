@@ -430,6 +430,7 @@
 
   Drupal.clientsideValidation.prototype.bindRules = function(formid){
     var self = this;
+    var $form = $('#' + formid);
     var hideErrordiv = function(){
       //wait just one milisecond until the error div is updated
       window.setTimeout(function(){
@@ -449,12 +450,13 @@
     };
     if('checkboxrules' in self.forms[formid]){
       jQuery.each (self.forms[formid]['checkboxrules'], function(r) {
-        $("#" + formid + " " + this['checkboxgroupminmax'][2] + ' :input[type="checkbox"]').addClass('require-one');
+        $form.find(this['checkboxgroupminmax'][2]).find(':input[type="checkbox"]').addClass('require-one');
       });
       jQuery.each (self.forms[formid]['checkboxrules'], function(r) {
         // Check if element exist in DOM before adding the rule
-        if ($("#" + formid + " " + this['checkboxgroupminmax'][2] + " .require-one").length) {
-          $("#" + formid + " " + this['checkboxgroupminmax'][2] +  " .require-one").each(function(){
+        var $checkboxes = $form.find(this['checkboxgroupminmax'][2]).find(".require-one");
+        if ($checkboxes.length) {
+          $checkboxes.each(function(){
             $(this).rules("add", self.forms[formid]['checkboxrules'][r]);
             $(this).change(hideErrordiv);
           });
@@ -463,7 +465,7 @@
     }
     if('daterangerules' in self.forms[formid]){
       jQuery.each (self.forms[formid]['daterangerules'], function(r) {
-        $('#' + formid + ' #' + r + ' :input').not('input[type=image]').each(function(){
+        $form.find('#' + r).find(':input').not('input[type=image]').each(function(){
           $(this).rules("add", self.forms[formid]['daterangerules'][r]);
           $(this).blur(hideErrordiv);
         });
@@ -472,7 +474,7 @@
 
     if('dateminrules' in self.forms[formid]){
       jQuery.each (self.forms[formid]['dateminrules'], function(r) {
-        $('#' + formid + ' #' + r + ' :input').not('input[type=image]').each(function(){
+        $form.find('#' + r).find(':input').not('input[type=image]').each(function(){
           $(this).rules("add", self.forms[formid]['dateminrules'][r]);
           $(this).blur(hideErrordiv);
         });
@@ -481,7 +483,7 @@
 
     if('datemaxrules' in self.forms[formid]){
       jQuery.each (self.forms[formid]['datemaxrules'], function(r) {
-        $('#' + formid + ' #' + r + ' :input').not('input[type=image]').each(function(){
+        $form.find('#' + r).find(':input').not('input[type=image]').each(function(){
           $(this).rules("add", self.forms[formid]['datemaxrules'][r]);
           $(this).blur(hideErrordiv);
         });
@@ -491,9 +493,10 @@
     if('rules' in self.forms[formid]){
       jQuery.each (self.forms[formid]['rules'], function(r) {
         // Check if element exist in DOM before adding the rule
-        if ($("#" + formid + " :input[name='" + r + "']").length) {
-          $("#" + formid + " :input[name='" + r + "']").rules("add", self.forms[formid]['rules'][r]);
-          $("#" + formid + " :input[name='" + r + "']").change(function(){
+        $element = $("#" + formid + " :input[name='" + r + "']");
+        if ($element.length) {
+          $element.rules("add", self.forms[formid]['rules'][r]);
+          $element.change(function(){
             //wait just one millisecond until the error div is updated
             window.setTimeout(function(){
               var visibles = 0;
@@ -523,8 +526,8 @@
 
     // Min a and maximum b checkboxes from a group
     jQuery.validator.addMethod("checkboxgroupminmax", function(value, element, param) {
-      var validOrNot = $(param[2] + ' input:checked').length >= param[0] && $(param[2] + ' input:checked').length <= param[1];
-      return validOrNot;
+      var amountChecked = $(param[2]).find('input:checked').length;
+      return (amountChecked >= param[0] && amountChecked <= param[1]);
     }, jQuery.format('Minimum {0}, maximum {1}'));
 
     // Allow integers, same as digits but including a leading '-'
@@ -629,25 +632,26 @@
 
     jQuery.validator.addMethod("datemin", function(value, element, param) {
       //Assume [month], [day], and [year] ??
-      var dayelem, monthelem, yearelem, name;
-      if ($(element).attr('name').indexOf('[day]') > 0) {
+      var dayelem, monthelem, yearelem, name, $form, element_name;
+      $form = $(element).closest('form');
+      element_name = $(element).attr('name');
+      if (element_name.indexOf('[day]') > 0) {
         dayelem = $(element);
         name = dayelem.attr('name').replace('[day]', '');
-        monthelem = $("[name='" + name + "[month]']");
-        yearelem = $("[name='" + name + "[year]']");
+        monthelem = $form.find("[name='" + name + "[month]']");
+        yearelem = $form.find("[name='" + name + "[year]']");
       }
-      else if ($(element).attr('name').indexOf('[month]') > 0) {
+      else if (element_name.indexOf('[month]') > 0) {
         monthelem = $(element);
         name = monthelem.attr('name').replace('[month]', '');
-        dayelem = $("[name='" + name + "[day]']");
-        yearelem = $("[name='" + name + "[year]']");
+        dayelem = $form.find("[name='" + name + "[day]']");
+        yearelem = $form.find("[name='" + name + "[year]']");
       }
       else if ($(element).attr('name').indexOf('[year]') > 0) {
         yearelem = $(element);
         name = yearelem.attr('name').replace('[year]', '');
-        dayelem = $("[name='" + name + "[day]']");
-        monthelem = $("[name='" + name + "[month]']");
-
+        dayelem = $form.find("[name='" + name + "[day]']");
+        monthelem = $form.find("[name='" + name + "[month]']");
       }
 
       if (parseInt(yearelem.val(), 10) < parseInt(param[0], 10)) {
@@ -663,32 +667,40 @@
           }
         }
       }
-      yearelem.removeClass('error');
-      monthelem.removeClass('error');
-      dayelem.removeClass('error');
+      yearelem.once('daterange', function() {
+        $(this).change(function(){$(this).trigger('focusout').trigger('blur')});
+      }).removeClass('error');
+      monthelem.once('daterange', function() {
+        $(this).change(function(){$(this).trigger('focusout').trigger('blur')});
+      }).removeClass('error');
+      dayelem.once('daterange', function() {
+        $(this).change(function(){$(this).trigger('focusout').trigger('blur')});
+      }).removeClass('error');
       return true;
     });
 
     jQuery.validator.addMethod("datemax", function(value, element, param) {
       //Assume [month], [day], and [year] ??
-      var dayelem, monthelem, yearelem, name;
-      if ($(element).attr('name').indexOf('[day]') > 0) {
+      var dayelem, monthelem, yearelem, name, $form, element_name;
+      $form = $(element).closest('form');
+      element_name = $(element).attr('name');
+      if (element_name.indexOf('[day]') > 0) {
         dayelem = $(element);
         name = dayelem.attr('name').replace('[day]', '');
-        monthelem = $("[name='" + name + "[month]']");
-        yearelem = $("[name='" + name + "[year]']");
+        monthelem = $form.find("[name='" + name + "[month]']");
+        yearelem = $form.find("[name='" + name + "[year]']");
       }
-      else if ($(element).attr('name').indexOf('[month]') > 0) {
+      else if (element_name.indexOf('[month]') > 0) {
         monthelem = $(element);
         name = monthelem.attr('name').replace('[month]', '');
-        dayelem = $("[name='" + name + "[day]']");
-        yearelem = $("[name='" + name + "[year]']");
+        dayelem = $form.find("[name='" + name + "[day]']");
+        yearelem = $form.find("[name='" + name + "[year]']");
       }
-      else if ($(element).attr('name').indexOf('[year]') > 0) {
+      else if (element_name.indexOf('[year]') > 0) {
         yearelem = $(element);
         name = yearelem.attr('name').replace('[year]', '');
-        dayelem = $("[name='" + name + "[day]']");
-        monthelem = $("[name='" + name + "[month]']");
+        dayelem = $form.find("[name='" + name + "[day]']");
+        monthelem = $form.find("[name='" + name + "[month]']");
 
       }
 
@@ -705,32 +717,40 @@
           }
         }
       }
-      yearelem.removeClass('error');
-      monthelem.removeClass('error');
-      dayelem.removeClass('error');
+      yearelem.once('daterange', function() {
+        $(this).change(function(){$(this).trigger('focusout').trigger('blur')});
+      }).removeClass('error');
+      monthelem.once('daterange', function() {
+        $(this).change(function(){$(this).trigger('focusout').trigger('blur')});
+      }).removeClass('error');
+      dayelem.once('daterange', function() {
+        $(this).change(function(){$(this).trigger('focusout').trigger('blur')});
+      }).removeClass('error');
       return true;
     });
 
     jQuery.validator.addMethod("daterange", function(value, element, param) {
       //Assume [month], [day], and [year] ??
-      var dayelem, monthelem, yearelem, name;
-      if ($(element).attr('name').indexOf('[day]') > 0) {
+      var dayelem, monthelem, yearelem, name, $form, element_name;
+      $form = $(element).closest('form');
+      element_name = $(element).attr('name');
+      if (element_name.indexOf('[day]') > 0) {
         dayelem = $(element);
         name = dayelem.attr('name').replace('[day]', '');
-        monthelem = $("[name='" + name + "[month]']");
-        yearelem = $("[name='" + name + "[year]']");
+        monthelem = $form.find("[name='" + name + "[month]']");
+        yearelem = $form.find("[name='" + name + "[year]']");
       }
-      else if ($(element).attr('name').indexOf('[month]') > 0) {
+      else if (element_name.indexOf('[month]') > 0) {
         monthelem = $(element);
         name = monthelem.attr('name').replace('[month]', '');
-        dayelem = $("[name='" + name + "[day]']");
-        yearelem = $("[name='" + name + "[year]']");
+        dayelem = $form.find("[name='" + name + "[day]']");
+        yearelem = $form.find("[name='" + name + "[year]']");
       }
-      else if ($(element).attr('name').indexOf('[year]') > 0) {
+      else if (element_name.indexOf('[year]') > 0) {
         yearelem = $(element);
         name = yearelem.attr('name').replace('[year]', '');
-        dayelem = $("[name='" + name + "[day]']");
-        monthelem = $("[name='" + name + "[month]']");
+        dayelem = $form.find("[name='" + name + "[day]']");
+        monthelem = $form.find("[name='" + name + "[month]']");
       }
 
       if (parseInt(yearelem.val(), 10) < parseInt(param[0][0], 10)) {
@@ -760,9 +780,15 @@
           }
         }
       }
-      yearelem.removeClass('error');
-      monthelem.removeClass('error');
-      dayelem.removeClass('error');
+      yearelem.once('daterange', function() {
+        $(this).change(function(){$(this).trigger('focusout').trigger('blur')});
+      }).removeClass('error');
+      monthelem.once('daterange', function() {
+        $(this).change(function(){$(this).trigger('focusout').trigger('blur')});
+      }).removeClass('error');
+      dayelem.once('daterange', function() {
+        $(this).change(function(){$(this).trigger('focusout').trigger('blur')});
+      }).removeClass('error');
       return true;
     });
 
@@ -771,7 +797,7 @@
       var ret = false;
       if (value == "") {
         jQuery.each(param, function(index, name) {
-          if ($("[name='" + name + "']").val().length && !ret) {
+          if (!ret && $("[name='" + name + "']").val().length) {
             ret = true;
           }
         });

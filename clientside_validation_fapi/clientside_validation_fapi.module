@@ -93,21 +93,30 @@ function _clientside_validation_set_fapi_validation($element, $rule, $params, &$
   switch ($callback) {
     case 'fapi_validation_rule_alpha':
       $type = 'alpha';
+      _clientside_validation_set_regex_pcre($name, $title, $js_rules, $expressions[$callback], $message, $type);
+      break;
     case 'fapi_validation_rule_alpha_numeric':
       $type = 'alpha numeric';
+      _clientside_validation_set_regex_pcre($name, $title, $js_rules, $expressions[$callback], $message, $type);
+      break;
     case 'fapi_validation_rule_ipv4':
       $type = 'ipv4';
+      _clientside_validation_set_regex_pcre($name, $title, $js_rules, $expressions[$callback], $message, $type);
+      break;
     case 'fapi_validation_rule_alpha_dash':
       $type = 'alpha dash';
+      _clientside_validation_set_regex_pcre($name, $title, $js_rules, $expressions[$callback], $message, $type);
+      break;
     case 'fapi_validation_rule_digit':
       $type = 'digit';
+      _clientside_validation_set_regex_pcre($name, $title, $js_rules, $expressions[$callback], $message, $type);
+      break;
     case 'fapi_validation_rule_regexp':
       if ($callback == 'fapi_validation_rule_regexp') {
         $expressions['fapi_validation_rule_regexp'] = is_array($params) ? $params[0] : $params;
         $type = 'regexp';
       }
       _clientside_validation_set_regex_pcre($name, $title, $js_rules, $expressions[$callback], $message, $type);
-
       break;
     case 'fapi_validation_rule_numeric':
       _clientside_validation_set_number_decimal($name, $title, '.', $js_rules, $message);

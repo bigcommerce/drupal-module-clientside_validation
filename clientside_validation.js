@@ -815,7 +815,7 @@
       return ret;
     }, jQuery.format('Please fill in at least on of the fields'));
 
-    // Require one of several
+    // Support for phone
     jQuery.validator.addMethod("phone", function(value, element, param) {
       var country_code = param;
       var result = false;

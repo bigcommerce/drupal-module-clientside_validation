@@ -65,7 +65,7 @@ function clientside_validation_field_validation_after_build_recurse($form_id, &$
     foreach ($children as $index => $item) {
       $element = &$form[$item];
       $types = array(
-        'emailfield', 'phonefield', 'link_field', 'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'file', 'radios', 'checkboxes',
+        'emailfield', 'phonefield', 'telfield', 'link_field', 'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'file', 'radios', 'checkboxes',
       );
       if (isset($element['#type']) && in_array($element['#type'], $types) && isset($element['#name']) /* && strpos($element['#name'], '[value]') !== FALSE */) {
         clientside_validation_field_validation_regular($form_id, $element, $rule, $js_rules);

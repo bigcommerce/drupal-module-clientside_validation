@@ -154,8 +154,15 @@ function _clientside_validation_ajax_call() {
 
 function _clientside_validation_ajax_phone() {
   $value = check_plain($_POST['value']);
-  $country_code = check_plain($_POST['country_code']);
-  $result['result'] = valid_phone_number($country_code, $value);
+  if (function_exists('valid_phone_number') && !empty($country_code)) {
+    $country_code = check_plain($_POST['country_code']);
+    $result['result'] = valid_phone_number($country_code, $value);
+  }
+  else {
+    // elements module provides a telfield, but doesn't do any validation
+    $result['result'] = TRUE;
+
+  }
   drupal_json_output($result);
 }
 

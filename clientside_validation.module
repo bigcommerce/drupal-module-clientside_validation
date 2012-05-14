@@ -195,7 +195,7 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
 
   if (strpos($form_id, 'webform_client_form') !== FALSE) {
     $definedsettings = clientside_validation_settings_load('webforms', $form['#node']->nid);
-    clientside_validation_settings_current_form($definedsettings);
+    $form['#clientside_validation_settings'] = $definedsettings;
     if (isset($form['actions']['previous'])) {
       $form['actions']['previous']['#attributes']['class'][] = 'cancel';
     }
@@ -208,7 +208,7 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
     else {
       $definedsettings = clientside_validation_settings_load('content-types', $form_id);
     }
-    clientside_validation_settings_current_form($definedsettings);
+    $form['#clientside_validation_settings'] = $definedsettings;
     if (isset($form['actions']['delete'])) {
       $form['actions']['delete']['#attributes']['class'][] = 'cancel';
     }
@@ -221,6 +221,7 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
  */
 function clientside_validation_webform_after_build(&$form, &$form_state) {
   $js_rules = array();
+  clientside_validation_settings_current_form($form['#clientside_validation_settings']);
   drupal_alter("clientside_validation_webform", $form, $form_state, $js_rules);
   if (!empty($js_rules)) {
     $settings = array();
@@ -308,7 +309,7 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
   if (isset($form_ids[$form['#id']])) {
     return $form;
   }
-
+  clientside_validation_settings_current_form($form['#clientside_validation_settings']);
   drupal_alter("clientside_validation_form", $form, $form_state, $js_rules);
   if (!empty($js_rules)) {
     $settings = array();

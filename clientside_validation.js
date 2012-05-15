@@ -88,7 +88,7 @@
       }
 
       if('checkboxrules' in self.forms[f]){
-        self.time.start('checkboxrules');
+        self.time.start('checkboxrules_groups');
         groupkey = "";
         jQuery.each (self.forms[f]['checkboxrules'], function(r) {
           groupkey = r + '_group';
@@ -104,7 +104,7 @@
             });
           });
         });
-        self.time.stop('checkboxrules');
+        self.time.stop('checkboxrules_groups');
       }
 
       if('daterangerules' in self.forms[f]){
@@ -475,12 +475,9 @@
     if('checkboxrules' in self.forms[formid]){
       self.time.start('checkboxrules');
       jQuery.each (self.forms[formid]['checkboxrules'], function(r) {
-        $form.find(this['checkboxgroupminmax'][2]).find('input[type="checkbox"]').addClass('require-one');
-      });
-      jQuery.each (self.forms[formid]['checkboxrules'], function(r) {
-        // Check if element exist in DOM before adding the rule
-        var $checkboxes = $form.find(this['checkboxgroupminmax'][2]).find(".require-one");
+        var $checkboxes = $form.find(this['checkboxgroupminmax'][2]).find('input[type="checkbox"]');
         if ($checkboxes.length) {
+          $checkboxes.addClass('require-one');
           $checkboxes.each(function(){
             $(this).rules("add", self.forms[formid]['checkboxrules'][r]);
             $(this).change(hideErrordiv);

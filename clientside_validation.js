@@ -19,12 +19,23 @@
           Drupal.myClientsideValidation.bindForms();
         }
       }
-      jQuery.event.trigger('clientsideValidationInitialized')
+      jQuery.event.trigger('clientsideValidationInitialized');
     }
-  }
+  };
 
   Drupal.clientsideValidation = function() {
     var self = this;
+    if (typeof window.time !== 'undefined') {
+      self.time = window.time;
+    }
+    else {
+      self.time = {
+        start: function() {},
+        stop: function() {},
+        report: function() {}
+      };
+    }
+    self.time.start('1. clientsideValidation');
     this.prefix = 'clientsidevalidation-';
     this.data = Drupal.settings.clientsideValidation;
     this.forms = this.data['forms'];
@@ -41,6 +52,8 @@
 
     this.addExtraRules();
     this.bindForms();
+    self.time.stop('1. clientsideValidation');
+    self.time.report();
   };
 
   Drupal.clientsideValidation.prototype.findVerticalTab = function(element) {
@@ -61,6 +74,7 @@
 
   Drupal.clientsideValidation.prototype.bindForms = function(){
     var self = this;
+    self.time.start('2. bindForms');
 
     jQuery.each (self.forms, function(f) {
       var errorel = self.prefix + f + '-errors';
@@ -74,6 +88,7 @@
       }
 
       if('checkboxrules' in self.forms[f]){
+        self.time.start('checkboxrules');
         groupkey = "";
         jQuery.each (self.forms[f]['checkboxrules'], function(r) {
           groupkey = r + '_group';
@@ -89,9 +104,11 @@
             });
           });
         });
+        self.time.stop('checkboxrules');
       }
 
       if('daterangerules' in self.forms[f]){
+        self.time.start('daterangerules');
         groupkey = "";
         jQuery.each (self.forms[f]['daterangerules'], function(r) {
           groupkey = r + '_group';
@@ -107,9 +124,11 @@
             });
           });
         });
+        self.time.stop('daterangerules');
       }
 
       if('dateminrules' in self.forms[f]){
+        self.time.start('dateminrules');
         groupkey = "";
         jQuery.each (self.forms[f]['dateminrules'], function(r) {
           groupkey = r + '_group';
@@ -125,9 +144,11 @@
             });
           });
         });
+        self.time.stop('dateminrules');
       }
 
       if('datemaxrules' in self.forms[f]){
+        self.time.start('datemaxrules');
         groupkey = "";
         jQuery.each (self.forms[f]['datemaxrules'], function(r) {
           groupkey = r + '_group';
@@ -143,6 +164,7 @@
             });
           });
         });
+        self.time.stop('datemaxrules');
       }
 
 
@@ -426,10 +448,12 @@
 
       }
     });
+  self.time.stop('2. bindForms');
   }
 
   Drupal.clientsideValidation.prototype.bindRules = function(formid){
     var self = this;
+    self.time.start('3. bindRules');
     var $form = $('#' + formid);
     var hideErrordiv = function(){
       //wait just one milisecond until the error div is updated
@@ -449,6 +473,7 @@
       }, 1);
     };
     if('checkboxrules' in self.forms[formid]){
+      self.time.start('checkboxrules');
       jQuery.each (self.forms[formid]['checkboxrules'], function(r) {
         $form.find(this['checkboxgroupminmax'][2]).find('input[type="checkbox"]').addClass('require-one');
       });
@@ -462,61 +487,56 @@
           });
         }
       });
+      self.time.stop('checkboxrules');
     }
     if('daterangerules' in self.forms[formid]){
+      self.time.start('daterangerules');
       jQuery.each (self.forms[formid]['daterangerules'], function(r) {
         $form.find('#' + r).find('input, textarea, select').not('input[type=image]').each(function(){
           $(this).rules("add", self.forms[formid]['daterangerules'][r]);
           $(this).blur(hideErrordiv);
         });
       });
+      self.time.stop('daterangerules');
     }
 
     if('dateminrules' in self.forms[formid]){
+      self.time.start('dateminrules');
       jQuery.each (self.forms[formid]['dateminrules'], function(r) {
         $form.find('#' + r).find('input, textarea, select').not('input[type=image]').each(function(){
           $(this).rules("add", self.forms[formid]['dateminrules'][r]);
           $(this).blur(hideErrordiv);
         });
       });
+      self.time.stop('dateminrules');
     }
 
     if('datemaxrules' in self.forms[formid]){
+      self.time.start('datemaxrules');
       jQuery.each (self.forms[formid]['datemaxrules'], function(r) {
         $form.find('#' + r).find('input, textarea, select').not('input[type=image]').each(function(){
           $(this).rules("add", self.forms[formid]['datemaxrules'][r]);
           $(this).blur(hideErrordiv);
         });
       });
+      self.time.stop('datemaxrules');
     }
 
-    if('rules' in self.forms[formid]){
+    if ('rules' in self.forms[formid]) {
+      self.time.start('rules');
+
       var $form_els = $form.find('input, textarea, select');
       jQuery.each (self.forms[formid]['rules'], function(r) {
         // Check if element exist in DOM before adding the rule
         $element = $form_els.filter("[name='" + r + "']");
         if ($element.length) {
           $element.rules("add", self.forms[formid]['rules'][r]);
-          $element.change(function(){
-            //wait just one millisecond until the error div is updated
-            window.setTimeout(function(){
-              var visibles = 0;
-              $("div.messages.error ul li").each(function(){
-                if($(this).is(':visible')){
-                  visibles++;
-                }
-                else {
-                  $(this).remove();
-                }
-              });
-              if(visibles < 1){
-                $("div.messages.error").hide();
-              }
-            }, 1);
-          });
+          $element.change(hideErrordiv);
         }
       });
+      self.time.stop('rules');
     }
+    self.time.stop('3. bindRules');
   }
 
   Drupal.clientsideValidation.prototype.addExtraRules = function(){
@@ -798,6 +818,7 @@
       var ret = false;
       if (value == "") {
         jQuery.each(param, function(index, name) {
+          // @TODO: limit to current form
           if (!ret && $("[name='" + name + "']").val().length) {
             ret = true;
           }
@@ -809,6 +830,7 @@
       }
       $(element).blur(function () {
         jQuery.each(param, function(index, name) {
+          // @TODO: limit to current form
           $("[name='" + name + "']").valid();
         });
       });

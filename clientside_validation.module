@@ -329,6 +329,10 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.min.js');
     }
     //add our js file to the footer to support vertical_tabs
+    if (variable_get('clientside_validation_add_js_timing', 0)) {
+      // @see http://remysharp.com/2007/04/20/performance-profiling-javascript/
+      drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/time.js');
+    }
     drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', array('scope' => 'footer', 'weight' => 20));
     drupal_add_js($settings, 'setting');
     $form_ids[$form['#id']] = TRUE;

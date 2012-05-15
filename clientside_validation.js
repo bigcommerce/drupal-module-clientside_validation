@@ -459,6 +459,7 @@
       //wait just one milisecond until the error div is updated
       window.setTimeout(function(){
         var visibles = 0;
+        // @TODO: check settings
         $("div.messages.error ul li").each(function(){
           if($(this).is(':visible')){
             visibles++;
@@ -489,7 +490,7 @@
     if('daterangerules' in self.forms[formid]){
       self.time.start('daterangerules');
       jQuery.each (self.forms[formid]['daterangerules'], function(r) {
-        $form.find('#' + r).find('input, textarea, select').not('input[type=image]').each(function(){
+        $form.find('#' + r).find('input, select').not('input[type=image]').each(function(){
           $(this).rules("add", self.forms[formid]['daterangerules'][r]);
           $(this).blur(hideErrordiv);
         });
@@ -500,7 +501,7 @@
     if('dateminrules' in self.forms[formid]){
       self.time.start('dateminrules');
       jQuery.each (self.forms[formid]['dateminrules'], function(r) {
-        $form.find('#' + r).find('input, textarea, select').not('input[type=image]').each(function(){
+        $form.find('#' + r).find('input, select').not('input[type=image]').each(function(){
           $(this).rules("add", self.forms[formid]['dateminrules'][r]);
           $(this).blur(hideErrordiv);
         });
@@ -511,7 +512,7 @@
     if('datemaxrules' in self.forms[formid]){
       self.time.start('datemaxrules');
       jQuery.each (self.forms[formid]['datemaxrules'], function(r) {
-        $form.find('#' + r).find('input, textarea, select').not('input[type=image]').each(function(){
+        $form.find('#' + r).find('input, select').not('input[type=image]').each(function(){
           $(this).rules("add", self.forms[formid]['datemaxrules'][r]);
           $(this).blur(hideErrordiv);
         });

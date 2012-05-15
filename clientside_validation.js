@@ -523,6 +523,7 @@
     if ('rules' in self.forms[formid]) {
       self.time.start('rules');
       var rules = self.forms[formid]['rules'];
+      // :input can be slow, see http://jsperf.com/input-vs-input/2
       $form.find('input, textarea, select').each(function(idx, elem) {
         var rule = rules[elem.name];
         if (rule) {

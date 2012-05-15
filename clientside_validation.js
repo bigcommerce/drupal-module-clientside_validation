@@ -524,14 +524,13 @@
 
     if ('rules' in self.forms[formid]) {
       self.time.start('rules');
-
-      var $form_els = $form.find('input, textarea, select');
-      jQuery.each (self.forms[formid]['rules'], function(r) {
-        // Check if element exist in DOM before adding the rule
-        $element = $form_els.filter("[name='" + r + "']");
-        if ($element.length) {
-          $element.rules("add", self.forms[formid]['rules'][r]);
-          $element.change(hideErrordiv);
+      var rules = self.forms[formid]['rules'];
+      $form.find('input, textarea, select').each(function(idx, elem) {
+        var rule = rules[elem.name];
+        if (rule) {
+          elem = $(elem);
+          $(elem).rules("add",rule);
+          $(elem).change(hideErrordiv);
         }
       });
       self.time.stop('rules');

@@ -93,8 +93,8 @@ function clientside_validation_general_settings_form($form_id, $form_state) {
     '#collapsed' => FALSE,
     '#title' => t('XRegExp for Pattern matching'),
     '#description' =>t("Javascript doesn't support regular expressions for pattern matching the way PHP does. With the XRegExp library most PHP expressions(pregex) become also available in Javascript. So you might want to use that instead of AJAX calls.<br>
-     You can Download the library(+ plugins you wish) from !xregexplink and put it in sites/all/libraries/xregexp (create the directory).",
-      array('!xregexplink' => l('http://xregexp.com/', 'http://xregexp.com/'))
+     You can download the library and plugins from !xregexplink and put it in sites/all/libraries/xregexp (create the directory).",
+      array('!xregexplink' => l('Github', 'https://github.com/slevithan/XRegExp'))
     ),
   );
 

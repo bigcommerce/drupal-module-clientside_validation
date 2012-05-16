@@ -623,18 +623,13 @@
           var delim = reg.lastIndexOf(reg[0]);
           var mod = reg.substr(delim + 1);
           reg = reg.substring(1, delim );
-          console.info(reg + ' ' + mod);
           if (!XRegExp(reg,mod).test(value)) {
             result = false;
-            console.info('error at' + reg + ' ' + mod);
             if (param['messages'][i].length) {
               jQuery.extend(jQuery.validator.messages, {
                 "regexMatchPCRE": param['messages'][i]
               });
             }
-          }
-          else {
-            console.info('verified' + reg + ' ' + mod);
           }
         }
         return result;

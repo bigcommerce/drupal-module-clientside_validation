@@ -389,6 +389,54 @@ function _clientside_validation_add_general_settings(&$settings, $form_id) {
     "showMessages" => $definedsettings['validate_options']['show_messages'],
     "errorElement" => $definedsettings['error']['error_element'],
   );
+
+  // add xregxp if choosen and found.
+  if (variable_get('clientside_validation_usexregxp', 0) != 0){
+    $settings['clientsideValidation']['general']['usexregxp'] = clientside_validation_add_xregexp();
+  }
+  else {
+    $settings['clientsideValidation']['general']['usexregxp'] = 0;
+  }
+}
+
+/*
+ * adds xregexp and optional unicode js lib
+ */
+function clientside_validation_add_xregexp(){
+  $xregxppath = 'sites/all/libraries/xregexp';
+  if (!is_dir($xregxppath)) {
+    $xregxppath = drupal_get_path('module', 'clientside_validation') . '/xregexp';
+    if (!is_dir($xregxppath)) {
+      return 0;
+    }
+  }
+
+  $regexlib = $xregxppath . '/xregexp-min.js';
+  if (!is_file($regexlib)) {
+    $regexlib = $xregxppath . '/xregexp.js';
+    if (!is_file($regexlib)) {
+      return 0;
+    }
+  }
+  drupal_add_js($regexlib);
+
+  if (!is_file($xregxppath . '/xregexp-unicode-base.js')) {
+    return 1; // Library without unicode support
+  }
+  drupal_add_js($xregxppath . '/xregexp-unicode-base.js');
+
+  if (is_file($xregxppath . '/xregexp-unicode-categories.js')) {
+    drupal_add_js($xregxppath . '/xregexp-unicode-categories.js');
+  }
+
+  if (is_file($xregxppath . '/xregexp-unicode-scripts.js')) {
+    drupal_add_js($xregxppath . '/xregexp-unicode-scripts.js');
+  }
+
+  if (is_file($xregxppath . 'xregexp-unicode-blocks.js')) {
+    drupal_add_js($xregxppath . '/xregexp-unicode-blocks.js');
+  }
+  return 1;
 }
 
 /**

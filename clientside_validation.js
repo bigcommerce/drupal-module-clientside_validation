@@ -422,7 +422,7 @@
                   this.settings.unhighlight.call( this, elements[i], this.settings.errorClass, this.settings.validClass );
                 }
               }
-              
+
               this.toHide = this.toHide.not( this.toShow );
               this.hideErrors();
               this.addWrapper( this.toShow ).show();
@@ -538,6 +538,7 @@
   }
 
   Drupal.clientsideValidation.prototype.addExtraRules = function(){
+    var self = this;
 
     jQuery.validator.addMethod("numberDE", function(value, element) {
       return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d+)?$/.test(value);
@@ -586,7 +587,8 @@
       return true;
     });
 
-    jQuery.validator.addMethod("regexMatchPCRE", function(value, element, param) {
+    // Default regular expression support
+    var ajaxPCREfn = function(value, element, param) {
       var result = false;
       jQuery.ajax({
         'url': Drupal.settings.basePath + 'clientside_validation/ajax',
@@ -609,7 +611,46 @@
         }
       }
       return result['result'];
-    }, jQuery.format('The value does not match the expected format.'));
+    };
+
+    // Regular expression support using XRegExp
+    var xregexPCREfn = function(value, element, param) {
+      if (window.XRegExp && XRegExp.version ) {
+        var result = true;
+        for (var i = 0; i < param['expressions'].length; i++) {
+          var reg = param['expressions'][i];
+          reg = reg + 'g';
+          var delim = reg.lastIndexOf(reg[0]);
+          var mod = reg.substr(delim + 1);
+          reg = reg.substring(1, delim );
+          console.info(reg + ' ' + mod);
+          if (!XRegExp(reg,mod).test(value)) {
+            result = false;
+            console.info('error at' + reg + ' ' + mod);
+            if (param['messages'][i].length) {
+              jQuery.extend(jQuery.validator.messages, {
+                "regexMatchPCRE": param['messages'][i]
+              });
+            }
+          }
+          else {
+            console.info('verified' + reg + ' ' + mod);
+          }
+        }
+        return result;
+      }
+      else {
+        return ajaxPCREfn(value, element, param);
+      }
+    };
+
+    // Decide which one to use
+    if (self.data.general.usexregxp) {
+      jQuery.validator.addMethod("regexMatchPCRE", xregexPCREfn, jQuery.format('The value does not match the expected format.'));
+    }
+    else {
+      jQuery.validator.addMethod("regexMatchPCRE", ajaxPCREfn, jQuery.format('The value does not match the expected format.'));
+    }
 
     // Unique values
     jQuery.validator.addMethod("notEqualTo", function(value, element, param) {
@@ -853,7 +894,7 @@
         }
       });
       return result['result'];
-      
+
     }, jQuery.format('Please fill in a valid phone number'));
 
     // EAN code

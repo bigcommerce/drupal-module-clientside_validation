@@ -85,6 +85,27 @@ function clientside_validation_general_settings_form($form_id, $form_state) {
       ),
     ),
   );
+
+   //XRegExp settings
+  $form['clientside_validation_xregxp'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#title' => t('XRegExp for Pattern matching'),
+    '#description' =>t("Javascript doesn't support regular expressions for pattern matching the way PHP does. With the XRegExp library most PHP expressions(pregex) become also available in Javascript. So you might want to use that instead of AJAX calls.<br>
+     You can Download the library(+ plugins you wish) from !xregexplink and put it in sites/all/libraries/xregexp (create the directory).",
+      array('!xregexplink' => l('http://xregexp.com/', 'http://xregexp.com/'))
+    ),
+  );
+
+  $form['clientside_validation_xregxp']['clientside_validation_usexregxp'] = array(
+    '#prefix' => '<br>',
+    '#title' => t('Use XRegExp'),
+    '#description' => t('Check to use XRegExp for PCRE.'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('clientside_validation_usexregxp', 0),
+  );
+
   $form = system_settings_form($form);
   return $form;
 }

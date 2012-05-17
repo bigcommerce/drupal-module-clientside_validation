@@ -73,6 +73,22 @@
     return null;
   }
 
+  Drupal.clientsideValidation.prototype.findHorizontalTab = function(element) {
+    element = $(element);
+
+    // Check for the vertical tabs fieldset and the verticalTab data
+    var fieldset = element.parents('fieldset.horizontal-tabs-pane');
+    if ((fieldset.size() > 0) && (typeof(fieldset.data('horizontalTab')) != 'undefined')) {
+      var tab = $(fieldset.data('horizontalTab').item[0]).find('a');
+      if (tab.size()) {
+        return tab;
+      }
+    }
+
+    // Return null by default
+    return null;
+  }
+
   Drupal.clientsideValidation.prototype.bindForms = function(){
     var self = this;
     self.time.start('2. bindForms');
@@ -190,6 +206,15 @@
                 tab.removeClass(errorClass).addClass(validClass);
               }
             }
+
+            // Same for horizontal tabs
+            fieldset = $(element).parents('fieldset.horizontal-tabs-pane');
+            if (fieldset.size() && fieldset.find('.' + errorClass).size() == 0) {
+              tab = self.findHorizontalTab(element);
+              if (tab) {
+                tab.removeClass(errorClass).addClass(validClass);
+              }
+            }
           },
           highlight: function(element, errorClass, validClass) {
             // Default behavior
@@ -197,6 +222,10 @@
 
             // Sort the classes out for the tabs
             var tab = self.findVerticalTab(element);
+            if (tab) {
+              tab.addClass(errorClass).removeClass(validClass);
+            }
+            tab = self.findHorizontalTab(element);
             if (tab) {
               tab.addClass(errorClass).removeClass(validClass);
             }
@@ -216,7 +245,27 @@
               // Only focus the first tab with errors if the selected tab doesn't have
               // errors itself. We shouldn't hide a tab that contains errors!
               if (!errors_in_selected) {
-                var tab = self.findVerticalTab(validator.errorList[0].element);
+                tab = self.findVerticalTab(validator.errorList[0].element);
+                if (tab) {
+                  tab.click();
+                }
+              }
+
+              // Same for vertical tabs
+              // Check if any of the errors are in the selected tab
+              errors_in_selected = false;
+              for (i = 0; i < validator.errorList.length; i++) {
+                tab = self.findHorizontalTab(validator.errorList[i].element);
+                if (tab && tab.parent().hasClass('selected')) {
+                  errors_in_selected = true;
+                  break;
+                }
+              }
+
+              // Only focus the first tab with errors if the selected tab doesn't have
+              // errors itself. We shouldn't hide a tab that contains errors!
+              if (!errors_in_selected) {
+                tab = self.findHorizontalTab(validator.errorList[0].element);
                 if (tab) {
                   tab.click();
                 }
@@ -337,7 +386,7 @@
         }
         if(self.forms[f].general.validateTabs) {
           if($('.vertical-tabs-pane input').length) {
-            validate_options.ignore += ' :not(.vertical-tabs-pane:input)';
+            validate_options.ignore += ' :not(.vertical-tabs-pane:input, .horizontal-tabs-pane:input)';
           }
         }
         //Since we can only give boolean false to onsubmit, onfocusout and onkeyup, we need

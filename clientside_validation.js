@@ -386,8 +386,11 @@
         }
         if(self.forms[f].general.validateTabs) {
           if($('.vertical-tabs-pane input').length) {
-            validate_options.ignore += ' :not(.vertical-tabs-pane:input, .horizontal-tabs-pane:input)';
+            validate_options.ignore += ' :not(.vertical-tabs-pane :input, .horizontal-tabs-pane :input)';
           }
+        }
+        else {
+          validate_options.ignore += ', .horizontal-tab-hidden :input';
         }
         //Since we can only give boolean false to onsubmit, onfocusout and onkeyup, we need
         //a lot of if's (boolean true can not be passed to these properties).

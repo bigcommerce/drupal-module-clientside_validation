@@ -26,6 +26,8 @@
   Drupal.clientsideValidation = function() {
     var self = this;
     if (typeof window.time !== 'undefined') {
+      // http://remysharp.com/2007/04/20/performance-profiling-javascript/
+      // http://remysharp.com/time.js
       self.time = window.time;
     }
     else {

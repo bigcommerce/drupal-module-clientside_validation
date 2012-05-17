@@ -26,8 +26,7 @@
   Drupal.clientsideValidation = function() {
     var self = this;
     if (typeof window.time !== 'undefined') {
-      // http://remysharp.com/2007/04/20/performance-profiling-javascript/
-      // http://remysharp.com/time.js
+      // activate by setting clientside_validation_add_js_timing
       self.time = window.time;
     }
     else {

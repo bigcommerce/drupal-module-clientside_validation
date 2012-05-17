@@ -371,10 +371,10 @@ function clientside_validation_settings_form($form, $form_state, $cvs_formid = N
     ),
   );
 
-  //Hidden fields and vertical tabs
+  //Hidden fields and tabs
   $form['include_hidden'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Hidden fields and vertical tabs'),
+    '#title' => t('Hidden fields and tabs'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
     '#weight' => 40,
@@ -391,8 +391,8 @@ function clientside_validation_settings_form($form, $form_state, $cvs_formid = N
   $form['include_hidden']['validate_tabs'] = array(
     '#type' => 'checkbox',
     '#default_value' => $settings['include_hidden']['validate_tabs'],
-    '#title' => t('Validate all vertical tabs'),
-    '#description' => t('If you check this, all tabs will be validated on submit
+    '#title' => t('Validate all tabs'),
+    '#description' => t('If you check this, all tabs will be validated (both vertical and horizontal) on submit
                       (including the hidden ones). Warning: if there are other hidden
                       fields (e.g. conditional fields), those will be validated too.'),
     '#weight' => 3,

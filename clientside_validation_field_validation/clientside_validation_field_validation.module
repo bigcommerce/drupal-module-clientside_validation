@@ -233,18 +233,21 @@ function clientside_validation_field_validation_regular($form_id, $element, $rul
       }
       else {
         if (!empty($rule['settings']['min'])) {
-          $message = t('You must select a minimum of !minl items for !name.', array('!name' => variable_get('clientside_validation_prefix', '') . $el_title . variable_get('clientside_validation_suffix', ''), '!minl' => $rule['settings']['min']));
+          $message = t('You must select a minimum of !minl items for !name.', array('!name' => _clientside_validation_set_title($el_title), '!minl' => $rule['settings']['min']));
         }
         if (!empty($rule['settings']['max'])) {
           $message = empty($message) ?
-          t('You can\'t select more than !maxl items for !name.', array('!name' => variable_get('clientside_validation_prefix', '') . $el_title . variable_get('clientside_validation_suffix', ''), '!maxl' => $rule['settings']['max'])) :
+          t('You can\'t select more than !maxl items for !name.', array('!name' => _clientside_validation_set_title($el_title), '!maxl' => $rule['settings']['max'])) :
           $message . ' ' . t('and a maximum of !maxl', array('!maxl' => $rule['settings']['maxl']));
         }
       }
       _clientside_validation_set_minmaxlength($el_name, $el_title, $rule['settings']['min'], $rule['settings']['max'], $js_rules, $message);
       break;
+    case 'field_validation_email_validator':
+      $message = isset($rule['error_message']) ? $rule['error_message'] : t('!name is not a valid email address', array('!name' => _clientside_validation_set_title($el_title)));
+      _clientside_validation_set_email($el_name, $el_title, $js_rules, $message);
     default:
-      $message = (isset($rule['error_message']) && !empty($rule['error_message'])) ? $rule['error_message'] : t('Invalid value for !name', array('!name' => variable_get('clientside_validation_prefix', '') . $el_title . variable_get('clientside_validation_suffix', '')));
+      $message = (isset($rule['error_message']) && !empty($rule['error_message'])) ? $rule['error_message'] : t('Invalid value for !name', array('!name' => _clientside_validation_set_title($el_title)));
       $context = array('type' => 'field_validation', 'rule' => $rule, 'message' => $message);
       drupal_alter('clientside_validation_rule', $js_rules, $element, $context);
       break;

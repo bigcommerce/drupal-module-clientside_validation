@@ -200,7 +200,7 @@
             // Sort the classes out for the tabs - we only want to remove the
             // highlight if there are no inputs with errors...
             var fieldset = $(element).parents('fieldset.vertical-tabs-pane');
-            if (fieldset.size() && fieldset.find('.' + errorClass).size() == 0) {
+            if (fieldset.size() && fieldset.find('.' + errorClass).not('label').size() == 0) {
               var tab = self.findVerticalTab(element);
               if (tab) {
                 tab.removeClass(errorClass).addClass(validClass);
@@ -209,7 +209,7 @@
 
             // Same for horizontal tabs
             fieldset = $(element).parents('fieldset.horizontal-tabs-pane');
-            if (fieldset.size() && fieldset.find('.' + errorClass).size() == 0) {
+            if (fieldset.size() && fieldset.find('.' + errorClass).not('label').size() == 0) {
               tab = self.findHorizontalTab(element);
               if (tab) {
                 tab.removeClass(errorClass).addClass(validClass);

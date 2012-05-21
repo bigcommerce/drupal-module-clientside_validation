@@ -137,7 +137,7 @@ function clientside_validation_menu() {
 }
 
 function _clientside_validation_ajax_call() {
-  $param = check_plain($_POST['param']);
+  $param = $_POST['param'];
   $value = check_plain($_POST['value']);
   $result = array();
   foreach ($param['expressions'] as $key => $regex) {
@@ -394,7 +394,7 @@ function _clientside_validation_add_general_settings(&$settings, $form_id) {
   );
 
   // add xregxp if choosen and found.
-  if (variable_get('clientside_validation_usexregxp', 0) != 0){
+  if (variable_get('clientside_validation_usexregxp', 0) != 0 && module_exists('xregexp_api')){
     $settings['clientsideValidation']['general']['usexregxp'] = clientside_validation_add_xregexp();
   }
   else {
@@ -406,40 +406,15 @@ function _clientside_validation_add_general_settings(&$settings, $form_id) {
  * adds xregexp and optional unicode js lib
  */
 function clientside_validation_add_xregexp(){
-  $xregxppath = 'sites/all/libraries/xregexp';
-  if (!is_dir($xregxppath)) {
-    $xregxppath = drupal_get_path('module', 'clientside_validation') . '/xregexp';
-    if (!is_dir($xregxppath)) {
-      return 0;
-    }
+  $variant = variable_get('clientside_validation_xregxp_variant', '');
+  $lib = FALSE;
+  if (empty($variant)) {
+    $lib = libraries_load('xregexp');
   }
-
-  $regexlib = $xregxppath . '/xregexp-min.js';
-  if (!is_file($regexlib)) {
-    $regexlib = $xregxppath . '/xregexp.js';
-    if (!is_file($regexlib)) {
-      return 0;
-    }
+  else {
+    $lib = libraries_load('xregexp', $variant);
   }
-  drupal_add_js($regexlib);
-
-  if (!is_file($xregxppath . '/xregexp-unicode-base.js')) {
-    return 1; // Library without unicode support
-  }
-  drupal_add_js($xregxppath . '/xregexp-unicode-base.js');
-
-  if (is_file($xregxppath . '/xregexp-unicode-categories.js')) {
-    drupal_add_js($xregxppath . '/xregexp-unicode-categories.js');
-  }
-
-  if (is_file($xregxppath . '/xregexp-unicode-scripts.js')) {
-    drupal_add_js($xregxppath . '/xregexp-unicode-scripts.js');
-  }
-
-  if (is_file($xregxppath . 'xregexp-unicode-blocks.js')) {
-    drupal_add_js($xregxppath . '/xregexp-unicode-blocks.js');
-  }
-  return 1;
+  return ($lib && (!isset($lib['error']) || !$lib['error'])) ? 1 : 0;
 }
 
 /**

@@ -676,13 +676,18 @@
           var delim = reg.lastIndexOf(reg[0]);
           var mod = reg.substr(delim + 1);
           reg = reg.substring(1, delim );
-          if (!XRegExp(reg,mod).test(value)) {
-            result = false;
-            if (param['messages'][i].length) {
-              jQuery.extend(jQuery.validator.messages, {
-                "regexMatchPCRE": param['messages'][i]
-              });
+          try {
+            if (!XRegExp(reg,mod).test(value)) {
+              result = false;
+              if (param['messages'][i].length) {
+                jQuery.extend(jQuery.validator.messages, {
+                  "regexMatchPCRE": param['messages'][i]
+                });
+              }
             }
+          }
+          catch(e) {
+            return ajaxPCREfn(value, element, param);
           }
         }
         return result;

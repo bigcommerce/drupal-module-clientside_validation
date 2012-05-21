@@ -86,25 +86,55 @@ function clientside_validation_general_settings_form($form_id, $form_state) {
     ),
   );
 
-   //XRegExp settings
-  $form['clientside_validation_xregxp'] = array(
-    '#type' => 'fieldset',
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#title' => t('XRegExp for Pattern matching'),
-    '#description' =>t("Javascript doesn't support regular expressions for pattern matching the way PHP does. With the XRegExp library most PHP expressions(pregex) become also available in Javascript. So you might want to use that instead of AJAX calls.<br>
-     You can download the library and plugins from !xregexplink and put it in sites/all/libraries/xregexp (create the directory).",
-      array('!xregexplink' => l('Github', 'https://github.com/slevithan/XRegExp'))
-    ),
-  );
+  if (module_exists('xregexp_api')) {
+    $lib = libraries_detect('xregexp');
+    if ($lib && $lib['installed']) {
+      //XRegExp settings
+      $form['clientside_validation_xregxp'] = array(
+        '#type' => 'fieldset',
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+        '#title' => t('XRegExp for Pattern matching'),
+        '#description' => t("Javascript doesn't support regular expressions for
+          pattern matching the way PHP does. With the XRegExp library most PHP
+          expressions(pregex) become also available in Javascript. So you might
+          want to use that instead of AJAX calls."),
+      );
 
-  $form['clientside_validation_xregxp']['clientside_validation_usexregxp'] = array(
-    '#prefix' => '<br>',
-    '#title' => t('Use XRegExp'),
-    '#description' => t('Check to use XRegExp for PCRE.'),
-    '#type' => 'checkbox',
-    '#default_value' => variable_get('clientside_validation_usexregxp', 0),
-  );
+      $form['clientside_validation_xregxp']['clientside_validation_usexregxp'] = array(
+        '#prefix' => '<br>',
+        '#title' => t('Use XRegExp'),
+        '#description' => t('Check to use XRegExp for PCRE.'),
+        '#type' => 'checkbox',
+        '#default_value' => variable_get('clientside_validation_usexregxp', 0),
+      );
+      $options = array('' => t('default'));
+      foreach ($lib['variants'] as $name => $variant) {
+        if (!isset($variant['error']) || !$variant['error']) {
+          $options[$name] = $name;
+        }
+      }
+      $form['clientside_validation_xregxp']['clientside_validation_xregxp_variant'] = array(
+        '#title' => t('XRegExp variant'),
+        '#description' => t('Choose which variant of the library you want to use.'),
+        '#type' => 'select',
+        '#options' => $options,
+        '#default_value' => variable_get('clientside_validation_xregxp_variant', ''),
+      );
+      if (version_compare($lib['version'], '2', '>=')) {
+        $form['clientside_validation_xregxp']['clientside_validation_xregxp_variant']['#description'] .= '<br />' .
+        t('!warning: You are using version 2.x or higher of the XRegExp library.
+          For best compatibility (including some !fapi rules) you should enable
+          the backcompat.js plugin on the !settingspage',
+          array(
+            '!warning' => '<strong>Warning</strong>',
+            '!fapi' => l(t('FAPI Validation'), 'http://drupal.org/project/fapi_validation'),
+            '!settingspage' => l(t('XRegExp API Settings page'), 'admin/config/system/xregexp'),
+          )
+        );
+      }
+    }
+  }
 
   $form = system_settings_form($form);
   return $form;

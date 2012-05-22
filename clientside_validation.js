@@ -1,4 +1,22 @@
-(function ($) {
+/**
+ * File:        clientside_validation.js
+ * Version:     7.x-1.x
+ * Description: Add clientside validation rules
+ * Author:      Attiks
+ * Language:    Javascript
+ * Project:     clientside_validation
+ * @module clientside_validation
+ */
+
+
+(/** @lends <global> */function ($) {
+  /**
+   * Drupal.behaviors.clientsideValidation.
+   *
+   * Attach clientside validation to the page or rebind the rules in case of AJAX calls.
+   * @namespace Drupal\behaviors
+   * @global
+   */
   Drupal.behaviors.clientsideValidation = {
     attach: function (context) {
       if (!Drupal.myClientsideValidation) {
@@ -23,6 +41,17 @@
     }
   };
 
+  /**
+   * Drupal.clientsideValidation.
+   * This module adds clientside validation for all forms and webforms using jquery.validate
+   * Don't forget to read the README
+   *
+   * @class clientsideValidation
+   * @name clientsideValidation
+   * @constructor
+   * @global
+   * @see https://github.com/jzaefferer/jquery-validation
+   */
   Drupal.clientsideValidation = function() {
     var self = this;
     if (typeof window.time !== 'undefined') {
@@ -37,13 +66,46 @@
       };
     }
     self.time.start('1. clientsideValidation');
+
+    /**
+     * prefix to use
+     * @memberof clientsideValidation
+     * @type string
+     * @private
+     */
     this.prefix = 'clientsidevalidation-';
+
+    /**
+     * local copy of settings
+     * @memberof clientsideValidation
+     * @type array
+     * @private
+     */
     this.data = Drupal.settings.clientsideValidation;
+
+    /**
+     * local copy of all defined forms
+     * @memberof clientsideValidation
+     * @type array
+     */
     this.forms = this.data['forms'];
+
+    /**
+     * list of all defined validators
+     * @memberof clientsideValidation
+     * @type array
+     */
     this.validators = {};
+
+    /**
+     * groups used for radios/checkboxes
+     * @memberof clientsideValidation
+     * @type array
+     * @private
+     */
     this.groups = this.data['groups'];
 
-    //disable class and attribute rules
+    // disable class and attribute rules defined by jquery.validate
     $.validator.classRules = function() {
       return {};
     };
@@ -51,12 +113,26 @@
       return {};
     };
 
+    /**
+     * add extra rules not defined in jquery.validate
+     * @see jquery.validate
+     */
     this.addExtraRules();
+
+    /**
+     * bind all rules to all forms
+     * @see Drupal.clientsideValidation.prototype.bindForms
+     */
     this.bindForms();
     self.time.stop('1. clientsideValidation');
     self.time.report();
   };
 
+  /**
+   * findVerticalTab helper.
+   * @memberof clientsideValidation
+   * @private
+   */
   Drupal.clientsideValidation.prototype.findVerticalTab = function(element) {
     element = $(element);
 
@@ -73,6 +149,11 @@
     return null;
   }
 
+  /**
+   * findHorizontalTab helper.
+   * @memberof clientsideValidation
+   * @private
+   */
   Drupal.clientsideValidation.prototype.findHorizontalTab = function(element) {
     element = $(element);
 
@@ -89,6 +170,11 @@
     return null;
   }
 
+  /**
+   * Bind all forms.
+   * @memberof clientsideValidation
+   * @public
+   */
   Drupal.clientsideValidation.prototype.bindForms = function(){
     var self = this;
     self.time.start('2. bindForms');
@@ -504,6 +590,10 @@
   self.time.stop('2. bindForms');
   }
 
+  /**
+   * Bind all rules.
+   * @memberof clientsideValidation
+   */
   Drupal.clientsideValidation.prototype.bindRules = function(formid){
     var self = this;
     self.time.start('3. bindRules');
@@ -590,6 +680,10 @@
     self.time.stop('3. bindRules');
   }
 
+  /**
+   * Add extra rules.
+   * @memberof clientsideValidation
+   */
   Drupal.clientsideValidation.prototype.addExtraRules = function(){
     var self = this;
 
@@ -669,23 +763,28 @@
     // Regular expression support using XRegExp
     var xregexPCREfn = function(value, element, param) {
       if (window.XRegExp && XRegExp.version ) {
-        var result = true;
-        for (var i = 0; i < param['expressions'].length; i++) {
-          var reg = param['expressions'][i];
-          reg = reg + 'g';
-          var delim = reg.lastIndexOf(reg[0]);
-          var mod = reg.substr(delim + 1);
-          reg = reg.substring(1, delim );
-          if (!XRegExp(reg,mod).test(value)) {
-            result = false;
-            if (param['messages'][i].length) {
-              jQuery.extend(jQuery.validator.messages, {
-                "regexMatchPCRE": param['messages'][i]
-              });
+        try {
+          var result = true;
+          for (var i = 0; i < param['expressions'].length; i++) {
+            var reg = param['expressions'][i];
+            reg = reg + 'g';
+            var delim = reg.lastIndexOf(reg[0]);
+            var mod = reg.substr(delim + 1);
+            reg = reg.substring(1, delim );
+            if (!XRegExp(reg,mod).test(value)) {
+              result = false;
+              if (param['messages'][i].length) {
+                jQuery.extend(jQuery.validator.messages, {
+                  "regexMatchPCRE": param['messages'][i]
+                });
+              }
             }
           }
+          return result;
         }
-        return result;
+        catch (e) {
+          return ajaxPCREfn(value, element, param);
+        }
       }
       else {
         return ajaxPCREfn(value, element, param);
@@ -985,6 +1084,11 @@
     //Allow other modules to add more rules:
     jQuery.event.trigger('clientsideValidationAddCustomRules');
 
+      /**
+       * strip illegal tags
+       * @memberof clientsideValidation
+       * @private
+       */
     function strip_tags (input, allowed) {
       allowed = (((allowed || "") + "").toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join(''); // making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
       var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,

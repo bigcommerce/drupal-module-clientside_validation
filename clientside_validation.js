@@ -71,6 +71,7 @@
      * prefix to use
      * @memberof clientsideValidation
      * @type string
+     * @readonly
      * @private
      */
     this.prefix = 'clientsidevalidation-';
@@ -79,6 +80,7 @@
      * local copy of settings
      * @memberof clientsideValidation
      * @type array
+     * @readonly
      * @private
      */
     this.data = Drupal.settings.clientsideValidation;
@@ -87,6 +89,7 @@
      * local copy of all defined forms
      * @memberof clientsideValidation
      * @type array
+     * @readonly
      */
     this.forms = this.data['forms'];
 
@@ -94,6 +97,7 @@
      * list of all defined validators
      * @memberof clientsideValidation
      * @type array
+     * @readonly
      */
     this.validators = {};
 
@@ -101,6 +105,7 @@
      * groups used for radios/checkboxes
      * @memberof clientsideValidation
      * @type array
+     * @readonly
      * @private
      */
     this.groups = this.data['groups'];
@@ -1081,14 +1086,19 @@
       }
     }, jQuery.format('Not a valid EAN number.'));
 
-    //Allow other modules to add more rules:
+    /**
+     * Allow other modules to add more rules.
+     * @event
+     * @name clientsideValidationAddCustomRules
+     * @memberof clientsideValidation
+     */
     jQuery.event.trigger('clientsideValidationAddCustomRules');
 
-      /**
-       * strip illegal tags
-       * @memberof clientsideValidation
-       * @private
-       */
+    /**
+     * strip illegal tags
+     * @memberof clientsideValidation
+     * @private
+     */
     function strip_tags (input, allowed) {
       allowed = (((allowed || "") + "").toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join(''); // making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
       var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,

@@ -8,13 +8,11 @@
  * @module clientside_validation
  */
 
-(/** @lends <global> */function ($) {
+(/** @lends Drupal */function ($) {
   /**
    * Drupal.behaviors.clientsideValidationHtml5.
    *
    * Attach clientside validation to the page for HTML5.
-   * @namespace Drupal\behaviors
-   * @global
    */
   Drupal.behaviors.clientsideValidationIfe = {
     attach: function (context) {
@@ -22,7 +20,7 @@
         /**
          * IFE specific rules.
          * @name _bindIfeRules
-         * @memberof clientsideValidation
+         * @memberof Drupal.clientsideValidation
          * @method
          * @private
          */

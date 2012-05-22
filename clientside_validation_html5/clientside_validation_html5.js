@@ -8,13 +8,11 @@
  * @module clientside_validation
  */
 
-(/** @lends <global> */function ($) {
+(/** @lends Drupal */function ($) {
   /**
    * Drupal.behaviors.clientsideValidationHtml5.
    *
    * Attach clientside validation to the page for HTML5.
-   * @namespace Drupal\behaviors
-   * @global
    */
   Drupal.behaviors.clientsideValidationHtml5 = {
     attach: function (context) {
@@ -22,7 +20,7 @@
         /**
          * HTML5 specific rules.
          * @name _bindHTML5Rules
-         * @memberof clientsideValidation
+         * @memberof Drupal.clientsideValidation
          * @method
          * @private
          */

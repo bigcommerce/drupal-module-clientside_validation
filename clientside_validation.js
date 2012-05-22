@@ -9,13 +9,12 @@
  */
 
 
-(/** @lends <global> */function ($) {
+(/** @lends Drupal */function ($) {
   /**
    * Drupal.behaviors.clientsideValidation.
    *
    * Attach clientside validation to the page or rebind the rules in case of AJAX calls.
-   * @namespace Drupal\behaviors
-   * @global
+   * @extends Drupal.behaviors
    */
   Drupal.behaviors.clientsideValidation = {
     attach: function (context) {
@@ -46,11 +45,9 @@
    * This module adds clientside validation for all forms and webforms using jquery.validate
    * Don't forget to read the README
    *
-   * @class clientsideValidation
-   * @name clientsideValidation
-   * @constructor
-   * @global
+   * @class Drupal.clientsideValidation
    * @see https://github.com/jzaefferer/jquery-validation
+   * @fires clientsideValidationAddCustomRules
    */
   Drupal.clientsideValidation = function() {
     var self = this;
@@ -69,7 +66,7 @@
 
     /**
      * prefix to use
-     * @memberof clientsideValidation
+     * @memberof Drupal.clientsideValidation
      * @type string
      * @readonly
      * @private
@@ -78,7 +75,7 @@
 
     /**
      * local copy of settings
-     * @memberof clientsideValidation
+     * @memberof Drupal.clientsideValidation
      * @type array
      * @readonly
      * @private
@@ -87,7 +84,7 @@
 
     /**
      * local copy of all defined forms
-     * @memberof clientsideValidation
+     * @memberof Drupal.clientsideValidation
      * @type array
      * @readonly
      */
@@ -95,7 +92,7 @@
 
     /**
      * list of all defined validators
-     * @memberof clientsideValidation
+     * @memberof Drupal.clientsideValidation
      * @type array
      * @readonly
      */
@@ -103,7 +100,7 @@
 
     /**
      * groups used for radios/checkboxes
-     * @memberof clientsideValidation
+     * @memberof Drupal.clientsideValidation
      * @type array
      * @readonly
      * @private
@@ -135,7 +132,7 @@
 
   /**
    * findVerticalTab helper.
-   * @memberof clientsideValidation
+   * @memberof Drupal.clientsideValidation
    * @private
    */
   Drupal.clientsideValidation.prototype.findVerticalTab = function(element) {
@@ -156,7 +153,7 @@
 
   /**
    * findHorizontalTab helper.
-   * @memberof clientsideValidation
+   * @memberof Drupal.clientsideValidation
    * @private
    */
   Drupal.clientsideValidation.prototype.findHorizontalTab = function(element) {
@@ -177,7 +174,7 @@
 
   /**
    * Bind all forms.
-   * @memberof clientsideValidation
+   * @memberof Drupal.clientsideValidation
    * @public
    */
   Drupal.clientsideValidation.prototype.bindForms = function(){
@@ -597,7 +594,7 @@
 
   /**
    * Bind all rules.
-   * @memberof clientsideValidation
+   * @memberof Drupal.clientsideValidation
    */
   Drupal.clientsideValidation.prototype.bindRules = function(formid){
     var self = this;
@@ -687,8 +684,8 @@
 
   /**
    * Add extra rules.
-   * @memberof clientsideValidation
-   */
+   * @memberof Drupal.clientsideValidation
+  */
   Drupal.clientsideValidation.prototype.addExtraRules = function(){
     var self = this;
 
@@ -1096,15 +1093,16 @@
 
     /**
      * Allow other modules to add more rules.
-     * @event
+     * @event clientsideValidationAddCustomRules
      * @name clientsideValidationAddCustomRules
-     * @memberof clientsideValidation
+     * @memberof Drupal.clientsideValidation
      */
     jQuery.event.trigger('clientsideValidationAddCustomRules');
 
+
     /**
      * strip illegal tags
-     * @memberof clientsideValidation
+     * @memberof Drupal.clientsideValidation
      * @private
      */
     function strip_tags (input, allowed) {

@@ -774,16 +774,16 @@
             var reg = param['expressions'][i];
             var delim = reg.lastIndexOf(reg[0]);
             // Only allow supported modifiers
-            var modraw = reg.substr(delim + 1);
+            var modraw = reg.substr(delim + 1) || '';
             var mod = '';
             if (mod != '') {
-              for (var l=0; l<6; l++) {
-                if(-1 != modraw.indexOf('gimnsx'[l])){
+              for (var l = 0; l < 6; l++) {
+                if (modraw.indexOf('gimnsx'[l]) != -1) {
                   mod += 'gimnsx'[l];
                 }
               }
             }
-            reg = reg.substring(1, delim );
+            reg = reg.substring(1, delim);
             if (!XRegExp(reg, mod).test(value)) {
               result = false;
               if (param['messages'][i].length) {

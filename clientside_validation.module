@@ -336,6 +336,11 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
     }
 
     //add our js file to the footer to support vertical_tabs
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.ie8.js', array(
+      'scope' => 'footer',
+      'weight' => 19,
+      'browsers' => array('IE' => 'lt IE 9', '!IE' => FALSE),
+    ));
     drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', array('scope' => 'footer', 'weight' => 20));
     drupal_add_js($settings, 'setting');
     $form_ids[$form['#id']] = TRUE;

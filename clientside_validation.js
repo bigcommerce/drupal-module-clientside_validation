@@ -15,6 +15,7 @@
    *
    * Attach clientside validation to the page or rebind the rules in case of AJAX calls.
    * @extends Drupal.behaviors
+   * @fires clientsideValidationInitialized
    */
   Drupal.behaviors.clientsideValidation = {
     attach: function (context) {
@@ -36,6 +37,12 @@
           Drupal.myClientsideValidation.bindForms();
         }
       }
+      /**
+       * Let other modules know we are ready.
+       * @event clientsideValidationInitialized
+       * @name clientsideValidationInitialized
+       * @memberof Drupal.clientsideValidation
+       */
       jQuery.event.trigger('clientsideValidationInitialized');
     }
   };

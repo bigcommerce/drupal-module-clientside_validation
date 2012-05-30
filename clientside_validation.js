@@ -408,10 +408,20 @@
           case 2: // CLIENTSIDE_VALIDATION_BEFORE_LABEL
             validate_options.errorPlacement = function(error, element) {
               if (element.is(":radio")) {
-                error.insertBefore(element.parents('.form-radios').prev('label'));
+                if(parents = element.parents(".form-type-checkbox-tree")) {
+                  error.insertBefore(parents.find("label").first());
+                }
+                else {
+                  error.insertBefore(element.parents('.form-radios').prev('label'));
+                }
               }
               else if (element.is(":checkbox")) {
-                error.insertBefore(element.parents('.form-checkboxes').prev('label'));
+                if(parents = element.parents(".form-type-checkbox-tree")) {
+                  error.insertBefore(parents.find("label").first());
+                }
+                else {
+                  error.insertBefore(element.parents('.form-checkboxes').prev('label'));
+                }
               }
               else {
                 error.insertBefore('label[for="'+ element.attr('id') +'"]');
@@ -421,10 +431,20 @@
           case 3: // CLIENTSIDE_VALIDATION_AFTER_LABEL
             validate_options.errorPlacement = function(error, element) {
               if (element.is(":radio")) {
-                error.insertAfter(element.parents('.form-radios').prev('label'));
+                if(parents = element.parents(".form-type-checkbox-tree")) {
+                  error.insertAfter(parents.find("label").first());
+                }
+                else {
+                  error.insertAfter(element.parents('.form-radios').prev('label'));
+                }
               }
               else if (element.is(":checkbox")) {
-                error.insertAfter(element.parents('.form-checkboxes').prev('label'));
+                if(parents = element.parents(".form-type-checkbox-tree")) {
+                  error.insertAfter(parents.find("label").first());
+                }
+                else {
+                  error.insertAfter(element.parents('.form-checkboxes').prev('label'));
+                }
               }
               else {
                 error.insertAfter('label[for="'+ element.attr('id') +'"]');
@@ -438,6 +458,25 @@
             break;
           case 5: // CLIENTSIDE_VALIDATION_AFTER_INPUT
             validate_options.errorPlacement = function(error, element) {
+              if (element.is(":radio")) {
+                if(parents = element.parents(".form-type-checkbox-tree")) {
+                  error.insertAfter(parents);
+                }
+                else {
+                  error.insertAfter(element.parents('.form-radios'));
+                }
+              }
+              else if (element.is(":checkbox")) {
+                if(parents = element.parents(".form-type-checkbox-tree")) {
+                  error.insertAfter(parents);
+                }
+                else {
+                  error.insertAfter(element.parents('.form-checkboxes'));
+                }
+              }
+              else {
+                error.insertAfter('label[for="'+ element.attr('id') +'"]');
+              }
               if (element.is(":radio")) {
                 error.insertAfter(element.parents('.form-radios'));
               }

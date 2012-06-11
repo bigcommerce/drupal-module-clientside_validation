@@ -773,10 +773,13 @@
 
     // One of the values
     jQuery.validator.addMethod("oneOf", function(value, element, param) {
-      for (var p in param) {
-        if (param[p] == value) {
+      var val;
+      for (var p in param.values) {
+        if (param.values[p] == value && param.caseSensitive) {
           return true;
-          break;
+        }
+        else if (param.values[p].toLowerCase() == value.toLowerCase() && !param.caseSensitive) {
+          return true;
         }
       }
       return false;

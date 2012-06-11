@@ -195,6 +195,12 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
           }
         }
         break;
+      case 'captcha':
+        $title = _clientside_validation_set_title($element['captcha_widgets']['captcha_response']['#title']);
+        $message = t('Wrong answer for !title', array('!title' => $title));
+        $case_sensitive = strpos($element['#captcha_validate'], 'insensitive') === FALSE;
+        _clientside_validation_set_specific_value($element['captcha_widgets']['captcha_response']['#name'], $title, $element['#captcha_info']['solution'], $js_rules, $message, $case_sensitive);
+        break;
     }
     if (!isset($js_rules[$el_name]['required']) && $element['#required']) {
       _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules, $required_error);

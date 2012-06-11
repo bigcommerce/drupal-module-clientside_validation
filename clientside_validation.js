@@ -1076,6 +1076,27 @@
       return true;
     });
 
+    jQuery.validator.addMethod("dateFormat", function(value, element, param) {
+      var parts = value.split(param.splitter);
+      var day = parseInt(parts[param.daypos], 10);
+      var month = parseInt(parts[param.monthpos], 10);
+      var year = parseInt(parts[param.yearpos], 10);
+      var date = new Date();
+      date.setFullYear(year);
+      if (year !== date.getFullYear()) {
+        return false;
+      }
+      date.setMonth(month);
+      if (month !== date.getMonth()) {
+        return false;
+      }
+      date.setDate(day);
+      if (day !== date.getDate()) {
+        return false;
+      }
+      return true;
+    }, jQuery.format('The date is not in a valid format'));
+
     // Require one of several
     jQuery.validator.addMethod("requireOneOf", function(value, element, param) {
       var ret = false;

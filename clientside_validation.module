@@ -732,8 +732,8 @@ function _clientside_validation_set_not_equal($name, $title, $element, &$js_rule
 /**
  * Set validation rule for fields that must be equal to a specific value.
  */
-function _clientside_validation_set_specific_value($name, $title, $value, &$js_rules, $message = '') {
-  $js_rules[$name]['oneOf'] = $value;
+function _clientside_validation_set_specific_value($name, $title, $value, &$js_rules, $message = '', $case_sensitive = TRUE) {
+  $js_rules[$name]['oneOf'] = array('values' => array($value), 'caseSensitive' => $case_sensitive);
   $title = variable_get('clientside_validation_prefix', '') . $title . variable_get('clientside_validation_suffix', '');
   if (empty($message)) {
     $variables = array(

@@ -16,10 +16,7 @@ function clientside_validation_form_after_build_recurse($form_id, &$form, &$form
         clientside_validation_cck($form_id, $element, $js_rules);
       }
       else {
-        $types = array(
-          'textfield', 'textarea', 'select', 'radio', 'checkbox', 'password', 'file', 'radios', 'checkboxes',
-        );
-        if (isset($element['#type']) && in_array($element['#type'], $types)) {
+        if (isset($element['#type'])) {
           clientside_validation_regular($form_id, $element, $js_rules);
         }
       }
@@ -88,6 +85,12 @@ function clientside_validation_regular($form_id, $element, &$js_rules) {
         elseif ($element['#required']) {
           _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules);
         }
+        break;
+      case 'captcha':
+        $title = variable_get('clientside_validation_prefix', '') . $element['captcha_widgets']['captcha_response']['#title'] . variable_get('clientside_validation_suffix', '');
+        $message = t('Wrong answer for !title', array('!title' => $title));
+        $case_sensitive = strpos($element['#captcha_validate'], 'insensitive') === FALSE;
+        _clientside_validation_set_specific_value($element['captcha_widgets']['captcha_response']['#name'], $title, $element['#captcha_info']['solution'], $js_rules, $message, $case_sensitive);
         break;
     }
   }

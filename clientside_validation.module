@@ -1171,6 +1171,13 @@ function theme_clientside_error($variables) {
 }
 
 function clientside_validation_settings_delete($cvs_type, $cvs_formid) {
+  if (!db_table_exists('clientside_validation_settings')) {
+    drupal_set_message(
+      t("You need to run the database update script so that Clientside Validation can function properly. Click !here to run the database update script.",
+      array('!here' => l('here', 'update.php')))
+    );
+    return;
+  }
   db_delete('clientside_validation_settings')
     ->condition('type', $cvs_type)
     ->condition('form_id', $cvs_formid)
@@ -1178,6 +1185,13 @@ function clientside_validation_settings_delete($cvs_type, $cvs_formid) {
 }
 
 function clientside_validation_settings_enable($cvs_type, $cvs_formid) {
+  if (!db_table_exists('clientside_validation_settings')) {
+    drupal_set_message(
+      t("You need to run the database update script so that Clientside Validation can function properly. Click !here to run the database update script.",
+      array('!here' => l('here', 'update.php')))
+    );
+    return;
+  }
   db_update('clientside_validation_settings')
     ->fields(array(
       'status' => 7,
@@ -1188,6 +1202,13 @@ function clientside_validation_settings_enable($cvs_type, $cvs_formid) {
 }
 
 function clientside_validation_settings_disable($cvs_type, $cvs_formid) {
+  if (!db_table_exists('clientside_validation_settings')) {
+    drupal_set_message(
+      t("You need to run the database update script so that Clientside Validation can function properly. Click !here to run the database update script.",
+      array('!here' => l('here', 'update.php')))
+    );
+    return;
+  }
   db_update('clientside_validation_settings')
     ->fields(array(
       'status' => 0,
@@ -1198,6 +1219,13 @@ function clientside_validation_settings_disable($cvs_type, $cvs_formid) {
 }
 
 function clientside_validation_settings_add($cvs_type, $cvs_formid, $settings = array(), $enable = FALSE) {
+  if (!db_table_exists('clientside_validation_settings')) {
+    drupal_set_message(
+      t("You need to run the database update script so that Clientside Validation can function properly. Click !here to run the database update script.",
+      array('!here' => l('here', 'update.php')))
+    );
+    return;
+  }
   db_merge('clientside_validation_settings')
     ->key(array(
       'type' => $cvs_type,
@@ -1211,6 +1239,13 @@ function clientside_validation_settings_add($cvs_type, $cvs_formid, $settings = 
 }
 
 function clientside_validation_settings_update($cvs_type, $cvs_formid, $settings) {
+  if (!db_table_exists('clientside_validation_settings')) {
+    drupal_set_message(
+      t("You need to run the database update script so that Clientside Validation can function properly. Click !here to run the database update script.",
+      array('!here' => l('here', 'update.php')))
+    );
+    return;
+  }
   db_update('clientside_validation_settings')
     ->fields(array(
       'settings' => serialize($settings),
@@ -1269,33 +1304,41 @@ function clientside_validation_settings_load_defaults() {
 }
 
 function clientside_validation_settings_load($cvs_type = NULL, $cvs_formid = NULL, $include_disabled = FALSE) {
+  $default_settings = array(
+    'validate_options' => array(
+      'disable_html5' => 1,
+      'validate_onsubmit' => 1,
+      'validate_onblur' => 1,
+      'validate_onblur_always' => 0,
+      'validate_onkeyup' => 1,
+      'show_messages' => 0,
+    ),
+    'error' => array(
+      'prefix' => '',
+      'suffix' => '',
+      'scrollto_errormessage' => 1,
+      'scroll_speed' => 1000,
+      'error_element' => 'label',
+    ),
+    'error_placement' => array(
+      'error_placement_default' => CLIENTSIDE_VALIDATION_TOP_OF_FORM,
+      'jquery_selector' => '',
+      'custom_error_function' => '',
+    ),
+    'include_hidden' => array(
+      'include_hidden' => '',
+      'include_hidden_fields' => FALSE,
+      'validate_tabs' => '',
+    ),
+  );
   if ($cvs_type == 'default') {
-    $default_settings = array(
-      'validate_options' => array(
-        'disable_html5' => 1,
-        'validate_onsubmit' => 1,
-        'validate_onblur' => 1,
-        'validate_onblur_always' => 0,
-        'validate_onkeyup' => 1,
-        'show_messages' => 0,
-      ),
-      'error' => array(
-        'prefix' => '',
-        'suffix' => '',
-        'scrollto_errormessage' => 1,
-        'scroll_speed' => 1000,
-        'error_element' => 'label',
-      ),
-      'error_placement' => array(
-        'error_placement_default' => CLIENTSIDE_VALIDATION_TOP_OF_FORM,
-        'jquery_selector' => '',
-        'custom_error_function' => '',
-      ),
-      'include_hidden' => array(
-        'include_hidden' => '',
-        'include_hidden_fields' => FALSE,
-        'validate_tabs' => '',
-      ),
+    return variable_get('clientside_validation_default_settings', $default_settings);
+  }
+  if (!db_table_exists('clientside_validation_settings')) {
+    drupal_set_message(
+      t("You need to run the database update script so that Clientside Validation can function properly. Click !here to run the database update script.",
+      array('!here' => l('here', 'update.php'))),
+      'error'
     );
     return variable_get('clientside_validation_default_settings', $default_settings);
   }

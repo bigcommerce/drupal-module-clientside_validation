@@ -201,7 +201,7 @@
 
       if('checkboxrules' in self.forms[f]){
         self.time.start('checkboxrules_groups');
-        groupkey = "";
+        var groupkey = "";
         jQuery.each (self.forms[f]['checkboxrules'], function(r) {
           groupkey = r + '_group';
           self.groups[f][groupkey] = "";

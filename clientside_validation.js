@@ -206,7 +206,7 @@
           groupkey = r + '_group';
           self.groups[f][groupkey] = "";
           jQuery.each(this, function(){
-            i = 0;
+            var i = 0;
             $(this[2]).find('input[type=checkbox]').each(function(){
               if(i > 0){
                 self.groups[f][groupkey] += ' ';
@@ -221,12 +221,12 @@
 
       if('daterangerules' in self.forms[f]){
         self.time.start('daterangerules');
-        groupkey = "";
+        var groupkey = "";
         jQuery.each (self.forms[f]['daterangerules'], function(r) {
           groupkey = r + '_group';
           self.groups[f][groupkey] = "";
           jQuery.each(this, function(){
-            i = 0;
+            var i = 0;
             $('#' + f + ' #' + r + ' :input').not('input[type=image]').each(function(){
               if(i > 0){
                 self.groups[f][groupkey] += ' ';
@@ -241,12 +241,12 @@
 
       if('dateminrules' in self.forms[f]){
         self.time.start('dateminrules');
-        groupkey = "";
+        var groupkey = "";
         jQuery.each (self.forms[f]['dateminrules'], function(r) {
           groupkey = r + '_group';
           self.groups[f][groupkey] = "";
           jQuery.each(this, function(){
-            i = 0;
+            var i = 0;
             $('#' + f + ' #' + r + ' :input').not('input[type=image]').each(function(){
               if(i > 0){
                 self.groups[f][groupkey] += ' ';
@@ -261,12 +261,12 @@
 
       if('datemaxrules' in self.forms[f]){
         self.time.start('datemaxrules');
-        groupkey = "";
+        var groupkey = "";
         jQuery.each (self.forms[f]['datemaxrules'], function(r) {
           groupkey = r + '_group';
           self.groups[f][groupkey] = "";
           jQuery.each(this, function(){
-            i = 0;
+            var i = 0;
             $('#' + f + ' #' + r + ' :input').not('input[type=image]').each(function(){
               if(i > 0){
                 self.groups[f][groupkey] += ' ';

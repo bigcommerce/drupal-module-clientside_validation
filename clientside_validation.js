@@ -1084,19 +1084,20 @@
       var month = parseInt(parts[param.monthpos], 10);
       var year = parseInt(parts[param.yearpos], 10);
       var date = new Date();
+      var result = true;
       date.setFullYear(year);
       if (year !== date.getFullYear()) {
-        return false;
+        result = false;
       }
       date.setMonth(month);
       if (month !== date.getMonth()) {
-        return false;
+        result = false;
       }
       date.setDate(day);
       if (day !== date.getDate()) {
-        return false;
+        result = false;
       }
-      return true;
+      return this.optional(element) || result;
     }, jQuery.format('The date is not in a valid format'));
 
     // Require one of several

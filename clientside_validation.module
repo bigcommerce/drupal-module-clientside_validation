@@ -24,6 +24,18 @@ define('CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION', 7);
  */
 function clientside_validation_js_alter() {
   $clientside_validation_settings = &drupal_static('clientside_validation_settings', array());
+  foreach ($clientside_validation_settings['clientsideValidation']['forms'] as $form_id => $settings) {
+    $stripped_form_id = $form_id;
+    $matches = array();
+    preg_match(' /.*?(--(\d)*)/', $form_id, $matches);
+    if (isset($matches[1])) {
+      $stripped_form_id = str_replace($matches[1], '', $form_id);
+    }
+    if ($stripped_form_id != $form_id) {
+      $clientside_validation_settings['clientsideValidation']['forms'][$form_id] = $clientside_validation_settings['clientsideValidation']['forms'][$stripped_form_id];
+      $clientside_validation_settings['clientsideValidation']['groups'][$form_id] = $clientside_validation_settings['clientsideValidation']['groups'][$stripped_form_id];
+    }
+  }
   drupal_add_js($clientside_validation_settings, 'setting');
 }
 
@@ -271,14 +283,16 @@ function clientside_validation_add_js_settings($settings) {
   $clientside_validation_settings = drupal_array_merge_deep($clientside_validation_settings, $settings);
 }
 
-function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form, $replace = TRUE) {
+function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form) {
   $form_id = $form['#id'];
-  if ($replace) {
-    $matches = array();
-    preg_match(' /.*?(--(\d)*)/', $form_id, $matches);
-    if (isset($matches[1])) {
-      $form_id = str_replace($matches[1], '', $form_id);
-    }
+  $matches = array();
+  preg_match(' /.*?(--(\d)*)/', $form_id, $matches);
+  if (isset($matches[1])) {
+    $form_id = str_replace($matches[1], '', $form_id);
+  }
+  if ($form_id != $form['#id']) {
+    $settings['clientsideValidation']['forms'][$form['#id']] = array();
+    $settings['clientsideValidation']['groups'][$form['#id']] = new stdClass();
   }
   if (isset($js_rules['_groups'])) {
     $settings['clientsideValidation']['groups'][$form_id] = (object)$js_rules['_groups'];
@@ -336,9 +350,6 @@ function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form,
       $settings['clientsideValidation']['forms'][$form_id]['rules'][$key] = $rule;
     }
   }
-  if ($form_id != $form['#id'] && $replace) {
-    _clientside_validation_add_special_rules($js_rules, $settings, $form, FALSE);
-  }
 }
 
 /**
@@ -358,14 +369,15 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
   return $form;
 }
 
-function _clientside_validation_add_general_settings(&$settings, $form, $replace = TRUE) {
+function _clientside_validation_add_general_settings(&$settings, $form) {
   $form_id = $form['#id'];
-  if ($replace) {
-    $matches = array();
-    preg_match(' /.*?(--(\d)*)/', $form_id, $matches);
-    if (isset($matches[1])) {
-      $form_id = str_replace($matches[1], '', $form_id);
-    }
+  $matches = array();
+  preg_match(' /.*?(--(\d)*)/', $form_id, $matches);
+  if (isset($matches[1])) {
+    $form_id = str_replace($matches[1], '', $form_id);
+  }
+  if ($form_id != $form['#id']) {
+    $settings['clientsideValidation']['forms'][$form['#id']] = array();
   }
   $definedsettings = clientside_validation_settings_current_form();
   // Add a setting for this form if the hidden elements should still be validated
@@ -419,9 +431,6 @@ function _clientside_validation_add_general_settings(&$settings, $form, $replace
   }
   else {
     $settings['clientsideValidation']['general']['usexregxp'] = 0;
-  }
-  if ($form_id != $form['#id'] && $replace) {
-    _clientside_validation_add_general_settings($settings, $form, FALSE);
   }
 }
 

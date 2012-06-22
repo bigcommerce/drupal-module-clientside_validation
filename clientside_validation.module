@@ -429,7 +429,7 @@ function _clientside_validation_add_general_settings(&$settings, $form) {
   );
 
   // add xregxp if choosen and found.
-  if (variable_get('clientside_validation_usexregxp', 0) != 0 && module_exists('xregexp_api')){
+  if (variable_get('clientside_validation_usexregxp', 0) != 0 && module_exists('xregexp_api')) {
     $settings['clientsideValidation']['general']['usexregxp'] = clientside_validation_add_xregexp();
   }
   else {
@@ -440,7 +440,7 @@ function _clientside_validation_add_general_settings(&$settings, $form) {
 /*
  * adds xregexp and optional unicode js lib
  */
-function clientside_validation_add_xregexp(){
+function clientside_validation_add_xregexp() {
   $variant = variable_get('clientside_validation_xregxp_variant', '');
   $lib = FALSE;
   if (empty($variant)) {

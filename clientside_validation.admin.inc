@@ -5,7 +5,7 @@
  */
 
 function clientside_validation_general_settings_form($form_id, $form_state) {
-  drupal_set_title('Edit general settings');
+  drupal_set_title(t('Edit general settings'));
 
   //jquery.validate.js settings
   $form['clientside_validation_min'] = array(
@@ -102,7 +102,7 @@ function clientside_validation_general_settings_form($form_id, $form_state) {
       );
 
       $form['clientside_validation_xregxp']['clientside_validation_usexregxp'] = array(
-        '#prefix' => '<br>',
+        '#prefix' => '<br />',
         '#title' => t('Use XRegExp'),
         '#description' => t('Check to use XRegExp for PCRE.'),
         '#type' => 'checkbox',

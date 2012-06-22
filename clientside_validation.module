@@ -24,19 +24,22 @@ define('CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION', 7);
  */
 function clientside_validation_js_alter() {
   $clientside_validation_settings = &drupal_static('clientside_validation_settings', array());
-  foreach ($clientside_validation_settings['clientsideValidation']['forms'] as $form_id => $settings) {
-    $stripped_form_id = $form_id;
-    $matches = array();
-    preg_match(' /.*?(--(\d)*)/', $form_id, $matches);
-    if (isset($matches[1])) {
-      $stripped_form_id = str_replace($matches[1], '', $form_id);
-    }
-    if ($stripped_form_id != $form_id) {
-      $clientside_validation_settings['clientsideValidation']['forms'][$form_id] = $clientside_validation_settings['clientsideValidation']['forms'][$stripped_form_id];
-      $clientside_validation_settings['clientsideValidation']['groups'][$form_id] = $clientside_validation_settings['clientsideValidation']['groups'][$stripped_form_id];
+  if (isset($clientside_validation_settings['clientsideValidation'])) {
+    foreach ($clientside_validation_settings['clientsideValidation']['forms'] as $form_id => $settings) {
+      $stripped_form_id = $form_id;
+      $matches = array();
+      preg_match(' /.*?(--(\d)*)/', $form_id, $matches);
+      if (isset($matches[1])) {
+        $stripped_form_id = str_replace($matches[1], '', $form_id);
+      }
+      if ($stripped_form_id != $form_id) {
+        $clientside_validation_settings['clientsideValidation']['forms'][$form_id] = $clientside_validation_settings['clientsideValidation']['forms'][$stripped_form_id];
+        $clientside_validation_settings['clientsideValidation']['groups'][$form_id] = $clientside_validation_settings['clientsideValidation']['groups'][$stripped_form_id];
+      }
     }
   }
   drupal_add_js($clientside_validation_settings, 'setting');
+
 }
 
 /**

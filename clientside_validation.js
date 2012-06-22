@@ -21,13 +21,6 @@
     attach: function (context) {
       if (!Drupal.myClientsideValidation) {
         Drupal.myClientsideValidation = new Drupal.clientsideValidation();
-        /**
-         * Let other modules know we are ready.
-         * @event clientsideValidationInitialized
-         * @name clientsideValidationInitialized
-         * @memberof Drupal.clientsideValidation
-         */
-        jQuery.event.trigger('clientsideValidationInitialized');
       }
       else {
         var update = false;
@@ -44,6 +37,13 @@
           Drupal.myClientsideValidation.bindForms();
         }
       }
+      /**
+       * Let other modules know we are ready.
+       * @event clientsideValidationInitialized
+       * @name clientsideValidationInitialized
+       * @memberof Drupal.clientsideValidation
+       */
+      jQuery.event.trigger('clientsideValidationInitialized');
     }
   };
 

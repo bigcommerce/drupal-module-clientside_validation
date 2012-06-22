@@ -20,6 +20,14 @@ define('CLIENTSIDE_VALIDATION_TOP_OF_FIRST_FORM', 6);
 define('CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION', 7);
 
 /**
+ * Implements hook_js_alter().
+ */
+function clientside_validation_js_alter() {
+  $clientside_validation_settings = &drupal_static('clientside_validation_settings', array());
+  drupal_add_js($clientside_validation_settings, 'setting');
+}
+
+/**
  * Implements hook_menu().
  */
 function clientside_validation_menu() {
@@ -228,60 +236,58 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
  */
 function clientside_validation_webform_after_build(&$form, &$form_state) {
   static $js_rules = array();
-  static $form_ids = array();
-  if (isset($form_ids[$form['#id']])) {
-    return $form;
-  }
   clientside_validation_settings_current_form($form['#clientside_validation_settings']);
   drupal_alter("clientside_validation_webform", $form, $form_state, $js_rules);
   if (!empty($js_rules)) {
     $settings = array();
     _clientside_validation_add_general_settings($settings, $form['#id']);
     _clientside_validation_add_special_rules($js_rules, $settings, $form);
-    clientside_validation_add_js($settings, $form['#id']);
-    $form_ids[$form['#id']] = TRUE;
+    clientside_validation_add_js_settings($settings);
   }
   return $form;
 }
 
-function clientside_validation_add_js($settings, $form_id) {
-  $js_added = &drupal_static(__FUNCTION__, array());
-  if (!isset($js_added[$form_id])) {
-    if (variable_get('clientside_validation_use_minified', 0) == 0) {
-      drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js');
-    }
-    else {
-      drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.min.js');
-    }
-
-    if (variable_get('clientside_validation_add_js_timing', 0)) {
-      // @see http://remysharp.com/2007/04/20/performance-profiling-javascript/
-      drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/time.js');
-    }
-
-    //add our js file to the footer to support vertical_tabs
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.ie8.js', array(
-      'scope' => 'footer',
-      'weight' => 19,
-      'browsers' => array('IE' => 'lt IE 9', '!IE' => FALSE),
-    ));
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', array('scope' => 'footer', 'weight' => 20));
-    drupal_add_js($settings, 'setting');
-    $js_added[$form_id] = TRUE;
+function clientside_validation_add_js_settings($settings) {
+  $clientside_validation_settings = &drupal_static('clientside_validation_settings', array());
+  if (variable_get('clientside_validation_use_minified', 0) == 0) {
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js');
   }
+  else {
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.min.js');
+  }
+
+  if (variable_get('clientside_validation_add_js_timing', 0)) {
+    // @see http://remysharp.com/2007/04/20/performance-profiling-javascript/
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/time.js');
+  }
+
+  //add our js file to the footer to support vertical_tabs
+  drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.ie8.js', array(
+    'scope' => 'footer',
+    'weight' => 19,
+    'browsers' => array('IE' => 'lt IE 9', '!IE' => FALSE),
+  ));
+  drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', array('scope' => 'footer', 'weight' => 20));
+  $clientside_validation_settings = drupal_array_merge_deep($clientside_validation_settings, $settings);
 }
 
 function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form) {
+  $form_id = $form['#id'];
+  $matches = array();
+  preg_match(' /.*?(--(\d)*)/', $form_id, $matches);
+  if (isset($matches[1])) {
+    $form_id = str_replace($matches[1], '', $form_id);
+  }
   if (isset($js_rules['_groups'])) {
-    $settings['clientsideValidation']['groups'][$form['#id']] = (object)$js_rules['_groups'];
+    $settings['clientsideValidation']['groups'][$form_id] = (object)$js_rules['_groups'];
     unset($js_rules['_groups']);
   }
   else {
-    $settings['clientsideValidation']['groups'][$form['#id']] = new stdClass();
+    $settings['clientsideValidation']['groups'][$form_id] = new stdClass();
   }
   foreach ($js_rules as $key => $rule) {
     if (isset($rule['checkboxgroupminmax'])) {
-      $settings['clientsideValidation']['forms'][$form['#id']]['checkboxrules'][$key] = array(
+      $settings['clientsideValidation']['forms'][$form_id]['checkboxrules'][$key] = array(
           'checkboxgroupminmax' => $rule['checkboxgroupminmax'],
           'messages' => array('checkboxgroupminmax' => $rule['messages']['checkboxgroupminmax'])
       );
@@ -292,7 +298,7 @@ function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form)
       }
     }
     if (isset($rule['daterange'])) {
-      $settings['clientsideValidation']['forms'][$form['#id']]['daterangerules'][$key] = array(
+      $settings['clientsideValidation']['forms'][$form_id]['daterangerules'][$key] = array(
           'daterange' => $rule['daterange'],
           'messages' => array('daterange' => $rule['messages']['daterange'])
       );
@@ -303,7 +309,7 @@ function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form)
       }
     }
     if (isset($rule['datemin'])) {
-      $settings['clientsideValidation']['forms'][$form['#id']]['dateminrules'][$key] = array(
+      $settings['clientsideValidation']['forms'][$form_id]['dateminrules'][$key] = array(
           'daterange' => $rule['datemin'],
           'messages' => array('datemin' => $rule['messages']['datemin'])
       );
@@ -314,7 +320,7 @@ function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form)
       }
     }
     if (isset($rule['datemax'])) {
-      $settings['clientsideValidation']['forms'][$form['#id']]['datemaxrules'][$key] = array(
+      $settings['clientsideValidation']['forms'][$form_id]['datemaxrules'][$key] = array(
           'daterange' => $rule['datemax'],
           'messages' => array('datemax' => $rule['messages']['datemax'])
       );
@@ -325,7 +331,7 @@ function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form)
       }
     }
     if (!empty($rule)) {
-      $settings['clientsideValidation']['forms'][$form['#id']]['rules'][$key] = $rule;
+      $settings['clientsideValidation']['forms'][$form_id]['rules'][$key] = $rule;
     }
   }
 }
@@ -335,25 +341,24 @@ function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form)
  */
 function clientside_validation_form_after_build(&$form, &$form_state) {
   static $js_rules = array();
-  static $form_ids = array();
-  
-  if (isset($form_ids[$form['#id']])) {
-    return $form;
-  }
   clientside_validation_settings_current_form($form['#clientside_validation_settings']);
   drupal_alter("clientside_validation_form", $form, $form_state, $js_rules);
   if (!empty($js_rules)) {
     $settings = array();
     _clientside_validation_add_general_settings($settings, $form['#id']);
     _clientside_validation_add_special_rules($js_rules, $settings, $form);
-    clientside_validation_add_js($settings, $form['#id']);
-    $form_ids[$form['#id']] = TRUE;
+    clientside_validation_add_js_settings($settings);
   }
 
   return $form;
 }
 
 function _clientside_validation_add_general_settings(&$settings, $form_id) {
+  $matches = array();
+  preg_match(' /.*?(--(\d)*)/', $form_id, $matches);
+  if (isset($matches[1])) {
+    $form_id = str_replace($matches[1], '', $form_id);
+  }
   $definedsettings = clientside_validation_settings_current_form();
   // Add a setting for this form if the hidden elements should still be validated
   $include_hidden_setting = $definedsettings['include_hidden']['include_hidden'];

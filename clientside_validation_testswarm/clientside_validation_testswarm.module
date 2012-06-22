@@ -1,0 +1,47 @@
+<?php
+/**
+ * @file
+ * Testswarm tests for Clientside Validation.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function clientside_validation_testswarm_menu() {
+  $path = 'clientsidevalidation/tests';
+  $items[$path] = array(
+    'title' => 'Clientside Validation Testswarm Tests',
+    'description' => 'All forms for Clientside Validation Testswarm needed to run the tests',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access content'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+
+  $items[$path . '/fapi'] = array(
+    'title' => 'Clientside Validation Fapi Test',
+    'description' => 'Test Clientside Validation on normal FAPI elements',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('clientside_validation_testswarm_fapi'),
+    'access arguments' => array('access content'),
+    'file' => 'clientside_validation_testswarm.forms.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_testswarm_tests().
+ */
+function clientside_validation_testswarm_testswarm_tests() {
+  return array(
+    'clientside_validation_testswarm_fapi' => array(
+      'module' => 'Clientside Validation',
+      'description' => 'Test Clientside Validation on normal FAPI elements',
+      'js' => array(
+        drupal_get_path('module', 'clientside_validation_testswarm') . '/tests/clientside_validation_fapi.test.js' => array(),
+      ),
+      'path' => 'clientsidevalidation/tests/fapi',
+      'query' => array(),
+    ),
+  );
+}

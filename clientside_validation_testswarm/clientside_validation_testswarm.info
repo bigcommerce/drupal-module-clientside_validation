@@ -1,0 +1,16 @@
+; $Id:
+name = Clientside Validation Testswarm
+description = Testswarm tests for the Clientside Validation Module
+core = 7.x
+package = Clientside Validation
+
+files[] = clientside_validation_testswarm.forms.inc
+
+dependencies[] = clientside_validation
+dependencies[] = clientside_validation_fapi
+dependencies[] = clientside_validation_field_validation
+dependencies[] = clientside_validation_form
+dependencies[] = clientside_validation_html5
+dependencies[] = clientside_validation_webform
+dependencies[] = defaultcontent
+dependencies[] = elements

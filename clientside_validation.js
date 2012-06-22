@@ -187,7 +187,12 @@
   Drupal.clientsideValidation.prototype.bindForms = function(){
     var self = this;
     self.time.start('2. bindForms');
-
+    // unset invalid forms
+    jQuery.each (self.forms, function (f) {
+      if ($('#' + f).length < 1) {
+        delete self.forms[f];
+      }
+    });
     jQuery.each (self.forms, function(f) {
       var errorel = self.prefix + f + '-errors';
       // Remove any existing validation stuff

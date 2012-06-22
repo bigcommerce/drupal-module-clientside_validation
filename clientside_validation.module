@@ -227,24 +227,48 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
  * Webform.
  */
 function clientside_validation_webform_after_build(&$form, &$form_state) {
-  $js_rules = array();
+  static $js_rules = array();
+  static $form_ids = array();
+  if (isset($form_ids[$form['#id']])) {
+    return $form;
+  }
   clientside_validation_settings_current_form($form['#clientside_validation_settings']);
   drupal_alter("clientside_validation_webform", $form, $form_state, $js_rules);
   if (!empty($js_rules)) {
     $settings = array();
     _clientside_validation_add_general_settings($settings, $form['#id']);
     _clientside_validation_add_special_rules($js_rules, $settings, $form);
+    clientside_validation_add_js($settings, $form['#id']);
+    $form_ids[$form['#id']] = TRUE;
+  }
+  return $form;
+}
+
+function clientside_validation_add_js($settings, $form_id) {
+  $js_added = &drupal_static(__FUNCTION__, array());
+  if (!isset($js_added[$form_id])) {
     if (variable_get('clientside_validation_use_minified', 0) == 0) {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js');
     }
     else {
       drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.min.js');
     }
+
+    if (variable_get('clientside_validation_add_js_timing', 0)) {
+      // @see http://remysharp.com/2007/04/20/performance-profiling-javascript/
+      drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/time.js');
+    }
+
     //add our js file to the footer to support vertical_tabs
+    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.ie8.js', array(
+      'scope' => 'footer',
+      'weight' => 19,
+      'browsers' => array('IE' => 'lt IE 9', '!IE' => FALSE),
+    ));
     drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', array('scope' => 'footer', 'weight' => 20));
     drupal_add_js($settings, 'setting');
+    $js_added[$form_id] = TRUE;
   }
-  return $form;
 }
 
 function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form) {
@@ -312,7 +336,9 @@ function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form)
 function clientside_validation_form_after_build(&$form, &$form_state) {
   static $js_rules = array();
   static $form_ids = array();
-
+  if ($form['#form_id'] != 'dblog_filter_form' && $form['#form_id'] != 'dblog_clear_log_form') {
+  watchdog('form', print_r($form, TRUE));
+  }
   if (isset($form_ids[$form['#id']])) {
     return $form;
   }
@@ -322,27 +348,7 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
     $settings = array();
     _clientside_validation_add_general_settings($settings, $form['#id']);
     _clientside_validation_add_special_rules($js_rules, $settings, $form);
-
-    if (variable_get('clientside_validation_use_minified', 0) == 0) {
-      drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.js');
-    }
-    else {
-      drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/jquery-validate/jquery.validate.min.js');
-    }
-
-    if (variable_get('clientside_validation_add_js_timing', 0)) {
-      // @see http://remysharp.com/2007/04/20/performance-profiling-javascript/
-      drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/time.js');
-    }
-
-    //add our js file to the footer to support vertical_tabs
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.ie8.js', array(
-      'scope' => 'footer',
-      'weight' => 19,
-      'browsers' => array('IE' => 'lt IE 9', '!IE' => FALSE),
-    ));
-    drupal_add_js(drupal_get_path('module', 'clientside_validation') . '/clientside_validation.js', array('scope' => 'footer', 'weight' => 20));
-    drupal_add_js($settings, 'setting');
+    clientside_validation_add_js($settings, $form['#id']);
     $form_ids[$form['#id']] = TRUE;
   }
 

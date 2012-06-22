@@ -336,9 +336,7 @@ function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form)
 function clientside_validation_form_after_build(&$form, &$form_state) {
   static $js_rules = array();
   static $form_ids = array();
-  if ($form['#form_id'] != 'dblog_filter_form' && $form['#form_id'] != 'dblog_clear_log_form') {
-  watchdog('form', print_r($form, TRUE));
-  }
+  
   if (isset($form_ids[$form['#id']])) {
     return $form;
   }

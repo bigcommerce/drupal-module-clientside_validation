@@ -906,16 +906,16 @@
     }, jQuery.format('The value does not match the expected format.'));
 
     jQuery.validator.addMethod("rangewords", function(value, element, param) {
-      return this.optional(element) || (param[0] <= jQuery.trim(value).split(' ').length && value.split(' ').length <= param[1]);
+      return this.optional(element) || (param[0] <= jQuery.trim(value).split(/\s+/).length && value.split(/\s+/).length <= param[1]);
     }, jQuery.format('The value must be between {0} and {1} words long'));
 
     jQuery.validator.addMethod("minwords", function(value, element, param) {
-      return this.optional(element) || param <= jQuery.trim(value).split(' ').length;
+      return this.optional(element) || param <= jQuery.trim(value).split(/\s+/).length;
     }, jQuery.format('The value must be more than {0} words long'));
 
     jQuery.validator.addMethod("maxwords", function(value, element, param) {
-      return this.optional(element) || jQuery.trim(value).split(' ').length <= param;
-    }, jQuery.format('The value must be less than {0} words long'));
+      return this.optional(element) || jQuery.trim(value).split(/\s+/).length <= param;
+    }, jQuery.format('The value must be fewer than {0} words long'));
 
     jQuery.validator.addMethod("plaintext", function(value, element, param){
       return this.optional(element) || (value == strip_tags(value, param));

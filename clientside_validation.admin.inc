@@ -26,6 +26,25 @@ function clientside_validation_general_settings_form($form_id, $form_state) {
     '#title' => t('Use minified version?'),
   );
 
+  //jquery.form.js settings
+  $form['clientside_validation_jquery_form'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#title' => t('Override the version of jquery.form.js'),
+    '#description' => t('This is needed for IE < 9 support for #ajax forms.'),
+  );
+
+  $form['clientside_validation_jquery_form']['clientside_validation_override_jquery_form'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '1' => t('Yes'),
+      '0' => t('No'),
+    ),
+    '#default_value' => variable_get('clientside_validation_override_jquery_form', 0),
+    '#title' => t('Use jquery.form.js version 3.09 (16-APR-2012)?'),
+  );
+
   //Page settings
   $form['clientside_validation_pages'] = array(
     '#type' => 'fieldset',

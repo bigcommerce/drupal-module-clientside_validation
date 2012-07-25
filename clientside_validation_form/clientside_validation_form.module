@@ -182,14 +182,16 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
         }
         break;
       case 'date_popup':
+      case 'date_text':
+        $date_title = ($element['#type'] == 'date_popup') ? $element['date']['#title'] : $element['#date_title'];
         if (isset($element['date'])) {
           if ($element['#required']) {
-            _clientside_validation_set_required($element['date']['#name'], $element['date']['#title'], $element['#required'], $js_rules);
+            _clientside_validation_set_required($element['date']['#name'], $date_title, $element['#required'], $js_rules);
           }
           $format = date_popup_date_format($element);
-          _clientside_validation_set_date($element['date']['#name'], $element['date']['#title'], $format, $js_rules);
+          _clientside_validation_set_date($element['date']['#name'], $date_title, $format, $js_rules);
         }
-        if (isset($element['time'])) {
+        if (isset($element['time']) && isset($element['time']['#name'])) {
           if ($element['#required']) {
             _clientside_validation_set_required($element['time']['#name'], $element['time']['#title'], $element['#required'], $js_rules);
           }

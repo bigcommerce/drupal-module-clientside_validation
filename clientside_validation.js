@@ -20,7 +20,9 @@
   Drupal.behaviors.clientsideValidation = {
     attach: function (context) {
       if (!Drupal.myClientsideValidation) {
-        Drupal.myClientsideValidation = new Drupal.clientsideValidation();
+        if (Drupal.settings.clientsideValidation) {
+          Drupal.myClientsideValidation = new Drupal.clientsideValidation();
+        }
       }
       else {
         var update = false;

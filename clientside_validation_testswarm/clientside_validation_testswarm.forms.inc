@@ -6,8 +6,7 @@
 function clientside_validation_testswarm_fapi($form, $form_state) {
   $form = array();
   $form['info'] = array(
-    '#type' => 'markup',
-    '#value' => '<p><strong>' . t('Clientside validation example - form api.') . '</strong></p>',
+    '#markup' => '<p><strong>' . t('Clientside Validation Testswarm - Form API') . '</strong></p>',
   );
 
   $form['yourname'] = array(
@@ -106,7 +105,7 @@ function clientside_validation_testswarm_fapi($form, $form_state) {
  */
 function clientside_validation_testswarm_html5($form, &$form_state) {
   $form['info'] = array(
-    '#markup' => t('For this test, the "Replace HTML5 validation with Clientside Validation" option must be set to "Yes"'),
+    '#markup' => '<p><strong>' . t('Clientside Validation Testswarm - HTML5') . '</strong></p><p>' . t('For this test, the "Replace HTML5 validation with Clientside Validation" option must be set to "Yes"') . '</p>',
   );
 
   $form['mynumber'] = array(
@@ -185,4 +184,132 @@ function clientside_validation_testswarm_html5($form, &$form_state) {
     '#weight' => 100
   );
   return $form;
+}
+
+/**
+ * Form callback for fapi elements with fapi_validation rules.
+ */
+function clientside_validation_testswarm_fapi_validation($form, &$form_state) {
+  $form['info'] = array(
+    '#markup' => '<p><strong>' . t('Clientside Validation Testswarm - FAPI Validation') . '</strong></p>',
+  );
+
+  $form['numeric'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Numeric'),
+    '#description' => t('Numeric values only'),
+    '#required' => TRUE,
+    '#rules' => array(
+      'numeric',
+    ),
+  );
+  
+  $form['length_range'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Range length'),
+    '#description' => t('Enter text - 10 characters maximum, 5 minimum'),
+    '#required' => TRUE,
+    '#rules' => array(
+      'length[5, 10]',
+    ),
+  );
+
+  $form['chars'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Chars'),
+    '#description' => t('Enter text - only use charachters a, b and c'),
+    '#required' => TRUE,
+    '#rules' => array(
+      'chars[a, b, c]',
+    ),
+  );
+
+  $form['email'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Email'),
+    '#description' => t('Enter a valid email address'),
+    '#required' => TRUE,
+    '#rules' => array(
+      'email',
+    ),
+  );
+
+  $form['url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL'),
+    '#description' => t('Enter a valid url'),
+    '#required' => TRUE,
+    '#rules' => array(
+      'url',
+    ),
+  );
+
+  $form['ipv4'] = array(
+    '#type' => 'textfield',
+    '#title' => t('IPv4'),
+    '#description' => t('Enter a valid IPv4 IP'),
+    '#required' => TRUE,
+    '#rules' => array(
+      'ipv4',
+    ),
+  );
+
+  $form['alpha_numeric'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Alpha Numeric'),
+    '#description' => t('Enter text - alphanumeric characters only'),
+    '#required' => TRUE,
+    '#rules' => array(
+      'alpha_numeric',
+    ),
+  );
+
+  $form['alpha_dash'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Alpha dash'),
+    '#description' => t('Enter text - alpha characters and dash (-) only'),
+    '#required' => TRUE,
+    '#rules' => array(
+      'alpha_dash',
+    ),
+  );
+
+  $form['digit'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Digit'),
+    '#description' => t('Enter text - digits only (no dots or dashes)'),
+    '#required' => TRUE,
+    '#rules' => array(
+      'digit',
+    ),
+  );
+
+  $form['decimal_limited'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Decimal (limited)'),
+    '#description' => t('Enter text - valid decimal value, 2 digits, 3 decimals'),
+    '#required' => TRUE,
+    '#rules' => array(
+      'decimal[2, 3]',
+    ),
+  );
+
+  $form['regex'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Regex'),
+    '#description' => t('Enter text - machine_name (alphanumeric and underscores)'),
+    '#required' => TRUE,
+    '#rules' => array(
+      'regexp[/^[a-z0-9_]+$/]',
+    ),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Send'),
+    '#weight' => 100
+  );
+
+  return $form;
+
 }

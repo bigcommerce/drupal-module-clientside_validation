@@ -36,6 +36,15 @@ function clientside_validation_testswarm_menu() {
     'file' => 'clientside_validation_testswarm.forms.inc',
   );
 
+  $items[$path . '/fapi_validation'] = array(
+    'title' => 'Clientside Validation FAPI Validation Test',
+    'description' => 'Test Clientside Validation on FAPI elements with FAPI Validation rules',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('clientside_validation_testswarm_fapi_validation'),
+    'access arguments' => array('access content'),
+    'file' => 'clientside_validation_testswarm.forms.inc',
+  );
+
   return $items;
 }
 
@@ -77,6 +86,15 @@ function clientside_validation_testswarm_testswarm_tests() {
         $path . 'clientside_validation_html5.test.js' => array(),
       ),
       'path' => 'clientsidevalidation/tests/html5',
+      'query' => array(),
+    ),
+    'clientside_validation_testswarm_fapi_validation' => array(
+      'module' => 'Clientside Validation',
+      'description' => 'Test Clientside Validation on FAPI elements with FAPI Validation rules',
+      'js' => array(
+        $path . 'clientside_validation_fapi_validation.test.js' => array(),
+      ),
+      'path' => 'clientsidevalidation/tests/fapi_validation',
       'query' => array(),
     )
   );

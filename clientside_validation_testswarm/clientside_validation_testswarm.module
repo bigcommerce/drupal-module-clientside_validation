@@ -40,15 +40,32 @@ function clientside_validation_testswarm_menu() {
 }
 
 /**
+ * Implements hook_enable().
+ */
+function clientside_validation_testswarm_enable() {
+  module_load_include('inc', 'clientside_validation_testswarm', 'clientside_validation_testswarm.default_content');
+  $content = _clientside_validation_testswarm_default_content();
+  $nodenames = variable_get('clientside_validation_testswarm_nodenames', array());
+
+  foreach ($content as $newnode) {
+    defaultcontent_import_node($newnode);
+    $nid = defaultcontent_get_default($newnode->machine_name);
+    $nodenames[$newnode->machine_name] = $nid;
+  }
+  variable_set('clientside_validation_testswarm_nodenames', $nodenames);
+}
+
+/**
  * Implements hook_testswarm_tests().
  */
 function clientside_validation_testswarm_testswarm_tests() {
-  return array(
+  $path = drupal_get_path('module', 'clientside_validation_testswarm') . '/tests/';
+  $tests = array(
     'clientside_validation_testswarm_fapi' => array(
       'module' => 'Clientside Validation',
       'description' => 'Test Clientside Validation on normal FAPI elements',
       'js' => array(
-        drupal_get_path('module', 'clientside_validation_testswarm') . '/tests/clientside_validation_fapi.test.js' => array(),
+        $path . 'clientside_validation_fapi.test.js' => array(),
       ),
       'path' => 'clientsidevalidation/tests/fapi',
       'query' => array(),
@@ -57,9 +74,32 @@ function clientside_validation_testswarm_testswarm_tests() {
       'module' => 'Clientside Validation',
       'description' => 'Test Clienstide Valiation on HTML5 FAPI elements provided by the Elements module',
       'js' => array(
-        drupal_get_path('module', 'clientside_validation_testswarm') . '/tests/clientside_validation_html5.test.js' => array(),
+        $path . 'clientside_validation_html5.test.js' => array(),
       ),
       'path' => 'clientsidevalidation/tests/html5',
+      'query' => array(),
     )
   );
+  $nodenames = variable_get('clientside_validation_testswarm_nodenames', array());
+  foreach ($nodenames as $machine_name => $nid) {
+    if ($nid) {
+      $tests['clientside_validation_testswarm_' . $machine_name] = array(
+        'module' => 'Clientside Validation',
+        'js' => array(
+          $path . 'clientside_validation_webform.test.js' => array(),
+          array(
+            'data' => array(
+              'clientsideValidationTestswarm' => array(
+                'formID' => 'webform-client-form-' . $nid
+              ),
+            ),
+            'type' => 'setting',
+          ),
+        ),
+        'path' => 'node/' . $nid,
+        'query' => array(),
+      );
+    }
+  }
+  return $tests;
 }

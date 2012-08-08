@@ -10,10 +10,9 @@
   Drupal.tests.cvfapi = {
     getInfo: function() {
       return {
-        name: Drupal.t('Clientside Validation Fapi'),
-        description: Drupal.t('Test Clientside Validation on normal FAPI elements.'),
-        group: Drupal.t('Clientside Validation'),
-        useSimulate: true
+        name: Drupal.t('Clientside Validation HTML5'),
+        description: Drupal.t('Test Clientside Validation on HTML5 elements.'),
+        group: Drupal.t('Clientside Validation')
       };
     },
     tests: {

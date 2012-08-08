@@ -1,0 +1,15 @@
+<?php
+/**
+ * @file
+ * Install functions for Clientside Validation Testswarm.
+ */
+
+/**
+ * Import the webform needed to test Clientside Validation Webform.
+ */
+function clientside_validation_testswarm_update_7101() {
+  $nodenames = variable_get('clientside_validation_testswarm_nodenames', array());
+  if (empty($nodenames)) {
+    clientside_validation_testswarm_enable();
+  }
+}

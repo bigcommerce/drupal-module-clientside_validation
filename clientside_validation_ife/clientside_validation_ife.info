@@ -7,5 +7,5 @@ package = Clientside Validation
 files[] = clientside_validation_ife.module
 files[] = clientside_validation_ife.js
 
-dependencies[] = clientside_validation
+dependencies[] = clientside_validation_form
 dependencies[] = ife

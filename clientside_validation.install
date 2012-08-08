@@ -218,3 +218,22 @@ function _clientside_validation_update_7101_save($formid, $settings) {
     clientside_validation_settings_add('custom-forms', $formid, $settings, TRUE);
   }
 }
+
+/**
+ * Dependencies changed, enable the right modules.
+ */
+function clientside_validation_update_7102() {
+  $dependants = array(
+    'clientside_validation_fapi',
+    'clientside_validation_field_validation',
+    'clientside_validation_html5',
+    'clientside_validation_ife',
+    'clientside_validation_webform',
+  );
+  foreach($dependants as $dependant) {
+    if (module_exists($dependant) && !module_exists('clientside_validation_form')) {
+      module_enable(array('clientside_validation_form'));
+      break;
+    }
+  }
+}

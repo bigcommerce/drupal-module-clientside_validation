@@ -64,6 +64,63 @@ function clientside_validation_testswarm_enable() {
     }
   }
   variable_set('clientside_validation_testswarm_nodenames', $nodenames);
+  if (module_exists('path')) {
+    foreach (variable_get('clientside_validation_testswarm_nodenames', array()) as $machine_name => $nid) {
+      $node = node_load($nid);
+      $path = array(
+        'source' => 'node/' . $nid,
+        'alias' => 'clientsidevalidation/tests/' . $machine_name,
+      );
+      if (isset($node->language)) {
+        $path['language'] = $node->language;
+      }
+      path_save($path);
+    }
+  }
+  menu_rebuild();
+  $pid = db_select('menu_links', 'ml')->fields('ml')->condition('link_path', 'clientsidevalidation/tests')->execute()->fetchObject()->mlid;
+  $link = array(
+    'menu_name' => 'navigation',
+    'link_path' => 'node-name/webform',
+    'router_path' => 'node/%',
+    'link_title' => 'Clientside Validation Webform Tests',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Test Clientside Validation on form elements provided by the Webform module',
+      ),
+    ),
+    'module' => 'menu',
+    'hidden' => '0',
+    'external' => '0',
+    'has_children' => '0',
+    'expanded' => '0',
+    'weight' => '0',
+    'parent_path' => 'clientsidevalidation/tests',
+    'identifier' => 'navigation:node-name/webform',
+    'pid' => $pid,
+  );
+  defaultcontent_import_menu_link($link['identifier'], $link);
+  $link = array(
+    'menu_name' => 'navigation',
+    'link_path' => 'node/add/cv-test-field-validation',
+    'router_path' => 'node/add/cv-test-field-validation',
+    'link_title' => 'Clientside Validation Test Field Validation',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Test Clientside Validation Field Validation',
+      ),
+    ),
+    'module' => 'menu',
+    'hidden' => '0',
+    'external' => '0',
+    'has_children' => '0',
+    'expanded' => '0',
+    'weight' => '0',
+    'parent_path' => 'clientsidevalidation/tests',
+    'pid' => $pid,
+    'identifier' => 'navigation:node/add/cv-test-field-validation'
+  );
+  defaultcontent_import_menu_link($link['identifier'], $link);
 }
 
 /**

@@ -1,7 +1,7 @@
 (function ($, Drupal, window, document, undefined) {
   /**
- * Collapsible fields.
- */
+   * HTML5 Elements.
+   */
   var formid = 'clientside-validation-testswarm-html5';
   var validator = {};
   $(document).bind('clientsideValidationInitialized', function (event){
@@ -25,7 +25,7 @@
           // Check for the "HTML 5 number element" error.
           equal($('label[for=edit-mynumber].error:visible').length, 1, Drupal.t('Error label found for "HTML 5 number element "'));
 
-          // Fill in the "HTML 5 number element" textfield with a letter
+          // Fill in the "HTML 5 number element" textfield with a letter.
           $('#edit-mynumber').val("a");
 
           // Validate the form.
@@ -34,7 +34,7 @@
           // Check for the "HTML 5 number element" error.
           equal($('label[for=edit-mynumber].error:visible').length, 1, Drupal.t('Error label found for "HTML 5 number element"'));
 
-          // Fill in the "HTML 5 number element" textfield with a valid number
+          // Fill in the "HTML 5 number element" textfield with a valid number.
           $('#edit-mynumber').val("1.5");
 
           // Validate the form.
@@ -53,7 +53,7 @@
           // Check for the error.
           equal($('label[for=edit-myurl].error:visible').length, 1, Drupal.t('Error label found for "HTML 5 url element"'));
 
-          // Fill in the field with an illegal URL
+          // Fill in the field with an illegal URL.
           $('#edit-myurl').val("oops");
 
           // Validate the form.
@@ -62,7 +62,7 @@
           // Check for the error.
           equal($('label[for=edit-myurl].error:visible').length, 1, Drupal.t('Error label found for "HTML 5 url element"'));
 
-          // Fill in the field with an URL
+          // Fill in the field with an URL.
           $('#edit-myurl').val("http://example.com");
 
           // Validate the form.
@@ -82,7 +82,7 @@
           // Check for the error.
           equal($('label[for=edit-myemail].error:visible').length, 1, Drupal.t('Error label found for "HTML 5 email element"'));
 
-          // Fill in the field with an illegal email
+          // Fill in the field with an illegal email.
           $('#edit-myemail').val("oops");
 
           // Validate the form.
@@ -91,13 +91,13 @@
           // Check for the error.
           equal($('label[for=edit-myemail].error:visible').length, 1, Drupal.t('Error label found for "HTML 5 email element"'));
 
-          // Fill in the field with an URL
+          // Fill in the field with an email.
           $('#edit-myemail').val("test@example.com");
 
           // Validate the form.
           validator.form();
 
-          // Check for the "HTML 5 url element" error.
+          // Check for the error.
           equal($('label[for=edit-myemail].error:visible').length, 0, Drupal.t('Error label not found for "HTML 5 email element"'));
         }
       },
@@ -105,7 +105,7 @@
         return function() {
           expect(6);
 
-          // Replace the HTML5 range element with a textfield so we can actually fill in illegal values
+          // Replace the HTML5 range element with a textfield so we can actually fill in illegal values.
           if ($.browser.msie === true) {
             var myrange = document.getElementById('edit-myrange');
             var el = document.createElement("input");
@@ -129,7 +129,7 @@
           // Check for the error.
           equal($('label[for=edit-myrange].error:visible').length, 1, Drupal.t('Error label found for "HTML 5 range element"'));
 
-          // Fill in the field with an illegal value
+          // Fill in the field with an illegal value.
           $('#edit-myrange').val("oops");
 
           // Validate the form.
@@ -184,17 +184,17 @@
           validator.form();
           equal($('label[for=edit-mynumbermin].error:visible').length, 1, Drupal.t('Empty value'));
 
-          // Enter a letter
+          // Enter a letter.
           $('#edit-mynumbermin').val("a");
           validator.form();
           equal($('label[for=edit-mynumbermin].error:visible').length, 1, Drupal.t('Numbers only'));
 
-          // Enter a number out of range
+          // Enter a number out of range.
           $('#edit-mynumbermin').val("1");
           validator.form();
           equal($('label[for=edit-mynumbermin].error:visible').length, 1, Drupal.t('Number out of range'));
 
-          // Enter a valid number
+          // Enter a valid number.
           $('#edit-mynumbermin').val("999");
           validator.form();
           equal($('label[for=edit-mynumbermin].error:visible').length, 0, Drupal.t('Valid value'));
@@ -209,17 +209,17 @@
           validator.form();
           equal($('label[for=edit-mynumbermax].error:visible').length, 1, Drupal.t('Empty value'));
 
-          // Enter a letter
+          // Enter a letter.
           $('#edit-mynumbermax').val("a");
           validator.form();
           equal($('label[for=edit-mynumbermax].error:visible').length, 1, Drupal.t('Numbers only'));
 
-          // Enter a number out of range
+          // Enter a number out of range.
           $('#edit-mynumbermax').val("999");
           validator.form();
           equal($('label[for=edit-mynumbermax].error:visible').length, 1, Drupal.t('Number out of range'));
 
-          // Enter a valid number
+          // Enter a valid number.
           $('#edit-mynumbermax').val("1");
           validator.form();
           equal($('label[for=edit-mynumbermax].error:visible').length, 0, Drupal.t('Valid value'));
@@ -234,22 +234,22 @@
           validator.form();
           equal($('label[for=edit-mynumberminmax].error:visible').length, 1, Drupal.t('Empty value'));
 
-          // Enter a letter
+          // Enter a letter.
           $('#edit-mynumberminmax').val("a");
           validator.form();
           equal($('label[for=edit-mynumberminmax].error:visible').length, 1, Drupal.t('Numbers only'));
 
-          // Enter a number out of range
+          // Enter a number out of range.
           $('#edit-mynumberminmax').val("1");
           validator.form();
           equal($('label[for=edit-mynumberminmax].error:visible').length, 1, Drupal.t('Number out of range'));
 
-          // Enter a number out of range
+          // Enter a number out of range.
           $('#edit-mynumberminmax').val("999");
           validator.form();
           equal($('label[for=edit-mynumberminmax].error:visible').length, 1, Drupal.t('Number out of range'));
 
-          // Enter a valid number
+          // Enter a valid number.
           $('#edit-mynumberminmax').val("50.33");
           validator.form();
           equal($('label[for=edit-mynumberminmax].error:visible').length, 0, Drupal.t('Valid value'));
@@ -264,33 +264,32 @@
           validator.form();
           equal($('label[for=edit-mynumberint].error:visible').length, 1, Drupal.t('Empty value'));
 
-          // Enter a letter
+          // Enter a letter.
           $('#edit-mynumberint').val("a");
           validator.form();
           equal($('label[for=edit-mynumberint].error:visible').length, 1, Drupal.t('Numbers only'));
 
-          // Enter a number out of range
+          // Enter a number out of range.
           $('#edit-mynumberint').val("1");
           validator.form();
           equal($('label[for=edit-mynumberint].error:visible').length, 1, Drupal.t('Number out of range'));
 
-          // Enter a number out of range
+          // Enter a number out of range.
           $('#edit-mynumberint').val("1.5");
           validator.form();
           equal($('label[for=edit-mynumberint].error:visible').length, 1, Drupal.t('Number out of range'));
 
-          // Enter an invalid number in range
+          // Enter an invalid number in range.
           $('#edit-mynumberint').val("7.77");
           validator.form();
           equal($('label[for=edit-mynumberint].error:visible').length, 1, Drupal.t('Invalid number in range'));
 
-          // Enter a valid number
+          // Enter a valid number.
           $('#edit-mynumberint').val("56");
           validator.form();
           equal($('label[for=edit-mynumberint].error:visible').length, 0, Drupal.t('Valid value'));
         }
       }
-
     }
   };
 })(jQuery, Drupal, this, this.document);

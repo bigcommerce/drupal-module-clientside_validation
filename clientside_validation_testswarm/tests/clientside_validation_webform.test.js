@@ -1,7 +1,7 @@
 (function($, Drupal, window, document, undefined) {
   /**
- * Collapsible fields.
- */
+   * Webform.
+   */
   var validator = {};
   $(document).bind('clientsideValidationInitialized', function(event){
     var formid = Drupal.settings.clientsideValidationTestswarm.formID;
@@ -32,15 +32,15 @@
           // still shows. This way we will set the date to 'yesterday, two years ago'.
           // This logic will only be a problem if the test runs on Jan 1st.
 
-          // Set the date to yesterday
+          // Set the date to yesterday.
           date.setDate(date.getDate()-1);
 
-          // If the date equals Feb 29th, set the date to Feb 28th
+          // If the date equals Feb 29th, set the date to Feb 28th.
           if (date.getMonth() == 2 && date.getDate() == 29) {
             date.setDate(date.getDate()-1);
           }
 
-          // Fill in the year for "Date"
+          // Fill in the year for "Date".
 
           $('#edit-submitted-date-year').val(date.getFullYear()-2);
 
@@ -50,7 +50,7 @@
           // Check for the "Date" error.
           equal($('label[for=webform-component-date_group].error:visible').length, 1, Drupal.t('Error label found for "Date"'));
 
-          // Fill in the month for "Date"
+          // Fill in the month for "Date".
           $('#edit-submitted-date-month').val(date.getMonth()+1);
 
           // Validate the form.
@@ -59,7 +59,7 @@
           // Check for the "Date" error.
           equal($('label[for=webform-component-date_group].error:visible').length, 1, Drupal.t('Error label found for "Date"'));
 
-          // Fill in the day for "Date"
+          // Fill in the day for "Date".
 
           $('#edit-submitted-date-day').val(date.getDate());
 
@@ -70,15 +70,15 @@
 
           // Now we check the other end of the scale, we set the date to 'tomorrow, in two years'.
           date = new Date();
-          //set the date to tomorrow
+          //set the date to tomorrow.
           date.setDate(date.getDate()+1)
 
-          // If the date equals Feb 29th, set the date to Mar 1st
+          // If the date equals Feb 29th, set the date to Mar 1st.
           if (date.getMonth() == 2 && date.getDate() == 29) {
             date.setDate(date.getDate()+1);
           }
 
-          // Fill in the date
+          // Fill in the date.
           $('#edit-submitted-date-year').val(date.getFullYear()+2);
           $('#edit-submitted-date-month').val(date.getMonth()+1);
           $('#edit-submitted-date-day').val(date.getDate());
@@ -107,22 +107,22 @@
           // Validate the form.
           validator.form()
 
-          // Check for the email error
+          // Check for the email error.
           equal($('label[for=edit-submitted-email].error:visible').length, 1, Drupal.t('Error label found for "Email"'));
 
-          // Fill in an illegal value
+          // Fill in an illegal value.
           $('#edit-submitted-email').val('oops');
 
-          // Validate the form
+          // Validate the form.
           validator.form();
 
-          // Check for the email error
+          // Check for the email error.
           equal($('label[for=edit-submitted-email].error:visible').length, 1, Drupal.t('Error label found for "Email"'));
 
-          // Fill in a legal value
+          // Fill in a legal value.
           $('#edit-submitted-email').val('test@test.com');
 
-          // Validate the form
+          // Validate the form.
           validator.form();
 
           // Check for the email error.
@@ -133,7 +133,7 @@
         return function() {
           expect(6);
 
-          // Replace the number element with a textfield so we can actually fill in illegal values
+          // Replace the number element with a textfield so we can actually fill in illegal values.
           if ($.browser.msie === true) {
             var myrange = document.getElementById('edit-submitted-number');
             var el = document.createElement("input");
@@ -154,7 +154,7 @@
           // Check for the error.
           equal($('label[for=edit-submitted-number].error:visible').length, 1, Drupal.t('Error label found for "Number"'));
 
-          // Fill in an illegal value
+          // Fill in an illegal value.
           $('#edit-submitted-number').val("a");
 
           // Validate the form.
@@ -163,7 +163,7 @@
           // Check for the error.
           equal($('label[for=edit-submitted-number].error:visible').length, 1, Drupal.t('Error label found for "Number"'));
 
-          // Fill in the textfield with a number > max
+          // Fill in the textfield with a number > max.
           $('#edit-submitted-number').val("6");
 
           // Validate the form.
@@ -172,7 +172,7 @@
           // Check for the error.
           equal($('label[for=edit-submitted-number].error:visible').length, 1, Drupal.t('Error label found for "Number"'));
 
-          // Fill in the textfield with a number < min
+          // Fill in the textfield with a number < min.
           $('#edit-submitted-number').val("1");
 
           // Validate the form.
@@ -181,7 +181,7 @@
           // Check for the error.
           equal($('label[for=edit-submitted-number].error:visible').length, 1, Drupal.t('Error label found for "Number"'));
 
-          // Fill in the textfield with a number not respecting the 'step' attribute
+          // Fill in the textfield with a number not respecting the 'step' attribute.
           $('#edit-submitted-number').val("3.3");
 
           // Validate the form.
@@ -190,7 +190,7 @@
           // Check for the error.
           equal($('label[for=edit-submitted-number].error:visible').length, 1, Drupal.t('Error label found for "Number"'));
 
-          // Fill in the textfield with a legal number
+          // Fill in the textfield with a legal number.
           $('#edit-submitted-number').val("2.5");
 
           // Validate the form.
@@ -207,14 +207,14 @@
           // Validate the form.
           validator.form()
 
-          // Check for the error
+          // Check for the error.
           equal($('label[for=edit-submitted-single-select].error:visible').length, 1, Drupal.t('Error label found for "Single select"'));
 
-          // Fill in a value
+          // Fill in a value.
           $('#edit-submitted-single-select option:first').removeAttr('selected');
           $('#edit-submitted-single-select option:last').attr('selected', 'selected');
 
-          // Validate the form
+          // Validate the form.
           validator.form();
 
           // Check for the email error.
@@ -251,7 +251,7 @@
           // Check for the error.
           equal($('label[for="submitted[radio_buttons]"].error:visible').length, 1, Drupal.t('Error label found for "Radio Buttons"'));
 
-          // Select an option
+          // Select an option.
           $('#edit-submitted-radio-buttons-1').attr('checked', 'checked');
 
           // Validate the form.
@@ -271,7 +271,7 @@
           // Check for the error.
           equal($('label[for="submitted[checkboxes]_group"].error:visible').length, 1, Drupal.t('Error label found for "Checkboxes"'));
 
-          // Select an option
+          // Select an option.
           $('#edit-submitted-checkboxes input[type="checkbox"]:even').attr('checked', 'checked');
 
           // Validate the form.
@@ -291,7 +291,7 @@
           // Check for the error.
           equal($('label[for=edit-submitted-textarea].error:visible').length, 1, Drupal.t('Error label found for "Textarea"'));
 
-          // Fill in a value
+          // Fill in a value.
           $('#edit-submitted-textarea').val("I've entered a value in the textarea!");
 
           // Validate the form.
@@ -311,7 +311,7 @@
           // Check for the error.
           equal($('label[for=edit-submitted-textfield].error:visible').length, 1, Drupal.t('Error label found for "Textfield"'));
 
-          // Fill in a value
+          // Fill in a value.
           $('#edit-submitted-textfield').val("I've entered a value in the textfield!");
 
           // Validate the form.

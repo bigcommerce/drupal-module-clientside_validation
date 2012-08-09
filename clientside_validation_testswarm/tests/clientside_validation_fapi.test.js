@@ -1,7 +1,7 @@
 (function ($, Drupal, window, document, undefined) {
   /**
- * Collapsible fields.
- */
+   * Form API Elements.
+   */
   var formid = 'clientside-validation-testswarm-fapi';
   var validator = {};
   $(document).bind('clientsideValidationInitialized', function (event){
@@ -12,8 +12,7 @@
       return {
         name: Drupal.t('Clientside Validation Fapi'),
         description: Drupal.t('Test Clientside Validation on normal FAPI elements.'),
-        group: Drupal.t('Clientside Validation'),
-        useSimulate: true
+        group: Drupal.t('Clientside Validation')
       };
     },
     tests: {
@@ -62,7 +61,7 @@
           // Check for the error.
           equal($('label[for=copy_group].error:visible').length, 1, Drupal.t('Error label found for "Checkboxes" (Select at least one)'));
 
-          // Check one checkbox, random
+          // Check one checkbox, random.
           var checkboxes = ['#edit-copy-status', '#edit-copy-moderate', '#edit-copy-promote', '#edit-copy-sticky', '#edit-copy-revision'];
           var $checkbox = $(checkboxes[Math.floor(Math.random()*checkboxes.length)]);
           $checkbox.attr('checked', 'checked');
@@ -87,7 +86,7 @@
           // Check for the error.
           equal($('label[for=edit-pass].error:visible').length, 1, Drupal.t('Error label found for "Password"'));
 
-          // Change the maxlength attribute so we can fill in an illegal value in the browsers would prevent this
+          // Change the maxlength attribute so we can fill in an illegal value in the browsers would prevent this.
           $('#edit-pass').attr('maxlength', '25');
 
           // Fill in an illegal value.
@@ -142,7 +141,7 @@
           // Check for the error.
           equal($('label[for=edit-feed].error:visible').length, 1, Drupal.t('Error label found for "Display of XML feed items"'));
 
-          // Select an option
+          // Select an option.
           $('#edit-feed').val('title');
 
           // Validate the form.
@@ -185,7 +184,7 @@
           // Check for the error.
           equal($('label[for=edit-body].error:visible').length, 1, Drupal.t('Error label found for "Body"'));
 
-          // Change the maxlength attribute so we can fill in an illegal value in the browsers would prevent this
+          // Change the maxlength attribute so we can fill in an illegal value in the browsers would prevent this.
           $('#edit-body').attr('maxlength', '60');
 
           // Fill in an illegal value.

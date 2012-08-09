@@ -57,9 +57,11 @@ function clientside_validation_testswarm_enable() {
   $nodenames = variable_get('clientside_validation_testswarm_nodenames', array());
 
   foreach ($content as $newnode) {
-    defaultcontent_import_node($newnode);
-    $nid = defaultcontent_get_default($newnode->machine_name);
-    $nodenames[$newnode->machine_name] = $nid;
+    if (!array_key_exists($newnode->machine_name, $nodenames) && defaultcontent_get_default($newnode->machine_name)) {
+      defaultcontent_import_node($newnode);
+      $nid = defaultcontent_get_default($newnode->machine_name);
+      $nodenames[$newnode->machine_name] = $nid;
+    }
   }
   variable_set('clientside_validation_testswarm_nodenames', $nodenames);
 }
@@ -114,7 +116,7 @@ function clientside_validation_testswarm_testswarm_tests() {
             'type' => 'setting',
           ),
         ),
-        'path' => 'node/' . $nid,
+        'path' => 'clientsidevalidation/tests/' . $machine_name,
         'query' => array(),
       );
     }

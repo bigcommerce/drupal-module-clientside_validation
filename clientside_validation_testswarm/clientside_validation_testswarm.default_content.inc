@@ -11,6 +11,26 @@ function _clientside_validation_testswarm_default_content() {
   $content = array();
 
   $content['clientside_validation_test_webform'] = (object) array(
+    'link' => array(
+      'menu_name' => 'navigation',
+      'link_path' => 'node-name/webform',
+      'router_path' => 'node/%',
+      'link_title' => 'Clientside Validation Webform Tests',
+      'options' => array(
+        'attributes' => array(
+          'title' => 'Test Clientside Validation on form elements provided by the Webform module',
+        ),
+      ),
+      'module' => 'menu',
+      'hidden' => '0',
+      'external' => '0',
+      'has_children' => '0',
+      'expanded' => '0',
+      'weight' => '0',
+      'parent_path' => 'clientsidevalidation/tests',
+      'identifier' => 'navigation:node-name/webform',
+    ),
+    'exported_path' => 'clientsidevalidation/tests/webform',
     'webform' => array(
       'confirmation' => '',
       'confirmation_format' => NULL,

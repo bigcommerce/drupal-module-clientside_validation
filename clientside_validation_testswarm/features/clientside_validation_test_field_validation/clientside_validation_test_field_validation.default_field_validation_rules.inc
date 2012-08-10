@@ -343,5 +343,23 @@ function clientside_validation_test_field_validation_default_field_validation_ru
   $rule->error_message = 'Field must equal \'abc-123\'';
   $export['cv_specific_value'] = $rule;
 
+  $rule = new stdClass();
+  $rule->disabled = FALSE; /* Edit this to true to make a default rule disabled initially */
+  $rule->api_version = 2;
+  $rule->rulename = 'cv_url';
+  $rule->name = 'cv_url';
+  $rule->field_name = 'field_url';
+  $rule->col = 'value';
+  $rule->entity_type = 'node';
+  $rule->bundle = 'cv_test_field_validation';
+  $rule->validator = 'field_validation_url_validator';
+  $rule->settings = array(
+    'external' => 1,
+    'internal' => 0,
+    'errors' => 0,
+  );
+  $rule->error_message = 'Field must be a valid url';
+  $export['cv_url'] = $rule;
+
   return $export;
 }

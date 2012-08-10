@@ -921,7 +921,19 @@
 
     jQuery.validator.addMethod("plaintext", function(value, element, param){
       return this.optional(element) || (value == strip_tags(value, param));
-    });
+    }, jQuery.format('The value must be plaintext'));
+
+    jQuery.validator.addMethod("selectMinlength", function(value, element, param) {
+      return this.optional(element) || $(element).find('option:selected').length >= param;
+    }, jQuery.format('You must select at least {0} values'));
+
+    jQuery.validator.addMethod("selectMaxlength", function(value, element, param) {
+      return this.optional(element) || $(element).find('option:selected').length <= param;
+    }, jQuery.format('You must select a maximum of {0} values'));
+
+    jQuery.validator.addMethod("selectRangelength", function(value, element, param) {
+      return this.optional(element) || ($(element).find('option:selected').length >= param[0] && $(element).find('option:selected').length <= param[1]);
+    }, jQuery.format('You must select at between {0} and {1} values'));
 
     jQuery.validator.addMethod("datemin", function(value, element, param) {
       //Assume [month], [day], and [year] ??

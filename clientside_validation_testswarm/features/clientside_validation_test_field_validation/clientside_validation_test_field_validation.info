@@ -53,4 +53,5 @@ features[field_validation_rule][] = cv_select_max
 features[field_validation_rule][] = cv_select_min
 features[field_validation_rule][] = cv_select_range
 features[field_validation_rule][] = cv_specific_value
+features[field_validation_rule][] = cv_url
 features[node][] = cv_test_field_validation

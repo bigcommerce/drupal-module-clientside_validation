@@ -36,7 +36,7 @@ function clientside_validation_testswarm_menu() {
     'file' => 'clientside_validation_testswarm.forms.inc',
   );
 
-  $items[$path . '/fapi_validation'] = array(
+  $items[$path . '/fapivalidation'] = array(
     'title' => 'Clientside Validation FAPI Validation Test',
     'description' => 'Test Clientside Validation on FAPI elements with FAPI Validation rules',
     'page callback' => 'drupal_get_form',
@@ -153,9 +153,18 @@ function clientside_validation_testswarm_testswarm_tests() {
       'js' => array(
         $path . 'clientside_validation_fapi_validation.test.js' => array(),
       ),
-      'path' => 'clientsidevalidation/tests/fapi_validation',
+      'path' => 'clientsidevalidation/tests/fapivalidation',
       'query' => array(),
-    )
+    ),
+    'clientside_validation_testswarm_field_validation' => array(
+      'module' => 'Clientside Validation',
+      'description' => 'Test Clientside Validation Field Validation',
+      'js' => array(
+        $path . 'clientside_validation_field_validation.test.js' => array(),
+      ),
+      'path' => 'clientsidevalidation/tests/fieldvalidation',
+      'query' => array(),
+    ),
   );
   $nodenames = variable_get('clientside_validation_testswarm_nodenames', array());
   foreach ($nodenames as $machine_name => $nid) {

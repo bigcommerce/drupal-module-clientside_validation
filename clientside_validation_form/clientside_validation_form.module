@@ -4,6 +4,9 @@
  * Add clientside validation to regular forms
  */
 
+/**
+ * Implements hook_clientside_validation_form_alter().
+ */
 function clientside_validation_form_clientside_validation_form_alter(&$form, &$form_state, &$js_rules) {
   clientside_validation_form_after_build_recurse($form['#id'], $form, $form_state, $js_rules);
 }
@@ -243,3 +246,19 @@ function clientside_validation_form_field_widget_form_alter(&$element, &$form_st
       break;
   }
 }
+
+/**
+ * Implements hook_module_implements_alter().
+ *
+ * Ensures the call to clientside_validation_form_clientside_validation_form_alter()
+ * function runs before any invocation of the hook_clientside_validation_form_alter() by other modules, e.g.
+ * Clientside Validation Field Validation module.
+ */
+function clientside_validation_form_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'clientside_validation_form_alter' && array_key_exists('clientside_validation_form', $implementations)) {
+    $group = $implementations['clientside_validation_form'];
+    unset($implementations['clientside_validation_form']);
+    $implementations = array_merge(array('clientside_validation_form' => $group), $implementations);
+  }
+}
+

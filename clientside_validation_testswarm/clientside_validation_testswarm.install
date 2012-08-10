@@ -5,6 +5,13 @@
  * Install functions for Clientside Validation Testswarm.
  */
 
+/**
+ * Implements hook_uninstall().
+ */
+function clientside_validation_uninstall() {
+  variable_del('clientside_validation_rules_added');
+  variable_del('clientside_validation_testswarm_nodenames');
+}
 
 /**
  * Import the webform needed to test Clientside Validation Webform.
@@ -84,4 +91,11 @@ function clientside_validation_testswarm_update_7103() {
     'identifier' => 'navigation:node/add/cv-test-field-validation'
   );
   defaultcontent_import_menu_link($link['identifier'], $link);
+}
+
+/**
+ * Import the webform needed to test Clientside Validation Webform Validation.
+ */
+function clientside_validation_testswarm_update_7104() {
+  clientside_validation_testswarm_enable();
 }

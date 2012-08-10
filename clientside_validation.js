@@ -887,10 +887,15 @@
 
     // Unique values
     jQuery.validator.addMethod("notEqualTo", function(value, element, param) {
-      var target = $(param).unbind(".validate-notEqualTo").bind("blur.validate-notEqualTo", function() {
-        $(element).valid();
+      var ret = true;
+      jQuery.each(param, function (index, selector){
+        var $target = $(selector);
+        $target.unbind(".validate-notEqualTo").bind("blur.validate-notEqualTo", function() {
+          $(element).valid();
+        });
+        ret = ret && ($target.val() != value);
       });
-      return value != target.val();
+      return ret;
     }, jQuery.format('Please don\'t enter the same value again.'));
 
     jQuery.validator.addMethod("regexMatch", function(value, element, param) {

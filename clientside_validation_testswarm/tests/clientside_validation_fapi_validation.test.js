@@ -7,7 +7,7 @@
   $(document).bind('clientsideValidationInitialized', function (event){
     validator = Drupal.myClientsideValidation.validators[formid];
   });
-  Drupal.tests.cvfapi = {
+  Drupal.tests.cvfapivalidation = {
     getInfo: function() {
       return {
         name: Drupal.t('Clientside Validation FAPI Validation'),

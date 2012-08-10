@@ -902,18 +902,22 @@ function _clientside_validation_set_equal($name, $title, $value, &$js_rules) {
 /**
  * Set validation rule for fields that can not be equal to a value from an other field.
  */
-function _clientside_validation_set_not_equal($name, $title, $element, &$js_rules, $message = '', $webform = FALSE) {
+function _clientside_validation_set_not_equal($name, $title, $elements, &$js_rules, $message = '', $webform = FALSE) {
   $title = _clientside_validation_set_title($title);
-  if ($webform) {
-    $js_rules[$name]['notEqualTo'] = ':input[name=\'submitted[' . $element['form_key'] . ']\']';
-  }
-  else {
-    $js_rules[$name]['notEqualTo'] = ':input[name=\'' . $element['form_key'] . '\']';
+  $items = array('items' => array());
+  foreach ($elements as $element) {
+     $items['items'][] = $element['name'];
+    if ($webform) {
+      $js_rules[$name]['notEqualTo'][] = 'input[name="' . $element['element_name'] . '"]';
+    }
+    else {
+      $js_rules[$name]['notEqualTo'][] = 'input[name="' . $element['form_key'] . '"]';
+    }
   }
   if (empty($message)) {
     $variables = array(
-      'message' => '!title field has to different from !firstone.',
-      'placeholders' => array('!title' => $title, '!firstone' => $element['name']),
+      'message' => '!title field has to different from !firstone',
+      'placeholders' => array('!title' => $title, '!firstone' => theme('item_list',  $items)),
       'error_type' => 'notequalto',
       'element_name' => $name,
     );

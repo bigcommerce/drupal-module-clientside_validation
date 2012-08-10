@@ -7,7 +7,7 @@
     var formid = Drupal.settings.clientsideValidationTestswarm.formID;
     validator = Drupal.myClientsideValidation.validators[formid];
   });
-  Drupal.tests.cvfapi = {
+  Drupal.tests.cvwebform = {
     getInfo: function() {
       return {
         name: Drupal.t('Clientside Validation Webform'),

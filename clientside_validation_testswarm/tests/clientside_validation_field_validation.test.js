@@ -7,7 +7,7 @@
   $(document).bind('clientsideValidationInitialized', function (event){
     validator = Drupal.myClientsideValidation.validators[formid];
   });
-  Drupal.tests.cvfapi = {
+  Drupal.tests.cvfieldvalidation = {
     getInfo: function() {
       return {
         name: Drupal.t('Clientside Validation Field Validation'),
@@ -567,7 +567,7 @@
           // Validate the form.
           validator.form();
 
-          // Check for the "Select min" error.
+          // Check for the "Select max" error.
           equal($('label[for=edit-field-select-max-und].error:visible').length, 0, Drupal.t('Error label not found for "Select max"'));
         }
       },
@@ -582,7 +582,7 @@
           equal($('label[for=edit-field-select-range-und].error:visible').length, 1, Drupal.t('Error label found for "Select range"'));
 
           // Select too few elements for "Select range".
-          $('#edit-field-select-min-und').val(["one"]);
+          $('#edit-field-select-range-und').val(["one"]);
 
           // Validate the form.
           validator.form();

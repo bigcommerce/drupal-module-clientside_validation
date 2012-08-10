@@ -55,9 +55,9 @@ function clientside_validation_testswarm_enable() {
   module_load_include('inc', 'clientside_validation_testswarm', 'clientside_validation_testswarm.default_content');
   $content = _clientside_validation_testswarm_default_content();
   $nodenames = variable_get('clientside_validation_testswarm_nodenames', array());
-
+  variable_set('node_content_enabled', TRUE);
   foreach ($content as $newnode) {
-    if (!array_key_exists($newnode->machine_name, $nodenames) && defaultcontent_get_default($newnode->machine_name)) {
+    if (!array_key_exists($newnode->machine_name, $nodenames)) {
       defaultcontent_import_node($newnode);
       $nid = defaultcontent_get_default($newnode->machine_name);
       $nodenames[$newnode->machine_name] = $nid;
@@ -102,6 +102,27 @@ function clientside_validation_testswarm_enable() {
   defaultcontent_import_menu_link($link['identifier'], $link);
   $link = array(
     'menu_name' => 'navigation',
+    'link_path' => 'node-name/webformvalidation',
+    'router_path' => 'node/%',
+    'link_title' => 'Clientside Validation Webform Validation Tests',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Test Clientside Validation Webform Validation',
+      ),
+    ),
+    'module' => 'menu',
+    'hidden' => '0',
+    'external' => '0',
+    'has_children' => '0',
+    'expanded' => '0',
+    'weight' => '0',
+    'parent_path' => 'clientsidevalidation/tests',
+    'identifier' => 'navigation:node-name/webformvalidation',
+    'pid' => $pid,
+  );
+  defaultcontent_import_menu_link($link['identifier'], $link);
+  $link = array(
+    'menu_name' => 'navigation',
     'link_path' => 'node/add/cv-test-field-validation',
     'router_path' => 'node/add/cv-test-field-validation',
     'link_title' => 'Clientside Validation Test Field Validation',
@@ -121,6 +142,7 @@ function clientside_validation_testswarm_enable() {
     'identifier' => 'navigation:node/add/cv-test-field-validation'
   );
   defaultcontent_import_menu_link($link['identifier'], $link);
+  _clientside_validation_testswarm_create_webform_validation_rules();
 }
 
 /**
@@ -172,7 +194,7 @@ function clientside_validation_testswarm_testswarm_tests() {
       $tests['clientside_validation_testswarm_' . $machine_name] = array(
         'module' => 'Clientside Validation',
         'js' => array(
-          $path . 'clientside_validation_webform.test.js' => array(),
+          $path . 'clientside_validation_' . $machine_name . '.test.js' => array(),
           array(
             'data' => array(
               'clientsideValidationTestswarm' => array(
@@ -188,4 +210,48 @@ function clientside_validation_testswarm_testswarm_tests() {
     }
   }
   return $tests;
+}
+
+function _clientside_validation_testswarm_create_webform_validation_rules() {
+  $added = variable_get('clientside_validation_rules_added', 0);
+  $nodenames = variable_get('clientside_validation_testswarm_nodenames', array());
+  $nid = isset($nodenames['webformvalidation']) ? $nodenames['webformvalidation'] : FALSE;
+  if (!$nid || $added) {
+    return;
+  }
+  $transaction = db_transaction();
+  try {
+    $values = array(
+      array('cv_regex', $nid, 'regex', '[a-z0-9]+$', 'Must be a valid machine readable name', drupal_map_assoc(array(1))),
+      array('cv_min_length', $nid, 'min_length', '5', NULL, drupal_map_assoc(array(2))),
+      array('cv_max_length', $nid, 'max_length', '10', NULL, drupal_map_assoc(array(3))),
+      array('cv_min_words', $nid, 'min_words', '5', NULL, drupal_map_assoc(array(4))),
+      array('cv_max_words', $nid, 'max_words', '10', NULL, drupal_map_assoc(array(5))),
+      array('cv_numeric', $nid, 'numeric', '', NULL, drupal_map_assoc(array(6))),
+      array('cv_numeric_min', $nid, 'numeric', '5', NULL, drupal_map_assoc(array(7))),
+      array('cv_numeric_max', $nid, 'numeric', '|10', NULL, drupal_map_assoc(array(8))),
+      array('cv_oneof', $nid, 'oneofseveral', NULL, NULL, drupal_map_assoc(array(10, 11, 12))),
+      array('cv_oneoftwo', $nid, 'oneoftwo', NULL, NULL, drupal_map_assoc(array(14, 15))),
+      array('cv_plain_text', $nid, 'plain_text', NULL, NULL, drupal_map_assoc(array(16))),
+      array('cv_blacklist', $nid, 'blacklist', 'black,list', "Field can not contain the words 'black or list'", drupal_map_assoc(array(17))),
+      array('cv_equal', $nid, 'equal', NULL, NULL, drupal_map_assoc(array(19, 20))),
+      array('cv_unique', $nid, 'unique', NULL, NULL, drupal_map_assoc(array(22, 23, 24))),
+      array('cv_specific_value', $nid, 'specific_value', 'abc-123', "Field must equal 'abc-123'", drupal_map_assoc(array(25))),
+      array('cv_select_min', $nid, 'select_min', '2', NULL, drupal_map_assoc(array(26))),
+      array('cv_select_max', $nid, 'select_max', '5', NULL, drupal_map_assoc(array(27))),
+      array('cv_select_exact', $nid, 'select_exact', '3', NULL, drupal_map_assoc(array(28))),
+      array('cv_must_be_empty', $nid, 'must_be_empty', NULL, NULL, drupal_map_assoc(array(29))),
+    );
+    foreach ($values as $value) {
+      $keys = array('rulename', 'nid', 'validator', 'data', 'error_message', 'rule_components');
+      $rule = array_combine($keys, $value);
+      $rule['action'] = 'add';
+      webform_validation_rule_save($rule);
+    }
+    variable_set('clientside_validation_rules_added', 1);
+  }
+  catch (Exception $e) {
+    $transaction->rollback();
+    watchdog('cv_testswarm', $e->getMessage());
+  }
 }

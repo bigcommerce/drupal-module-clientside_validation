@@ -94,8 +94,10 @@ function hook_clientside_validation_rule_alter(&$js_rules, $element, $context) {
           $element['textfield_one']['#name'],
           $element['textfield_one']['#title'],
           array(
+            array(
             'form_key' => $element['textfield_two']['#name'],
             'name' => $element['textfield_two']['#title']
+            ),
           ),
           $js_rules,
           t("The two fields cannot have the same value")

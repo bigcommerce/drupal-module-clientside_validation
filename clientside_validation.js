@@ -39,6 +39,23 @@
           Drupal.myClientsideValidation.bindForms();
         }
       }
+
+      // Set validation for ajax forms
+      for (var ajax_el in Drupal.settings.ajax) {
+        if (Drupal.ajax[ajax_el].validate_first) {
+          var origBeforeSubmit = Drupal.ajax[ajax_el].options.beforeSubmit;
+          Drupal.ajax[ajax_el].options.beforeSubmit = function (form_values, element, options) {
+            var ret = origBeforeSubmit(form_values, element, options);
+            // If this function didn't return anything, just set the return value to true.
+            // If it did return something, allow it to prevent submit if necessary.
+            if (typeof ret == 'undefined') {
+              ret = true;
+            }
+            return ret && Drupal.myClientsideValidation.validators[element.attr('id')].form();
+          }
+        }
+      }
+      
       /**
        * Let other modules know we are ready.
        * @event clientsideValidationInitialized

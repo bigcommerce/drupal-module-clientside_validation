@@ -931,12 +931,13 @@
 
     jQuery.validator.addMethod("captcha", function (value, element, param) {
       var result = false;
+      var sid = $(element).closest('.captcha').find('input[name=captcha_sid]').val();
       jQuery.ajax({
         'url': Drupal.settings.basePath + 'clientside_validation/captcha',
         'type': "POST",
         'data': {
           'value': value,
-          'param': param
+          'param': [sid, param]
         },
         'dataType': 'json',
         'async': false,

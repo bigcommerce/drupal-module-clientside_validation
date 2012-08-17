@@ -204,7 +204,7 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
         $title = _clientside_validation_set_title($element['captcha_widgets']['captcha_response']['#title']);
         $message = t('Wrong answer for !title', array('!title' => $title));
         $case_sensitive = strpos($element['#captcha_validate'], 'insensitive') === FALSE;
-        _clientside_validation_set_captcha($element['captcha_widgets']['captcha_response']['#name'], $title, $element['#captcha_validate'], $element['#captcha_info']['captcha_sid'], $js_rules, $message);
+        _clientside_validation_set_captcha($element['captcha_widgets']['captcha_response']['#name'], $title, $element['#captcha_validate'], $js_rules, $message);
         break;
     }
     if (!isset($js_rules[$el_name]['required']) && $element['#required']) {

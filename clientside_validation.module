@@ -150,6 +150,14 @@ function clientside_validation_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
+
+  $items['clientside_validation/captcha'] = array(
+    'title' => 'Clientside validation ajax callback to validate captcha',
+    'page callback' => '_clientside_validation_ajax_captcha',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
   $items['clientside_validation/phone'] = array(
     'title' => 'Clientside validation ajax callback to validate phone numbers',
     'page callback' => '_clientside_validation_ajax_phone',
@@ -177,8 +185,8 @@ function _clientside_validation_ajax_call() {
 
 function _clientside_validation_ajax_phone() {
   $value = check_plain($_POST['value']);
+  $country_code = check_plain($_POST['country_code']);
   if (function_exists('valid_phone_number') && !empty($country_code)) {
-    $country_code = check_plain($_POST['country_code']);
     $result['result'] = valid_phone_number($country_code, $value);
   }
   else {
@@ -187,6 +195,34 @@ function _clientside_validation_ajax_phone() {
 
   }
   drupal_json_output($result);
+}
+
+function _clientside_validation_ajax_captcha() {
+  if (module_exists('captcha')) {
+    $captcha_response = filter_xss($_POST['value']);
+    $csid = $_POST['param'][0];
+    $captcha_validate = $_POST['param'][1];
+    $solution = db_query(
+      'SELECT solution FROM {captcha_sessions} WHERE csid = :csid',
+      array(':csid' => $csid)
+    )
+    ->fetchField();
+    if ($solution === FALSE) {
+      return drupal_json_output(array('result' => FALSE, 'message' => t('CAPTCHA validation error: unknown CAPTCHA session ID. Contact the site administrator if this problem persists.')));
+    }
+    if (!function_exists($captcha_validate)) {
+       $captcha_validate = 'captcha_validate_strict_equality';
+    }
+    watchdog($solution, $captcha_response);
+    if ($captcha_validate($solution, $captcha_response)) {
+      return drupal_json_output(array('result' => TRUE));
+    }
+    else {
+      return drupal_json_output(array('result' => FALSE));
+    }
+
+  }
+  return drupal_json_output(array('result' => TRUE));
 }
 
 /**
@@ -1228,6 +1264,18 @@ function _clientside_validation_set_date($name, $title, $format, &$js_rules, $me
     'element_name' => $name
   );
   $js_rules[$name]['messages']['dateFormat'] = theme('clientside_error', $variables);
+}
+
+function _clientside_validation_set_captcha($name, $title, $validate, $sid, &$js_rules, $message) {
+  $title = _clientside_validation_set_title($title);
+  $js_rules[$name]['captcha'] = array($sid, $validate);
+  $variables = array(
+    'message' => empty($message) ? 'Wrong answer for !title.' : $message,
+    'placeholders' => empty($message) ? array('!title' => $title) : array(),
+    'error_type' => 'captcha',
+    'element_name' => $name
+  );
+  $js_rules[$name]['messages']['captcha'] = theme('clientside_error', $variables);
 }
 
 function clientside_validation_drupal_json_encode($var) {

@@ -929,6 +929,31 @@
 
     }, jQuery.format('The value does not match the expected format.'));
 
+    jQuery.validator.addMethod("captcha", function (value, element, param) {
+      var result = false;
+      jQuery.ajax({
+        'url': Drupal.settings.basePath + 'clientside_validation/captcha',
+        'type': "POST",
+        'data': {
+          'value': value,
+          'param': param
+        },
+        'dataType': 'json',
+        'async': false,
+        'success': function(res){
+          result = res;
+        }
+      });
+      if (result['result'] === false) {
+        if (typeof result['message'] != 'undefined' && result['message'].length) {
+          jQuery.extend(jQuery.validator.messages, {
+            "captcha": result['message']
+          });
+        }
+      }
+      return result['result'];
+    }, jQuery.format('Wrong answer.'));
+
     jQuery.validator.addMethod("rangewords", function(value, element, param) {
       return this.optional(element) || (param[0] <= jQuery.trim(value).split(/\s+/).length && value.split(/\s+/).length <= param[1]);
     }, jQuery.format('The value must be between {0} and {1} words long'));

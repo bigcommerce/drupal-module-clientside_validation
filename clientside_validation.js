@@ -1149,6 +1149,7 @@
       var parts = value.split(param.splitter);
       var day = parseInt(parts[param.daypos], 10);
       var month = parseInt(parts[param.monthpos], 10);
+      if (month < 0) month--;
       var year = parseInt(parts[param.yearpos], 10);
       var date = new Date();
       var result = true;

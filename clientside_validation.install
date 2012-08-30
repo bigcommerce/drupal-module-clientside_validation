@@ -237,3 +237,20 @@ function clientside_validation_update_7102() {
     }
   }
 }
+
+/**
+ * Add captcha setting.
+ */
+function clientside_validation_update_7103() {
+  $default_settings_db = variable_get('clientside_validation_default_settings', FALSE);
+  if (!$default_settings_db) {
+    // Default settings are not stored in the database.
+    // Nothing to do here.
+    return;
+  }
+  $default_settings = clientside_validation_settings_load_defaults();
+  if (!isset($default_settings['validate_options']['captcha'])) {
+    $default_settings['validate_options']['captcha'] = 1;
+  }
+  variable_set('clientside_validation_default_settings', $default_settings);
+}

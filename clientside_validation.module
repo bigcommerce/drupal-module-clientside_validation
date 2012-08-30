@@ -272,7 +272,7 @@ function clientside_validation_form_alter(&$form, &$form_state, $form_id) {
       $definedsettings = clientside_validation_settings_load('content-types', $form['#node']->type);
     }
     else {
-      $definedsettings = clientside_validation_settings_load('content-types', $form_id);
+      $definedsettings = clientside_validation_settings_load('custom-forms', $form_id);
     }
     $form['#clientside_validation_settings'] = $definedsettings;
     if (isset($form['actions']['delete'])) {
@@ -1346,7 +1346,7 @@ function clientside_validation_settings_enable($cvs_type, $cvs_formid) {
   }
   db_update('clientside_validation_settings')
     ->fields(array(
-      'status' => 7,
+      'status' => 1,
     ))
     ->condition('type', $cvs_type)
     ->condition('form_id', $cvs_formid)
@@ -1464,6 +1464,7 @@ function clientside_validation_settings_load($cvs_type = NULL, $cvs_formid = NUL
       'validate_onblur_always' => 0,
       'validate_onkeyup' => 1,
       'show_messages' => 0,
+      'captcha' => 1,
     ),
     'error' => array(
       'prefix' => '',
@@ -1505,7 +1506,6 @@ function clientside_validation_settings_load($cvs_type = NULL, $cvs_formid = NUL
   if (!$include_disabled) {
     $query->condition('status', 1);
   }
-
   $result = $query->execute();
 
   // a single id was given -> one result, so only return one row

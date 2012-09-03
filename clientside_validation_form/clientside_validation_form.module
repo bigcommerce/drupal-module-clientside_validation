@@ -30,12 +30,17 @@ function clientside_validation_form_after_build_recurse($form_id, &$form, &$form
 function clientside_validation_regular($form_id, $element, &$js_rules, $form_state) {
   static $multiples = array();
   $skipvalidation = FALSE;
-  if (isset($element['#entity_type']) && isset($element['#field_name']) && isset($element['#bundle'])) {
-    $field_info = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
-    if (isset($field_info['exclude_cv']) && $field_info['exclude_cv'] == '1') {
-      $skipvalidation = TRUE;
-    }
+
+  if (isset($element['#instance'])) {
+    $field_info = $element['#instance'];
   }
+  elseif (isset($element['#entity_type']) && isset($element['#field_name']) && isset($element['#bundle'])) {
+    $field_info = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
+  }
+  if (isset($field_info['exclude_cv']) && $field_info['exclude_cv'] == '1') {
+    $skipvalidation = TRUE;
+  }
+
   if (isset($element['#name']) && !$skipvalidation) {
     $el_name = $element['#name'];
     $el_title = $el_name;
@@ -47,8 +52,7 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
       $is_multiple = $element['#multiple'];
     }
     $required_error = isset($element['#required_error']) ? $element['#required_error'] : '';
-    if ((empty($el_title) || $el_title == $el_name) && isset($element['#field_name']) && isset($element['#entity_type']) && isset($element['#bundle'])) {
-      $field_info = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
+    if ((empty($el_title) || $el_title == $el_name) && isset($field_info)) {
       $el_title = $field_info['label'];
     }
     switch ($element['#type']) {
@@ -260,4 +264,3 @@ function clientside_validation_form_module_implements_alter(&$implementations, $
     $implementations = array_merge(array('clientside_validation_form' => $group), $implementations);
   }
 }
-

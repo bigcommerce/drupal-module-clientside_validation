@@ -83,6 +83,9 @@ function clientside_validation_field_validation_after_build_recurse($form_id, &$
 }
 
 function clientside_validation_field_validation_regular($form_id, $element, $rule, &$js_rules) {
+  if ($rule['api_version'] >= 2 && strpos($element['#name'], $rule['col']) === FALSE) {
+    return;
+  }
   $el_name = $element['#name'];
   if (isset($element['#multiple']) && $element['#multiple']) {
     $el_name .= '[]';

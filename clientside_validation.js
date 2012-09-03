@@ -1011,7 +1011,7 @@
         return false;
       }
       else if (parseInt(yearelem.val(), 10) == parseInt(param[0], 10)){
-        if (parseInt(monthelem.val(), 10) < parseInt(param[1])){
+        if (parseInt(monthelem.val(), 10) < parseInt(param[1], 10)){
           return false;
         }
         else if (parseInt(monthelem.val(), 10) == parseInt(param[1], 10)){
@@ -1061,7 +1061,7 @@
         return false;
       }
       else if (parseInt(yearelem.val(), 10) == parseInt(param[0], 10)){
-        if (parseInt(monthelem.val(), 10) > parseInt(param[1])){
+        if (parseInt(monthelem.val(), 10) > parseInt(param[1], 10)){
           return false;
         }
         else if (parseInt(monthelem.val(), 10) == parseInt(param[1], 10)){
@@ -1110,7 +1110,7 @@
         return false;
       }
       else if (parseInt(yearelem.val(), 10) == parseInt(param[0][0], 10)){
-        if (parseInt(monthelem.val(), 10) < parseInt(param[0][1])){
+        if (parseInt(monthelem.val(), 10) < parseInt(param[0][1], 10)){
           return false;
         }
         else if (parseInt(monthelem.val(), 10) == parseInt(param[0][1], 10)){
@@ -1124,7 +1124,7 @@
         return false;
       }
       else if (parseInt(yearelem.val(), 10) == parseInt(param[1][0], 10)){
-        if (parseInt(monthelem.val(), 10) > parseInt(param[1][1])){
+        if (parseInt(monthelem.val(), 10) > parseInt(param[1][1], 10)){
           return false;
         }
         else if (parseInt(monthelem.val(), 10) == parseInt(param[1][1], 10)){

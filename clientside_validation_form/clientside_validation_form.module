@@ -64,12 +64,12 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
         if ($is_multiple) {
           // Only first field is required
           if (!isset($multiples[$form_id][$el_name])) {
-            _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules, $required_error);
+            _clientside_validation_set_required($el_name, $el_title, isset($element['#required']) ? $element['#required'] : FALSE, $js_rules, $required_error);
             $multiples[$form_id][$el_name] = 1;
           }
         }
         else {
-          _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules, $required_error);
+          _clientside_validation_set_required($el_name, $el_title, isset($element['#required']) ? $element['#required'] : FALSE, $js_rules, $required_error);
         }
         if (isset($element['#maxlength']) && $element['#maxlength'] > 0) {
           _clientside_validation_set_minmaxlength($el_name, $el_title, '', $element['#maxlength'], $js_rules);
@@ -131,7 +131,7 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
           }
           _clientside_validation_set_minmaxlength($el_name, $el_title, $min, $max, $js_rules);
         }
-        _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules, $required_error);
+        _clientside_validation_set_required($el_name, $el_title, isset($element['#required']) ? $element['#required'] : FALSE, $js_rules, $required_error);
         if ($element['#required']) {
           // @see http://drupal.org/node/1585554
           $error = isset($js_rules[$el_name]['messages']['required']) ? $js_rules[$el_name]['messages']['required'] : NULL;
@@ -140,7 +140,7 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
         break;
       case 'radio':
       case 'radios':
-        _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules, $required_error);
+        _clientside_validation_set_required($el_name, $el_title, isset($element['#required']) ? $element['#required'] : FALSE, $js_rules, $required_error);
         break;
       case 'checkbox':
       case 'checkboxes':
@@ -156,8 +156,8 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
           }
           _clientside_validation_set_checkboxgroup_minmax($element['#name'], $el_title, $id, $js_rules, $required_error, 1, $max);
         }
-        elseif ($element['#required']) {
-          _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules, $required_error);
+        else {
+          _clientside_validation_set_required($el_name, $el_title, isset($element['#required']) ? $element['#required'] : FALSE, $js_rules, $required_error);
         }
         break;
       case 'link_field':
@@ -170,14 +170,14 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
         foreach(element_children($element['hierarchical_select']['selects']) as $child) {
           if ($element['#config']['enforce_deepest'] || $child < 1) {
             $child_name = $element['hierarchical_select']['selects'][$child]['#name'];
-            _clientside_validation_set_required($child_name, $el_title, $element['#required'], $js_rules, $required_error);
+            _clientside_validation_set_required($child_name, $el_title, isset($element['#required']) ? $element['#required'] : FALSE, $js_rules, $required_error);
             if ($element['#required']) {
               $error = isset($js_rules[$child_name]['messages']['required']) ? $js_rules[$child_name]['messages']['required'] : NULL;
               _clientside_validation_set_blacklist($child_name, $el_title, array('label_' . $child, 'none', '_none'), $js_rules, $error);
             }
           }
         }
-        _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules, $required_error);
+        _clientside_validation_set_required($el_name, $el_title, isset($element['#required']) ? $element['#required'] : FALSE, $js_rules, $required_error);
         break;
       case 'checkbox_tree':
         if ($element['#required']) {
@@ -188,16 +188,12 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
       case 'date_text':
         $date_title = ($element['#type'] == 'date_popup') ? $element['date']['#title'] : $element['#date_title'];
         if (isset($element['date'])) {
-          if ($element['#required']) {
-            _clientside_validation_set_required($element['date']['#name'], $date_title, $element['#required'], $js_rules);
-          }
+          _clientside_validation_set_required($element['date']['#name'], $date_title, isset($element['#required']) ? $element['#required'] : FALSE, $js_rules);
           $format = date_popup_date_format($element);
           _clientside_validation_set_date($element['date']['#name'], $date_title, $format, $js_rules);
         }
         if (isset($element['time']) && isset($element['time']['#name'])) {
-          if ($element['#required']) {
-            _clientside_validation_set_required($element['time']['#name'], $element['time']['#title'], $element['#required'], $js_rules);
-          }
+          _clientside_validation_set_required($element['time']['#name'], $element['time']['#title'], isset($element['#required']) ? $element['#required'] : FALSE, $js_rules);
         }
         break;
       case 'captcha':
@@ -210,8 +206,8 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
         }
         break;
     }
-    if (!isset($js_rules[$el_name]['required']) && $element['#required']) {
-      _clientside_validation_set_required($el_name, $el_title, $element['#required'], $js_rules, $required_error);
+    if (!isset($js_rules[$el_name]['required'])) {
+      _clientside_validation_set_required($el_name, $el_title, isset($element['#required']) ? $element['#required'] : FALSE, $js_rules, $required_error);
     }
   }
 }

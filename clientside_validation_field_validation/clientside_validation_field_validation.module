@@ -83,8 +83,13 @@ function clientside_validation_field_validation_after_build_recurse($form_id, &$
 }
 
 function clientside_validation_field_validation_regular($form_id, $element, $rule, &$js_rules) {
-  if ($rule['api_version'] >= 2 && strpos($element['#name'], $rule['col']) === FALSE) {
-    return;
+  if (isset($rule['col']) && $rule['col'] === 'value') {
+    if (strpos($element['#name'], '[format]') === strlen($element['#name']) - strlen('[format]')) {
+      return;
+    }
+    if (strpos($element['#name'], '[summary]') === strlen($element['#name']) - strlen('[summary]')) {
+      return;
+    }
   }
   $el_name = $element['#name'];
   if (isset($element['#multiple']) && $element['#multiple']) {

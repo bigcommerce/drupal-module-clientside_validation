@@ -22,8 +22,16 @@ function clientside_validation_form_after_build_recurse($form_id, &$form, &$form
         $context = array('type' => 'element_validate', 'functions' => $element['#element_validate']);
         drupal_alter('clientside_validation_rule', $js_rules, $element, $context);
       }
+      if (isset($element['#validate']) && !empty($element['#validate'])) {
+        $context = array('type' => 'form_validate', 'functions' => $element['#validate']);
+        drupal_alter('clientside_validation_rule', $js_rules, $element, $context);
+      }
       clientside_validation_form_after_build_recurse($form_id, $element, $form_state, $js_rules);
     }
+  }
+  if (isset($form['#validate']) && !empty($form['#validate'])) {
+    $context = array('type' => 'form_validate', 'functions' => $form['#validate']);
+    drupal_alter('clientside_validation_rule', $js_rules, $form, $context);
   }
 }
 

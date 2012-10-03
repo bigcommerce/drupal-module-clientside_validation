@@ -1533,7 +1533,7 @@ function clientside_validation_settings_load($cvs_type = NULL, $cvs_formid = NUL
 /**
  * Implementation of hook_library_alter().
  */
-function clientside_validation_library_alter(&$javascript, $module) {
+function clientside_validation_library_alter(&$libraries, $module) {
   if (variable_get('clientside_validation_override_jquery_form', 0)) {
     // We are updating just the system module. For all other cases we return.
     if ($module != 'system') {
@@ -1541,9 +1541,9 @@ function clientside_validation_library_alter(&$javascript, $module) {
     }
 
     $path = drupal_get_path('module', 'clientside_validation');
-
+    
     // Replace jQuery Form plugin.
-    $javascript['jquery.form']['js']['misc/jquery.form.js']['data'] = $path . '/jquery.form.js';
-    $javascript['jquery.form']['version'] = '3.09';
+    $libraries['jquery.form']['js']['misc/jquery.form.js']['data'] = $path . '/jquery.form.js';
+    $libraries['jquery.form']['version'] = '3.09';
   }
 }

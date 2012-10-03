@@ -104,15 +104,18 @@ function clientside_validation_webform_after_build_recurse($form_id, &$form, &$f
         }
 
         if (isset($element['#webform_component']) && $element['#webform_component']['type'] == 'number') {
-          _clientside_validation_set_number_decimal($element['#name'], $element['#title'], $element['#webform_component']['extra']['point'], $js_rules);
+          if (!$element['#webform_component']['extra']['integer']) {
+            _clientside_validation_set_number_decimal($element['#name'], $element['#title'], $element['#webform_component']['extra']['point'], $js_rules);
+          }
+          else {
+            _clientside_validation_set_number($element['#name'], $element['#title'], $js_rules);
+          }
           if (module_exists('clientside_validation_html5')) {
             _clientside_validation_set_minmax_html5($element['#name'], $element['#title'], $element['#webform_component']['extra']['min'], $element['#webform_component']['extra']['max'], $element['#webform_component']['extra']['step'], $js_rules);
           }
           else {
             _clientside_validation_set_minmax($element['#name'], $element['#title'], $element['#webform_component']['extra']['min'], $element['#webform_component']['extra']['max'], $js_rules);
           }
-
-          //_clientside_validation_set_number_decimal($name, $title, $decimalpoint, $js_rules);
         }
       }
       clientside_validation_webform_after_build_recurse($form_id, $element, $form_state, $js_rules);

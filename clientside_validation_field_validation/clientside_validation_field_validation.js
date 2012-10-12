@@ -26,9 +26,14 @@
             Drupal.myClientsideValidation.validators[formid].settings.showErrors = function (errorMap, errorList) {
               this.defaultShowErrors();
               for (var index in errorList) {
-                var label = this.errorsFor( errorList[index].element );
+                var $element = $(errorList[index].element);
+                var label = this.errorsFor(errorList[index].element);
                 if ( label.length ) {
-                  label.html(label.html().replace("[value]", $(errorList[index].element).val()));
+                  label.html(
+                    label.html()
+                      .replace("[value]", $element.val())
+                      .replace("[field-name]", $element.closest(".form-item").find('label').text())
+                  );
                 }
               }
             }

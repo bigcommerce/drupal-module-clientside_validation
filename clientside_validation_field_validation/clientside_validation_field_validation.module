@@ -9,31 +9,34 @@
 function clientside_validation_field_validation_clientside_validation_form_alter(&$form, &$form_state, &$js_rules) {
   $field_rules = array();
   clientside_validation_field_validation_find_rules($form, $field_rules);
-  foreach ($field_rules as $rule) {
-    $element = &$form;
-    // Field validation 1.x
-    if (function_exists('field_validation_get_bundle_rules')) {
-      foreach ($rule['field']['#parents'] as $parent) {
-        $element = &$element[$parent];
+  if (!empty($field_rules)) {
+    $form['#attached']['js'][] = drupal_get_path('module', 'clientside_validation_field_validation') . '/clientside_validation_field_validation.js';
+    foreach ($field_rules as $rule) {
+      $element = &$form;
+      // Field validation 1.x
+      if (function_exists('field_validation_get_bundle_rules')) {
+        foreach ($rule['field']['#parents'] as $parent) {
+          $element = &$element[$parent];
+        }
+        clientside_validation_field_validation_after_build_recurse($form['#id'], $element, $form_state, $rule['rule'], $js_rules);
       }
-      clientside_validation_field_validation_after_build_recurse($form['#id'], $element, $form_state, $rule['rule'], $js_rules);
-    }
-    // Field validation 2.x
-    else {
-      $element = &$element[$rule['rule']['field_name']];
-      $field = field_info_field($rule['rule']['field_name']);
-      $languages = field_available_languages($rule['rule']['entity_type'], $field);
-      foreach ($languages as $langcode) {
-        if (isset($element[$langcode])) {
-          $element = &$element[$langcode];
-        }
-        foreach (element_children($element) as $delta) {
-            $element = &$element[$delta];
-            clientside_validation_field_validation_after_build_recurse($form['#id'], $element, $form_state, $rule['rule'], $js_rules);
-        }
-        //Support select fields.
-        if (!count(element_children($element)) && isset($element['#type']) && $element['#type'] == 'select') {
-          clientside_validation_field_validation_regular($form['#id'], $element, $rule['rule'], $js_rules);
+      // Field validation 2.x
+      else {
+        $element = &$element[$rule['rule']['field_name']];
+        $field = field_info_field($rule['rule']['field_name']);
+        $languages = field_available_languages($rule['rule']['entity_type'], $field);
+        foreach ($languages as $langcode) {
+          if (isset($element[$langcode])) {
+            $element = &$element[$langcode];
+          }
+          foreach (element_children($element) as $delta) {
+              $element = &$element[$delta];
+              clientside_validation_field_validation_after_build_recurse($form['#id'], $element, $form_state, $rule['rule'], $js_rules);
+          }
+          //Support select fields.
+          if (!count(element_children($element)) && isset($element['#type']) && $element['#type'] == 'select') {
+            clientside_validation_field_validation_regular($form['#id'], $element, $rule['rule'], $js_rules);
+          }
         }
       }
     }

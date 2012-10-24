@@ -172,7 +172,7 @@ function _clientside_validation_set_html5_color($name, $title, &$js_rules, $mess
   $js_rules[$name]['Html5Color'] = TRUE;
   if (empty($message)) {
     $variables = array(
-      'message' => '!title field must be a vlid color code',
+      'message' => '!title field must be a valid color code.',
       'placeholders' => array('!title' => $title),
       'error_type' => 'color',
       'element_name' => 'name');

@@ -904,7 +904,7 @@ function _clientside_validation_set_plain_text($name, $title, $allowed_tags, &$j
   $js_rules[$name]['plaintext'] = empty($allowed_tags) ? '' : $allowed_tags;
   if (empty($message)) {
       $variables = array(
-        'message' => (empty($allowed_tags)) ? '!title field can not contain any HTML tags' :  '!title field can not contain any HTML tags exept !allowed',
+        'message' => (empty($allowed_tags)) ? '!title field can not contain any HTML tags' : '!title field can not contain any HTML tags exept !allowed',
         'placeholders' => array('!title' => $title, '!allowed' => $allowed_tags),
         'error_type' => 'plaintext',
         'element_name' => $name,

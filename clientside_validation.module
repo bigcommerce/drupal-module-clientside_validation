@@ -425,7 +425,7 @@ function _clientside_validation_add_general_settings(&$settings, $form) {
   if (in_array($form['#form_id'], $include_hidden)) {
     $settings['clientsideValidation']['forms'][$form_id]['includeHidden'] = TRUE;
   }
-  elseif ($definedsettings['include_hidden']['include_hidden']) {
+  elseif ($definedsettings['include_hidden']['include_hidden_fields']) {
     $settings['clientsideValidation']['forms'][$form_id]['includeHidden'] = TRUE;
   }
 

@@ -22,25 +22,68 @@ function clientside_validation_field_validation_clientside_validation_form_alter
       }
       // Field validation 2.x
       else {
-        $element = &$element[$rule['rule']['field_name']];
-        $field = field_info_field($rule['rule']['field_name']);
-        $languages = field_available_languages($rule['rule']['entity_type'], $field);
-        foreach ($languages as $langcode) {
-          if (isset($element[$langcode])) {
-            $element = &$element[$langcode];
-          }
-          foreach (element_children($element) as $delta) {
-              $element = &$element[$delta];
-              clientside_validation_field_validation_after_build_recurse($form['#id'], $element, $form_state, $rule['rule'], $js_rules);
-          }
-          //Support select fields.
-          if (!count(element_children($element)) && isset($element['#type']) && $element['#type'] == 'select') {
+        $path = clientside_validation_array_key_path($rule['rule']['field_name'], $element);
+        if ($path !== FALSE) {
+          $element =& clientside_validation_array_path($form, $path);
+          clientside_validation_field_validation_after_build_recurse($form['#id'], $element, $form_state, $rule['rule'], $js_rules);
+          if (isset($element['#type']) && $element['#type'] == 'select') {
             clientside_validation_field_validation_regular($form['#id'], $element, $rule['rule'], $js_rules);
           }
         }
       }
     }
   }
+}
+
+/**
+ * Search for a key in an array, returning a path to the entry.
+ *
+ * @param $needle
+ *   A key to look for.
+ * @param $haystack
+ *   A keyed array.
+ * @param $forbidden
+ *   A list of keys to ignore.
+ * @param $path
+ *   The intermediate path. Internal use only.
+ * @param $depth
+ *   The depth of the array to search.
+ * @param $current_depth
+ *   The current depth searched. Internal use only.
+ * @return
+ *   The path to the parent of the first occurrence of the key, represented as an array where entries are consecutive keys.
+ */
+function clientside_validation_array_key_path($needle, $haystack, $forbidden = array(), $path = array(), $depth = 3, $current_depth = 0) {
+  foreach ($haystack as $key => $val) {
+    if (in_array($key, $forbidden)) {
+      continue;
+    }
+    if (is_array($val) && ($current_depth < $depth) && is_array($sub = clientside_validation_array_key_path($needle, $val, $forbidden, array_merge($path, (array)$key), $depth, $current_depth + 1))) {
+      return $sub;
+    }
+    elseif ($key === $needle) {
+      return array_merge($path, (array)$key);
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Given a path, return a reference to the array entry.
+ *
+ * @param $array
+ *   A keyed array.
+ * @param $path
+ *    An array path, represented as an array where entries are consecutive keys.
+ * @return
+ *   A reference to the entry that corresponds to the given path.
+ */
+function &clientside_validation_array_path(&$array, $path) {
+  $offset =& $array;
+  if ($path) foreach ($path as $index) {
+    $offset =& $offset[$index];
+  }
+  return $offset;
 }
 
 function clientside_validation_field_validation_find_rules($form, &$field_rules) {

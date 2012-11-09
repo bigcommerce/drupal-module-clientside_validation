@@ -61,6 +61,7 @@ function clientside_validation_schema() {
         'not null' => TRUE,
         'size' => 'big',
         'translatable' => TRUE,
+        'serialize' => TRUE,
       ),
     ),
     'indexes' => array(

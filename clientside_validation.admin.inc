@@ -66,7 +66,7 @@ function clientside_validation_general_settings_form($form_id, $form_state) {
 
   $form['clientside_validation_pages']['clientside_validation_path_list'] = array(
     '#type' => 'textarea',
-    '#default_value' => variable_get('clientside_validation_path_list', ''),
+    '#default_value' => variable_get('clientside_validation_path_list', 'admin/structure/views/view/*'),
     '#title' => t("Enter paths"),
     '#description' => t("Enter one page per line as Drupal paths.
       The '*' character is a wildcard. Example paths are %blog for the blog page and

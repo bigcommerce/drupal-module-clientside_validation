@@ -255,3 +255,14 @@ function clientside_validation_update_7103() {
   }
   variable_set('clientside_validation_default_settings', $default_settings);
 }
+
+/**
+ * Disable clientside validation for views.
+ */
+function clientside_validation_update_7104() {
+  $paths = explode("\n", variable_get('clientside_validation_path_list', ''));
+  if (array_search('admin/structure/views/view/*', $paths) === FALSE) {
+    $paths[] = 'admin/structure/views/view/*';
+  }
+  variable_set('clientside_validation_path_list', implode("\n", $paths));
+}

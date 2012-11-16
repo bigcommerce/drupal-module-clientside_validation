@@ -8,7 +8,6 @@
  * Implements hook_clientside_validation_form_alter().
  */
 function clientside_validation_states_clientside_validation_form_alter(&$form, &$form_state, &$js_rules) {
-
   clientside_validation_states_after_build_recurse($form['#id'], $form, $form_state, $js_rules);
 }
 

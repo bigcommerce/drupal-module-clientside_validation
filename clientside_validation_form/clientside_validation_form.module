@@ -201,10 +201,9 @@ function clientside_validation_regular($form_id, $element, &$js_rules, $form_sta
         $date_title = ($element['#type'] == 'date_popup') ? $element['date']['#title'] : $element['#date_title'];
         if (isset($element['date'])) {
           _clientside_validation_set_required($element['date']['#name'], $date_title, isset($element['#required']) ? $element['#required'] : FALSE, $js_rules);
-          if (module_exists('date_popup')) {
-            $format = date_popup_date_format($element);
-            _clientside_validation_set_date($element['date']['#name'], $date_title, $format, $js_rules);
-          }
+          $granularity = date_format_order($element['#date_format']);
+          $format = date_limit_format($element['#date_format'], array_intersect($granularity, array('month', 'day', 'year')));
+          _clientside_validation_set_date($element['date']['#name'], $date_title, $format, $js_rules);
         }
         if (isset($element['time']) && isset($element['time']['#name'])) {
           _clientside_validation_set_required($element['time']['#name'], $element['time']['#title'], isset($element['#required']) ? $element['#required'] : FALSE, $js_rules);

@@ -1167,6 +1167,15 @@
       var year = parseInt(parts[param.yearpos], 10);
       var date = new Date();
       var result = true;
+      if (day.toString().length !== parts[param.daypos].length){
+        result = false;
+      }
+      if (month.toString().length !== parts[param.monthpos].length){
+        result = false;
+      }
+      if (year.toString().length !== parts[param.yearpos].length){
+        result = false;
+      }
       if (param.yearpos !== false){
         expectedpartscount++;
         date.setFullYear(year);

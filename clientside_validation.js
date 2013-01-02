@@ -54,7 +54,11 @@
             if (typeof ret === 'undefined') {
               ret = true;
             }
-            return ret && Drupal.myClientsideValidation.validators[element.attr('id')].form();
+            ret = ret && Drupal.myClientsideValidation.validators[element.attr('id')].form();
+            if (!ret) {
+              Drupal.ajax[ajax_el].ajaxing = false;
+            }
+            return ret;
           };
         }
       }

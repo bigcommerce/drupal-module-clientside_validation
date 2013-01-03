@@ -923,15 +923,29 @@ function _clientside_validation_set_plain_text($name, $title, $allowed_tags, &$j
 /**
  * Set validation rule for required fields that must equal a value from an other field.
  */
-function _clientside_validation_set_equal($name, $title, $value, &$js_rules) {
+function _clientside_validation_set_equal($name, $title, $value, &$js_rules, $message = '', $webform = FALSE) {
   $title = _clientside_validation_set_title($title);
-  $js_rules[$name]['equalTo'] = ':input[name=\'submitted[' . $value['form_key'] . ']\']';
-  $variables = array(
-    'message' => '!title field has to be equal to !firstone.',
-    'placeholders' => array('!title' => $title, '!firstone' => $value['name']),
-    'error_type' => 'equalto',
-    'element_name' => $name,
-  );
+  if ($webform) {
+    $js_rules[$name]['equalTo'] = ':input[name=\'submitted[' . $value['form_key'] . ']\']';
+  }
+  else {
+    $js_rules[$name]['equalTo'] = ':input[name=\'' . $value['element_name'] . '\']';
+  }
+  if (empty($message)) {
+    $variables = array(
+      'message' => '!title field has to be equal to !firstone.',
+      'placeholders' => array('!title' => $title, '!firstone' => $value['name']),
+      'error_type' => 'equalto',
+      'element_name' => $name,
+    );
+  }
+  else {
+    $variables = array(
+      'message' => $message,
+      'error_type' => 'plaintext',
+      'element_name' => $name,
+    );
+  }
   $js_rules[$name]['messages']['equalTo'] = theme('clientside_error', $variables);
 }
 

@@ -218,7 +218,7 @@ function clientside_validation_webform_add_webform_validation($form_id, &$form, 
           $firstone = array_shift($others);
           $firstone['form_key'] = implode('][', webform_component_parent_keys(node_load($firstone['nid']), $firstone));
           foreach ($others as $component) {
-            _clientside_validation_set_equal($component['element_name'], $component['element_title'], $firstone, $js_rules);
+            _clientside_validation_set_equal($component['element_name'], $component['element_title'], $firstone, $js_rules, '', TRUE);
           }
           break;
         case 'unique':

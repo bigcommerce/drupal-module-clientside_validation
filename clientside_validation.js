@@ -238,10 +238,8 @@
           groupkey = r + '_group';
           self.groups[f][groupkey] = [];
           jQuery.each(this, function(){
-            var i = 0;
             $(this[2]).find('input[type=checkbox]').each(function(){
               self.groups[f][groupkey].push($(this).attr('name'));
-              i++;
             });
           });
         });
@@ -255,10 +253,8 @@
           groupkey = r + '_group';
           self.groups[f][groupkey] = [];
           jQuery.each(this, function(){
-            var i = 0;
             $('#' + f + ' #' + r + ' :input').not('input[type=image]').each(function(){
               self.groups[f][groupkey].push($(this).attr('name'));
-              i++;
             });
           });
         });
@@ -272,10 +268,8 @@
           groupkey = r + '_group';
           self.groups[f][groupkey] = [];
           jQuery.each(this, function(){
-            var i = 0;
             $('#' + f + ' #' + r + ' :input').not('input[type=image]').each(function(){
               self.groups[f][groupkey].push($(this).attr('name'));
-              i++;
             });
           });
         });
@@ -289,10 +283,8 @@
           groupkey = r + '_group';
           self.groups[f][groupkey] = [];
           jQuery.each(this, function(){
-            var i = 0;
             $('#' + f + ' #' + r + ' :input').not('input[type=image]').each(function(){
               self.groups[f][groupkey].push($(this).attr('name'));
-              i++;
             });
           });
         });

@@ -236,14 +236,11 @@
         groupkey = "";
         jQuery.each (self.forms[f].checkboxrules, function(r) {
           groupkey = r + '_group';
-          self.groups[f][groupkey] = "";
+          self.groups[f][groupkey] = [];
           jQuery.each(this, function(){
             var i = 0;
             $(this[2]).find('input[type=checkbox]').each(function(){
-              if(i > 0){
-                self.groups[f][groupkey] += ' ';
-              }
-              self.groups[f][groupkey] += $(this).attr('name');
+              self.groups[f][groupkey].push($(this).attr('name'));
               i++;
             });
           });
@@ -256,14 +253,11 @@
         groupkey = "";
         jQuery.each (self.forms[f].daterangerules, function(r) {
           groupkey = r + '_group';
-          self.groups[f][groupkey] = "";
+          self.groups[f][groupkey] = [];
           jQuery.each(this, function(){
             var i = 0;
             $('#' + f + ' #' + r + ' :input').not('input[type=image]').each(function(){
-              if(i > 0){
-                self.groups[f][groupkey] += ' ';
-              }
-              self.groups[f][groupkey] += $(this).attr('name');
+              self.groups[f][groupkey].push($(this).attr('name'));
               i++;
             });
           });
@@ -276,14 +270,11 @@
         groupkey = "";
         jQuery.each (self.forms[f].dateminrules, function(r) {
           groupkey = r + '_group';
-          self.groups[f][groupkey] = "";
+          self.groups[f][groupkey] = [];
           jQuery.each(this, function(){
             var i = 0;
             $('#' + f + ' #' + r + ' :input').not('input[type=image]').each(function(){
-              if(i > 0){
-                self.groups[f][groupkey] += ' ';
-              }
-              self.groups[f][groupkey] += $(this).attr('name');
+              self.groups[f][groupkey].push($(this).attr('name'));
               i++;
             });
           });
@@ -296,14 +287,11 @@
         groupkey = "";
         jQuery.each (self.forms[f].datemaxrules, function(r) {
           groupkey = r + '_group';
-          self.groups[f][groupkey] = "";
+          self.groups[f][groupkey] = [];
           jQuery.each(this, function(){
             var i = 0;
             $('#' + f + ' #' + r + ' :input').not('input[type=image]').each(function(){
-              if(i > 0){
-                self.groups[f][groupkey] += ' ';
-              }
-              self.groups[f][groupkey] += $(this).attr('name');
+              self.groups[f][groupkey].push($(this).attr('name'));
               i++;
             });
           });

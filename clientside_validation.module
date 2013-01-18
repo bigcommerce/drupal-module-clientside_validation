@@ -38,6 +38,14 @@ function clientside_validation_js_alter() {
       }
     }
   }
+
+  // Provide conversion table between translated month names, both full and abbreviated, and their number.
+  foreach (range(1, 12) as $month_number) {
+    $date = mktime(12, 0, 0, $month_number, 1, 1970);
+    $clientside_validation_settings['clientside_validation_settings']['months'][t(date('F', $date))] = $month_number;
+    $clientside_validation_settings['clientside_validation_settings']['months'][t(date('M', $date))] = $month_number;
+  }
+
   drupal_add_js($clientside_validation_settings, 'setting');
 
 }
@@ -1555,7 +1563,7 @@ function clientside_validation_library_alter(&$libraries, $module) {
     }
 
     $path = drupal_get_path('module', 'clientside_validation');
-    
+
     // Replace jQuery Form plugin.
     $libraries['jquery.form']['js']['misc/jquery.form.js']['data'] = $path . '/jquery.form.js';
     $libraries['jquery.form']['version'] = '3.09';

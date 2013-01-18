@@ -1146,8 +1146,18 @@
       var parts = value.split(param.splitter);
       var expectedpartscount = 0;
       var day = parseInt(parts[param.daypos], 10);
+
       var month = parseInt(parts[param.monthpos], 10);
+      if (isNaN(month)) {
+        if (typeof Drupal.settings.clientside_validation_settings[parts[param.monthpos]] !== undefined) {
+          month = Drupal.settings.clientside_validation_settings[parts[param.monthpos]];
+        }
+        else {
+          month = new Date(parts[param.monthpos] + " 1, 2000");
+          month = month.getMonth();
+      }
       month = month - 1;
+
       var year = parseInt(parts[param.yearpos], 10);
       var date = new Date();
       var result = true;

@@ -1155,6 +1155,7 @@
         else {
           month = new Date(parts[param.monthpos] + " 1, 2000");
           month = month.getMonth();
+        }
       }
       month = month - 1;
 

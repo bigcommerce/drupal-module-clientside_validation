@@ -713,7 +713,13 @@
         if ($checkboxes.length) {
           $checkboxes.addClass('require-one');
           $checkboxes.each(function(){
-            $(this).rules("add", self.forms[formid].checkboxrules[r]);
+            var rule = self.forms[formid].checkboxrules[r];
+            if (typeof self.validators[formid].settings.messages[r] === 'undefined') {
+              self.validators[formid].settings.messages[r] = {};
+            }
+            $.extend(self.validators[formid].settings.messages[r], rule.messages);
+            delete rule.messages;
+            $(this).rules("add", rule);
             $(this).change(hideErrordiv);
           });
         }
@@ -724,7 +730,13 @@
       self.time.start('daterangerules');
       jQuery.each (self.forms[formid].daterangerules, function(r) {
         $form.find('#' + r).find('input, select').not('input[type=image]').each(function(){
-          $(this).rules("add", self.forms[formid].daterangerules[r]);
+          var rule = self.forms[formid].daterangerules[r];
+          if (typeof self.validators[formid].settings.messages[r] === 'undefined') {
+            self.validators[formid].settings.messages[r] = {};
+          }
+          $.extend(self.validators[formid].settings.messages[r], rule.messages);
+          delete rule.messages;
+          $(this).rules("add", rule);
           $(this).blur(hideErrordiv);
         });
       });
@@ -735,7 +747,13 @@
       self.time.start('dateminrules');
       jQuery.each (self.forms[formid].dateminrules, function(r) {
         $form.find('#' + r).find('input, select').not('input[type=image]').each(function(){
-          $(this).rules("add", self.forms[formid].dateminrules[r]);
+          var rule = self.forms[formid].dateminrules[r];
+          if (typeof self.validators[formid].settings.messages[r] === 'undefined') {
+            self.validators[formid].settings.messages[r] = {};
+          }
+          $.extend(self.validators[formid].settings.messages[r], rule.messages);
+          delete rule.messages;
+          $(this).rules("add", rule);
           $(this).blur(hideErrordiv);
         });
       });
@@ -746,7 +764,13 @@
       self.time.start('datemaxrules');
       jQuery.each (self.forms[formid].datemaxrules, function(r) {
         $form.find('#' + r).find('input, select').not('input[type=image]').each(function(){
-          $(this).rules("add", self.forms[formid].datemaxrules[r]);
+          var rule = self.forms[formid].datemaxrules[r];
+          if (typeof self.validators[formid].settings.messages[r] === 'undefined') {
+            self.validators[formid].settings.messages[r] = {};
+          }
+          $.extend(self.validators[formid].settings.messages[r], rule.messages);
+          delete rule.messages;
+          $(this).rules("add", rule);
           $(this).blur(hideErrordiv);
         });
       });
@@ -761,6 +785,11 @@
         var rule = rules[elem.name];
         if (rule) {
           elem = $(elem);
+          if (typeof self.validators[formid].settings.messages[elem.name] === 'undefined') {
+            self.validators[formid].settings.messages[elem.name] = {};
+          }
+          $.extend(self.validators[formid].settings.messages[elem.name], rule.messages);
+          delete rule.messages;
           $(elem).rules("add",rule);
           $(elem).change(hideErrordiv);
         }
@@ -1143,59 +1172,63 @@
     });
 
     jQuery.validator.addMethod("dateFormat", function(value, element, param) {
-      var parts = value.split(param.splitter);
-      var expectedpartscount = 0;
-      var day = parseInt(parts[param.daypos], 10);
+      try{
+        var parts = value.split(param.splitter);
+        var expectedpartscount = 0;
+        var day = parseInt(parts[param.daypos], 10);
 
-      var month = parseInt(parts[param.monthpos], 10);
-      if (isNaN(month)) {
-        if (typeof Drupal.settings.clientside_validation_settings[parts[param.monthpos]] !== undefined) {
-          month = Drupal.settings.clientside_validation_settings[parts[param.monthpos]];
+        var month = parseInt(parts[param.monthpos], 10);
+        if (isNaN(month)) {
+          if (typeof Drupal.settings.clientside_validation_settings[parts[param.monthpos]] !== undefined) {
+            month = Drupal.settings.clientside_validation_settings[parts[param.monthpos]];
+          }
+          else {
+            month = new Date(parts[param.monthpos] + " 1, 2000");
+            month = month.getMonth();
+          }
         }
-        else {
-          month = new Date(parts[param.monthpos] + " 1, 2000");
-          month = month.getMonth();
-        }
-      }
-      month = month - 1;
+        month = month - 1;
 
-      var year = parseInt(parts[param.yearpos], 10);
-      var date = new Date();
-      var result = true;
-      if (day.toString().length !== parts[param.daypos].length){
-        result = false;
-      }
-      if (month.toString().length !== parts[param.monthpos].length){
-        result = false;
-      }
-      if (year.toString().length !== parts[param.yearpos].length){
-        result = false;
-      }
-      if (param.yearpos !== false){
-        expectedpartscount++;
-        date.setFullYear(year);
-        if (year !== date.getFullYear()) {
+        var year = parseInt(parts[param.yearpos], 10);
+        var date = new Date();
+        var result = true;
+        if (parts[param.daypos].toString().length !== parts[param.daypos].length){
           result = false;
         }
-      }
-      if (param.monthpos !== false) {
-        expectedpartscount++;
-        date.setMonth(month);
-        if (month !== date.getMonth()) {
+        if (parts[param.monthpos].toString().length !== parts[param.monthpos].length){
           result = false;
         }
-      }
-      if (param.daypos !== false) {
-        expectedpartscount++;
-        date.setDate(day);
-        if (day !== date.getDate()) {
+        if (parts[param.yearpos].toString().length !== parts[param.yearpos].length){
           result = false;
         }
+        if (param.yearpos !== false){
+          expectedpartscount++;
+          date.setFullYear(year);
+          if (year !== date.getFullYear()) {
+            result = false;
+          }
+        }
+        if (param.monthpos !== false) {
+          expectedpartscount++;
+          date.setMonth(month);
+          if (month !== date.getMonth()) {
+            result = false;
+          }
+        }
+        if (param.daypos !== false) {
+          expectedpartscount++;
+          date.setDate(day);
+          if (day !== date.getDate()) {
+            result = false;
+          }
+        }
+        if (expectedpartscount !== parts.length) {
+          result = false;
+        }
+        return this.optional(element) || result;
+      } catch(e) {
+        return this.optional(element) || false;
       }
-      if (expectedpartscount !== parts.length) {
-        result = false;
-      }
-      return this.optional(element) || result;
     }, jQuery.format('The date is not in a valid format'));
 
     // Require one of several

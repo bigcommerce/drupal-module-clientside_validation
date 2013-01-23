@@ -784,14 +784,14 @@
       $form.find('input, textarea, select').each(function(idx, elem) {
         var rule = rules[elem.name];
         if (rule) {
-          elem = $(elem);
+          var $elem = $(elem);
           if (typeof self.validators[formid].settings.messages[elem.name] === 'undefined') {
             self.validators[formid].settings.messages[elem.name] = {};
           }
           $.extend(self.validators[formid].settings.messages[elem.name], rule.messages);
           delete rule.messages;
-          $(elem).rules("add",rule);
-          $(elem).change(hideErrordiv);
+          $elem.rules("add",rule);
+          $elem.change(hideErrordiv);
         }
       });
       self.time.stop('rules');

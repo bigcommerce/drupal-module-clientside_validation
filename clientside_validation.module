@@ -430,7 +430,7 @@ function _clientside_validation_add_general_settings(&$settings, $form) {
   // Add a setting for this form if the hidden elements should still be validated
   $include_hidden_setting = $definedsettings['include_hidden']['include_hidden'];
   $include_hidden = preg_split('/(\r\n?|\n)/', $include_hidden_setting, -1, PREG_SPLIT_NO_EMPTY);
-  if (in_array($form['#form_id'], $include_hidden)) {
+  if (in_array($form['#form_id'], $include_hidden) || in_array($form_id, $include_hidden)) {
     $settings['clientsideValidation']['forms'][$form_id]['includeHidden'] = TRUE;
   }
   elseif ($definedsettings['include_hidden']['include_hidden_fields']) {

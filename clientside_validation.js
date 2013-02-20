@@ -394,6 +394,14 @@
                   $(this).click();
                 });
               }
+
+              /**
+               * Notify that the form contains errors.
+               * @event clientsideValidationFormHasErrors
+               * @name clientsideValidationFormHasErrors
+               * @memberof Drupal.clientsideValidation
+               */
+              jQuery.event.trigger('clientsideValidationFormHasErrors', form.currentTarget);
             }
           }
         };

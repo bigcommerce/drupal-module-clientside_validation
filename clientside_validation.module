@@ -24,21 +24,6 @@ define('CLIENTSIDE_VALIDATION_CUSTOM_ERROR_FUNCTION', 7);
  */
 function clientside_validation_js_alter() {
   $clientside_validation_settings = &drupal_static('clientside_validation_settings', array());
-  if (isset($clientside_validation_settings['clientsideValidation'])) {
-    foreach ($clientside_validation_settings['clientsideValidation']['forms'] as $form_id => $settings) {
-      $stripped_form_id = $form_id;
-      $matches = array();
-      preg_match(' /.*?(--(\d)*)/', $form_id, $matches);
-      if (isset($matches[1])) {
-        $stripped_form_id = str_replace($matches[1], '', $form_id);
-      }
-      if ($stripped_form_id != $form_id) {
-        $clientside_validation_settings['clientsideValidation']['forms'][$form_id] = $clientside_validation_settings['clientsideValidation']['forms'][$stripped_form_id];
-        $clientside_validation_settings['clientsideValidation']['groups'][$form_id] = $clientside_validation_settings['clientsideValidation']['groups'][$stripped_form_id];
-      }
-    }
-  }
-
   // Provide conversion table between translated month names, both full and abbreviated, and their number.
   foreach (range(1, 12) as $month_number) {
     $date = mktime(12, 0, 0, $month_number, 1, 1970);
@@ -332,15 +317,6 @@ function clientside_validation_add_js_settings($settings) {
 
 function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form) {
   $form_id = $form['#id'];
-  $matches = array();
-  preg_match(' /.*?(--(\d)*)/', $form_id, $matches);
-  if (isset($matches[1])) {
-    $form_id = str_replace($matches[1], '', $form_id);
-  }
-  if ($form_id != $form['#id']) {
-    $settings['clientsideValidation']['forms'][$form['#id']] = array();
-    $settings['clientsideValidation']['groups'][$form['#id']] = new stdClass();
-  }
   if (isset($js_rules['_groups'])) {
     $settings['clientsideValidation']['groups'][$form_id] = (object)$js_rules['_groups'];
     unset($js_rules['_groups']);
@@ -397,6 +373,17 @@ function _clientside_validation_add_special_rules(&$js_rules, &$settings, $form)
       $settings['clientsideValidation']['forms'][$form_id]['rules'][$key] = $rule;
     }
   }
+  // Ajax callback: We do not know if only a single field is replaced/added or
+  // an entire form, so add the settings twice.
+  $matches = array();
+  preg_match(' /.*?(--(\d)*)/', $form_id, $matches);
+  if (isset($matches[1])) {
+    $form_id = str_replace($matches[1], '', $form_id);
+  }
+  if ($form_id != $form['#id']) {
+    $settings['clientsideValidation']['forms'][$form_id] = $settings['clientsideValidation']['forms'][$form['#id']];
+    $settings['clientsideValidation']['groups'][$form_id] = $settings['clientsideValidation']['groups'][$form['#id']];
+  }
 }
 
 /**
@@ -418,14 +405,6 @@ function clientside_validation_form_after_build(&$form, &$form_state) {
 
 function _clientside_validation_add_general_settings(&$settings, $form) {
   $form_id = $form['#id'];
-  $matches = array();
-  preg_match(' /.*?(--(\d)*)/', $form_id, $matches);
-  if (isset($matches[1])) {
-    $form_id = str_replace($matches[1], '', $form_id);
-  }
-  if ($form_id != $form['#id']) {
-    $settings['clientsideValidation']['forms'][$form['#id']] = array();
-  }
   $definedsettings = clientside_validation_settings_current_form();
   // Add a setting for this form if the hidden elements should still be validated
   $include_hidden_setting = $definedsettings['include_hidden']['include_hidden'];
@@ -478,6 +457,16 @@ function _clientside_validation_add_general_settings(&$settings, $form) {
   }
   else {
     $settings['clientsideValidation']['general']['usexregxp'] = 0;
+  }
+  // Ajax callback: We do not know if only a single field is replaced/added or
+  // an entire form, so add the settings twice.
+  $matches = array();
+  preg_match(' /.*?(--(\d)*)/', $form_id, $matches);
+  if (isset($matches[1])) {
+    $form_id = str_replace($matches[1], '', $form_id);
+  }
+  if ($form_id != $form['#id']) {
+    $settings['clientsideValidation']['forms'][$form_id] = $settings['clientsideValidation']['forms'][$form['#id']];
   }
 }
 

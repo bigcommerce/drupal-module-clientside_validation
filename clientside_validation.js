@@ -530,7 +530,9 @@
                   error.insertAfter(parents);
                 }
               }
-              else {
+              else if (element.next('div.grippie').length) {
+                error.insertAfter(element.next('div.grippie'));
+              } else {
                 error.insertAfter(element);
               }
             };

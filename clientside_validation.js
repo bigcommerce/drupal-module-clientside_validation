@@ -1220,7 +1220,7 @@
         }
         if (param.monthpos !== false) {
           expectedpartscount++;
-          date.setMonth(month);
+          date.setMonth(month, 1);
           if (month !== date.getMonth()) {
             result = false;
           }

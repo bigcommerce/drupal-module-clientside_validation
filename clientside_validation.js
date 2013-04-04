@@ -1263,7 +1263,7 @@
         });
       });
       return ret;
-    }, jQuery.format('Please fill in at least on of the fields'));
+    }, jQuery.format('Please fill in at least one of the fields'));
 
     // Support for phone
     jQuery.validator.addMethod("phone", function(value, element, param) {

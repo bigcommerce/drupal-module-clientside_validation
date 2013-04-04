@@ -1189,8 +1189,8 @@
 
         var month = parseInt(parts[param.monthpos], 10);
         if (isNaN(month)) {
-          if (typeof Drupal.settings.clientside_validation_settings[parts[param.monthpos]] !== undefined) {
-            month = Drupal.settings.clientside_validation_settings[parts[param.monthpos]];
+          if (typeof Drupal.settings.clientsideValidation.general.months[parts[param.monthpos]] !== undefined) {
+            month = Drupal.settings.clientsideValidation.general.months[parts[param.monthpos]];
           }
           else {
             month = new Date(parts[param.monthpos] + " 1, 2000");

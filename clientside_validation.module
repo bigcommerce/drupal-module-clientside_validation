@@ -27,8 +27,8 @@ function clientside_validation_js_alter() {
   // Provide conversion table between translated month names, both full and abbreviated, and their number.
   foreach (range(1, 12) as $month_number) {
     $date = mktime(12, 0, 0, $month_number, 1, 1970);
-    $clientside_validation_settings['clientside_validation_settings']['months'][t(date('F', $date))] = $month_number;
-    $clientside_validation_settings['clientside_validation_settings']['months'][t(date('M', $date))] = $month_number;
+    $clientside_validation_settings['clientsideValidation']['general']['months'][t(date('F', $date))] = $month_number;
+    $clientside_validation_settings['clientsideValidation']['general']['months'][t(date('M', $date))] = $month_number;
   }
 
   drupal_add_js($clientside_validation_settings, 'setting');
@@ -1265,7 +1265,12 @@ function _clientside_validation_set_date($name, $title, $format, &$js_rules, $me
   }
   $parts = explode($splitter, $format);
   $daypos = (array_search('d', $parts) === FALSE) ? array_search('j', $parts) : array_search('d', $parts);
-  $monthpos = (array_search('m', $parts) === FALSE) ? array_search('M', $parts) : array_search('m', $parts);
+  foreach (array('m', 'M', 'F', 'n') as $m) {
+    $monthpos = array_search($m, $parts);
+    if ($monthpos !== FALSE) {
+      break;
+    }
+  }
   $yearpos = array_search('Y', $parts);
   $js_rules[$name]['dateFormat'] = array('format' => $format, 'splitter' => $splitter, 'daypos' => $daypos, 'monthpos' => $monthpos, 'yearpos' => $yearpos);
   $variables = array(

@@ -1347,4 +1347,32 @@
     }
   };
 
+  Drupal.behaviors.ZZZClientsideValidation = {
+    attach: function () {
+      // Set validation for ctools modal forms
+      for (var ajax_el in Drupal.ajax) {
+        if (typeof Drupal.ajax[ajax_el] !== 'undefined') {
+          var origBeforeSubmit = Drupal.ajax[ajax_el].options.beforeSubmit;
+          Drupal.ajax[ajax_el].options.beforeSubmit = function (form_values, element, options) {
+            var ret = origBeforeSubmit(form_values, element, options);
+            // If this function didn't return anything, just set the return value to true.
+            // If it did return something, allow it to prevent submit if necessary.
+            if (typeof ret === 'undefined') {
+              ret = true;
+            }
+            var id = element.is('form') ? element.attr('id') : element.closest('form').attr('id');
+            if (id && Drupal.myClientsideValidation.validators[id]) {
+              Drupal.myClientsideValidation.validators[id].onsubmit = false;
+              ret = ret && Drupal.myClientsideValidation.validators[id].form();
+              if (!ret) {
+                Drupal.ajax[ajax_el].ajaxing = false;
+              }
+            }
+            return ret;
+          };
+        }
+      }
+    }
+  }
+
 })(jQuery);

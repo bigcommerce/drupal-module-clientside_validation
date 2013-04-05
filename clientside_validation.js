@@ -113,10 +113,10 @@
      * @readonly
      * @private
      */
-    this.data = Drupal.settings.clientsideValidation;
+    this.data = $.extend(true, {}, Drupal.settings.clientsideValidation);
 
     /**
-     * local copy of all defined forms
+     * local reference of all defined forms
      * @memberof Drupal.clientsideValidation
      * @type array
      * @readonly
